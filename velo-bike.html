@@ -518,14 +518,12 @@
       </div>
       <div class="info-row">
         <span class="info-label">등록 부품</span>
-        <span class="info-value">3개</span>
+        <span class="info-value" id="partsCount">0개</span>
       </div>
 
-      <div class="bike-parts">
+      <div class="bike-parts" id="bikeParts" style="display:none;">
         <div class="bike-parts-label">등록된 부품</div>
-        <span class="part-chip">🔧 Shimano Ultegra R8000</span>
-        <span class="part-chip">⚙️ Zipp 303 휠셋</span>
-        <span class="part-chip">🪑 Fizik Argo 안장</span>
+        <div id="partsChips"></div>
       </div>
     </div>
   </div>
@@ -533,19 +531,7 @@
   <!-- OWNERSHIP HISTORY -->
   <div class="history-card">
     <div class="history-header">소유 이력</div>
-    <div class="history-list">
-      <div class="history-item">
-        <div class="history-dot current"></div>
-        <div class="history-owner current">홍길동 (현재)</div>
-        <div class="history-date">2023.02.10</div>
-        <div class="history-tag current">현재</div>
-      </div>
-      <div class="history-item">
-        <div class="history-dot"></div>
-        <div class="history-owner">김**(이전)</div>
-        <div class="history-date">2021.06.03</div>
-        <div class="history-tag">1대</div>
-      </div>
+    <div class="history-list" id="historyList">
     </div>
   </div>
 
@@ -587,7 +573,7 @@
 </script>
 
 <script type="module">
-  import { getBikeBySerial, maskPhone } from './velo-supabase.js'
+  import { getBikeBySerial, maskPhone, supabase } from './velo-supabase.js'
 
   const pad = n => String(n).padStart(2, '0')
 
@@ -656,15 +642,59 @@
       `velo.kr/bike/${bike.serial}`
 
     // 부품
-    if (bike.parts?.length > 0) {
-      document.querySelector('.bike-parts').style.display = 'block'
-      document.querySelector('.bike-parts .bike-parts-label').textContent = '등록된 부품'
-      const chipsEl = document.querySelector('.bike-parts')
-      const chips = bike.parts.map(p =>
-        `<span class="part-chip">🔧 ${p.name}</span>`
+    const parts = bike.parts || []
+    document.getElementById('partsCount').textContent = `${parts.length}개`
+    if (parts.length > 0) {
+      document.getElementById('bikeParts').style.display = 'block'
+      const icons = { '휠셋': '⚙️', '구동계': '🔧', '핸들바': '🚴', '스템': '🔩', '체인링': '⚙️', '안장': '🪑', '포크': '🔧', '기타': '🔧' }
+      document.getElementById('partsChips').innerHTML = parts.map(p =>
+        `<span class="part-chip">${icons[p.type] || '🔧'} ${p.name}</span>`
       ).join('')
-      chipsEl.innerHTML = `<div class="bike-parts-label">등록된 부품</div>${chips}`
     }
+
+    // 소유 이력 (transfers 기반)
+    const historyList = document.getElementById('historyList')
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+
+    // 현재 소유자
+    let historyHTML = `
+      <div class="history-item">
+        <div class="history-dot current"></div>
+        <div class="history-owner current">${owner?.name || '알 수 없음'} (현재)</div>
+        <div class="history-date">${fmtDate(bike.created_at)}</div>
+        <div class="history-tag current">현재</div>
+      </div>
+    `
+
+    // 이전 소유자 (transfers 테이블에서)
+    try {
+      const { data: transfers } = await supabase
+        .from('transfers')
+        .select('*, from_user:from_user_id(name), to_user:to_user_id(name)')
+        .eq('bike_id', bike.id)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+
+      if (transfers && transfers.length > 0) {
+        transfers.forEach((t, i) => {
+          const prevName = t.from_user?.name || '알 수 없음'
+          const masked = prevName.length > 1
+            ? prevName[0] + '*'.repeat(prevName.length - 2) + prevName[prevName.length - 1]
+            : prevName
+          historyHTML += `
+            <div class="history-item">
+              <div class="history-dot"></div>
+              <div class="history-owner">${masked} (이전)</div>
+              <div class="history-date">${fmtDate(t.completed_at)}</div>
+              <div class="history-tag">${transfers.length - i}대</div>
+            </div>
+          `
+        })
+      }
+    } catch(e) { console.log('이력 조회 오류:', e) }
+
+    historyList.innerHTML = historyHTML
 
     // 연식
     if (bike.year) document.querySelector('.bike-year').textContent = `${bike.year}년식`
