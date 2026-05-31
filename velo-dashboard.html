@@ -233,6 +233,23 @@
 
 </div>
 
+<!-- 삭제 모달 -->
+<div class="modal-overlay" id="deleteModal" onclick="closeModal('deleteModal',event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('deleteModal').classList.remove('active')">×</button>
+    <div class="modal-title">자전거 삭제</div>
+    <div class="modal-sub" id="deleteModalSub">이 자전거를 삭제하시겠습니까?</div>
+    <div class="modal-warn">
+      ⚠ 삭제하면 등록된 모든 정보가 사라집니다.<br>
+      NFC 태그도 비활성화됩니다. 되돌릴 수 없습니다.
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('deleteModal').classList.remove('active')">취소</button>
+      <button class="btn-confirm-danger" onclick="confirmDelete()">삭제하기</button>
+    </div>
+  </div>
+</div>
+
 <!-- 도난 신고 모달 -->
 <div class="modal-overlay" id="stolenModal" onclick="closeModal('stolenModal',event)">
   <div class="modal">
@@ -360,6 +377,7 @@
               ${bike.status === 'stolen' ? '신고 취소' : '도난 신고'}
             </button>
             <button class="bike-btn accent" onclick="location.href='velo-bike.html?serial=${bike.serial}'">상세 →</button>
+            <button class="bike-btn danger" onclick="openDelete('${bike.id}','${bike.model}')">삭제</button>
           </div>
         </div>
       </div>
@@ -371,6 +389,27 @@
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'))
     btn.classList.add('active')
     renderBikes(currentBikes, status)
+  }
+
+  // 삭제
+  window.openDelete = function(id, name) {
+    currentBikeId = id
+    document.getElementById('deleteModalSub').textContent = `"${name}"을(를) 삭제하시겠습니까?`
+    document.getElementById('deleteModal').classList.add('active')
+  }
+
+  window.confirmDelete = async function() {
+    try {
+      const { error } = await supabase
+        .from('bikes')
+        .delete()
+        .eq('id', currentBikeId)
+      if (error) throw error
+      document.getElementById('deleteModal').classList.remove('active')
+      await loadBikes()
+    } catch(e) {
+      alert('삭제 실패: ' + e.message)
+    }
   }
 
   // 도난 신고
