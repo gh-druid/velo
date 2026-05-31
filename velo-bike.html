@@ -500,6 +500,10 @@
       <div class="bike-card-label">자전거 정보</div>
       <div style="font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:1px;" id="bikeUrl"></div>
     </div>
+    <!-- 사진 갤러리 -->
+    <div id="photoGallery" style="display:none; padding:0 28px 16px;">
+      <div id="photoGrid" style="display:grid; grid-template-columns:repeat(2,1fr); gap:4px;"></div>
+    </div>
     <div class="bike-card-body">
       <div class="bike-brand-row">
         <span class="bike-brand">TREK</span>
@@ -637,6 +641,14 @@
     document.querySelector('.bike-brand').textContent = bike.brand.toUpperCase()
     document.querySelector('.bike-model').textContent = bike.model
     if (bike.year) document.querySelector('.bike-year').textContent = `${bike.year}년식`
+
+    // 사진 갤러리
+    if (bike.photos && bike.photos.length > 0) {
+      document.getElementById('photoGallery').style.display = 'block'
+      document.getElementById('photoGrid').innerHTML = bike.photos.map(url =>
+        `<img src="${url}" style="width:100%; aspect-ratio:1; object-fit:cover;" loading="lazy">`
+      ).join('')
+    }
 
     // 부품
     const parts = bike.parts || []

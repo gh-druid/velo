@@ -790,7 +790,7 @@
 </script>
 
 <script type="module">
-  import { getUser, registerBike, addPart, startSubscription } from './velo-supabase.js'
+  import { getUser, registerBike, addPart, startSubscription, uploadBikePhotos, saveBikePhotos } from './velo-supabase.js'
 
   // 로그인 체크
   async function init() {
@@ -814,7 +814,16 @@
 
       try {
         // 자전거 등록
-        const bike = await registerBike({ serial, brand, model, year, color, memo, photos })
+        const bike = await registerBike({ serial, brand, model, year, color, memo, photos: [] })
+
+        // 사진 업로드 (파일이 있으면)
+        const photoInput = document.getElementById('photoInput')
+        if (photoInput.files.length > 0) {
+          btn.textContent = '사진 업로드 중...'
+          const files = Array.from(photoInput.files).slice(0, 4)
+          const photoUrls = await uploadBikePhotos(files, bike.id)
+          await saveBikePhotos(bike.id, photoUrls)
+        }
 
         // 부품 등록
         for (const part of window._parts || []) {

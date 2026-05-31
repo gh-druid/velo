@@ -344,8 +344,49 @@ export async function startSubscription(plan) {
 }
 
 // =============================================
-// 유틸리티
+// IMAGE UPLOAD (Supabase Storage)
 // =============================================
+
+// 이미지 업로드
+export async function uploadBikePhoto(file, bikeId) {
+  const user = await getUser()
+  if (!user) throw new Error('로그인이 필요합니다')
+
+  const ext = file.name.split('.').pop()
+  const path = `${user.id}/${bikeId}_${Date.now()}.${ext}`
+
+  const { data, error } = await supabase.storage
+    .from('bike-photos')
+    .upload(path, file, { upsert: true })
+
+  if (error) throw error
+
+  // 공개 URL 반환
+  const { data: { publicUrl } } = supabase.storage
+    .from('bike-photos')
+    .getPublicUrl(path)
+
+  return publicUrl
+}
+
+// 자전거 사진 여러 장 업로드
+export async function uploadBikePhotos(files, bikeId) {
+  const urls = []
+  for (const file of files) {
+    const url = await uploadBikePhoto(file, bikeId)
+    urls.push(url)
+  }
+  return urls
+}
+
+// 자전거 사진 URL 저장
+export async function saveBikePhotos(bikeId, photoUrls) {
+  const { error } = await supabase
+    .from('bikes')
+    .update({ photos: photoUrls })
+    .eq('id', bikeId)
+  if (error) throw error
+}
 
 // 이름 마스킹: 홍길동 → 홍*동
 function maskName(name) {
