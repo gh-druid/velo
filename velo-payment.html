@@ -174,6 +174,12 @@
     <div class="page-title">결제</div>
     <div class="page-sub">원하는 상품을 선택하고 결제해주세요.</div>
 
+    <!-- 자전거 선택 -->
+    <div class="section-label">등록할 자전거</div>
+    <div id="bikeSelectWrap" style="margin-bottom:24px;">
+      <div style="font-size:13px; color:var(--muted); padding:16px; background:var(--gray); border:1px solid var(--border);">불러오는 중...</div>
+    </div>
+
     <!-- 태그 발급 -->
     <div class="section-label">태그 발급</div>
     <div class="product-grid">
@@ -273,9 +279,9 @@
 </div>
 
 <script type="module">
-  import { getUser, getUserProfile, startSubscription, supabase } from './velo-supabase.js'
+  import { getUser, getUserProfile, startSubscription, getMyBikes, supabase } from './velo-supabase.js'
 
-  const TOSS_CLIENT_KEY = 'test_ck_Ba5PzR0Arnx6zywGEDEB3vmYnNeD' // 여기에 test_ck_... 넣기
+  const TOSS_CLIENT_KEY = 'test_ck_Ba5PzR0Arnx6zywGEDEB3vmYnNeD'
 
   const products = [
     { name: '칩 2개 (기본)', price: 7900 },
@@ -289,6 +295,7 @@
 
   let selectedProd = 0
   let selectedSub = 1
+  let selectedBikeId = null
   let currentUser = null
   let currentProfile = null
 
@@ -298,10 +305,52 @@
     currentProfile = await getUserProfile()
     updateSummary()
 
-    // URL 파라미터로 결제 결과 처리
+    // 자전거 목록 불러오기
+    await loadBikes()
+
     const params = new URLSearchParams(location.search)
     if (params.get('paymentKey')) handleSuccess(params)
     if (params.get('code')) handleFail(params)
+  }
+
+  async function loadBikes() {
+    const wrap = document.getElementById('bikeSelectWrap')
+    try {
+      const bikes = await getMyBikes()
+      if (bikes.length === 0) {
+        wrap.innerHTML = `
+          <div style="font-size:13px; color:var(--muted); padding:16px; background:var(--gray); border:1px solid var(--border);">
+            등록된 자전거가 없습니다. <a href="velo-register.html" style="color:var(--accent);">먼저 등록해주세요 →</a>
+          </div>`
+        return
+      }
+
+      wrap.innerHTML = bikes.map((b, i) => `
+        <div class="product-card ${i === 0 ? 'selected' : ''}"
+          id="bike_${b.id}"
+          onclick="selectBike('${b.id}')"
+          style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="product-name">${b.brand.toUpperCase()}</div>
+            <div style="font-size:16px; font-weight:500;">${b.model}</div>
+            <div style="font-size:11px; color:var(--muted); font-family:'Courier New',monospace; margin-top:4px;">${b.serial}</div>
+          </div>
+          <div style="font-size:11px; color:var(--muted);">${b.status === 'pending' ? '배송 중' : '활성'}</div>
+        </div>
+      `).join('')
+
+      // 첫 번째 자전거 기본 선택
+      selectedBikeId = bikes[0].id
+    } catch(e) {
+      wrap.innerHTML = `<div style="font-size:13px; color:var(--error); padding:16px;">불러오기 실패: ${e.message}</div>`
+    }
+  }
+
+  window.selectBike = function(id) {
+    selectedBikeId = id
+    document.querySelectorAll('#bikeSelectWrap .product-card').forEach(c => {
+      c.classList.toggle('selected', c.id === `bike_${id}`)
+    })
   }
 
   window.selectProduct = function(n) {
