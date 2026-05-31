@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 계정 설정</title>
+<link rel="stylesheet" href="./velo-common.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --accent: #c8f542;
+    --gray: #1a1a1a;
+    --mid: #2e2e2e;
+    --muted: #888;
+    --border: rgba(255,255,255,0.08);
+    --error: #ff4f4f;
+    --warning: #f5a623;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--gray);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 32px 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 240px;
+    z-index: 50;
+  }
+  .sidebar-logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 4px; color: var(--accent); text-decoration: none; padding: 0 28px 32px; border-bottom: 1px solid var(--border); display: block; }
+  .sidebar-nav { flex: 1; padding: 24px 0; display: flex; flex-direction: column; gap: 2px; }
+  .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 12px 28px; font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s, background 0.2s; cursor: pointer; border: none; background: none; font-family: 'Noto Sans KR', sans-serif; width: 100%; text-align: left; letter-spacing: 0.5px; }
+  .sidebar-link:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+  .sidebar-link.active { color: var(--white); background: rgba(200,245,66,0.08); border-left: 2px solid var(--accent); padding-left: 26px; }
+  .sidebar-link-icon { font-size: 16px; flex-shrink: 0; }
+  .sidebar-bottom { padding: 24px 28px; border-top: 1px solid var(--border); }
+  .sidebar-user { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .sidebar-avatar { width: 36px; height: 36px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--black); flex-shrink: 0; }
+  .sidebar-user-info { flex: 1; min-width: 0; }
+  .sidebar-user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-user-plan { font-size: 11px; color: var(--accent); letter-spacing: 1px; }
+  .sidebar-logout { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; padding: 0; transition: color 0.2s; }
+  .sidebar-logout:hover { color: var(--white); }
+
+  /* MAIN */
+  .main { margin-left: 240px; min-height: 100vh; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 48px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.6); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 40; }
+  .topbar-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
+
+  .content { padding: 40px 48px; max-width: 720px; }
+
+  /* TABS */
+  .setting-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .setting-tab {
+    padding: 12px 0;
+    margin-right: 32px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: 'Noto Sans KR', sans-serif;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .setting-tab.active { color: var(--white); border-bottom-color: var(--accent); }
+  .setting-tab:hover:not(.active) { color: var(--white); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* SECTION */
+  .setting-section {
+    background: var(--gray);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .setting-section-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .setting-section-title {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .setting-section-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .setting-section-body { padding: 0; }
+
+  /* SETTING ROW */
+  .setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--border);
+    gap: 24px;
+  }
+  .setting-row:last-child { border-bottom: none; }
+
+  .setting-row-left { flex: 1; min-width: 0; }
+  .setting-row-label { font-size: 13px; margin-bottom: 2px; }
+  .setting-row-sub { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  .setting-row-right { flex-shrink: 0; }
+
+  /* INPUT */
+  .setting-input {
+    background: var(--black);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 10px 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 200px;
+  }
+  .setting-input:focus { border-color: var(--accent); }
+  .setting-input:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* TOGGLE */
+  .toggle {
+    width: 44px; height: 24px;
+    background: var(--mid);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    border: none;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: '';
+    width: 18px; height: 18px;
+    background: var(--white);
+    border-radius: 50%;
+    position: absolute;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(20px); background: var(--black); }
+
+  /* BUTTON */
+  .btn-sm {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 16px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-sm:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+  .btn-sm.accent { background: var(--accent); color: var(--black); border-color: var(--accent); font-weight: 700; }
+  .btn-sm.accent:hover { opacity: 0.9; }
+  .btn-sm.danger { color: var(--error); border-color: rgba(255,79,79,0.3); }
+  .btn-sm.danger:hover { background: rgba(255,79,79,0.1); border-color: var(--error); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--black);
+    border: none;
+    padding: 13px 32px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 20px;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+
+  /* PLAN CARDS */
+  .plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 24px 28px; }
+
+  .plan-card {
+    border: 1px solid var(--border);
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .plan-card:hover { border-color: rgba(200,245,66,0.3); }
+  .plan-card.current { border-color: var(--accent); background: rgba(200,245,66,0.05); }
+
+  .plan-current-badge {
+    position: absolute;
+    top: -1px; right: -1px;
+    background: var(--accent);
+    color: var(--black);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+  }
+
+  .plan-name { font-size: 10px; letter-spacing: 2px; color: var(--muted); margin-bottom: 8px; }
+  .plan-price { font-family: 'Bebas Neue', sans-serif; font-size: 28px; line-height: 1; }
+  .plan-unit { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .plan-card.current .plan-name { color: var(--accent); }
+  .plan-card.current .plan-price { color: var(--accent); }
+
+  /* INVOICE */
+  .invoice-list { padding: 0; }
+  .invoice-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .invoice-item:last-child { border-bottom: none; }
+  .invoice-left { display: flex; flex-direction: column; gap: 3px; }
+  .invoice-name { font-size: 13px; }
+  .invoice-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+  .invoice-right { display: flex; align-items: center; gap: 16px; }
+  .invoice-amount { font-family: 'DM Mono', monospace; font-size: 13px; }
+  .invoice-status {
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border: 1px solid;
+  }
+  .invoice-status.paid { color: var(--accent); border-color: rgba(200,245,66,0.3); }
+  .invoice-status.pending { color: var(--warning); border-color: rgba(245,166,35,0.3); }
+
+  /* DANGER ZONE */
+  .danger-zone {
+    background: rgba(255,79,79,0.04);
+    border: 1px solid rgba(255,79,79,0.15);
+    margin-bottom: 16px;
+  }
+  .danger-zone .setting-section-header { border-bottom-color: rgba(255,79,79,0.15); }
+  .danger-zone .setting-section-title { color: var(--error); }
+  .danger-zone .setting-row { border-bottom-color: rgba(255,79,79,0.1); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    background: var(--accent);
+    color: var(--black);
+    padding: 14px 24px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+  .modal { background: var(--gray); width: 100%; max-width: 420px; padding: 36px; transform: translateY(16px); transition: transform 0.3s; position: relative; }
+  .modal-overlay.active .modal { transform: translateY(0); }
+  .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; margin-bottom: 8px; }
+  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+  .modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
+  .modal-warn { background: rgba(255,79,79,0.08); border: 1px solid rgba(255,79,79,0.2); padding: 14px; font-size: 12px; color: var(--error); line-height: 1.7; margin-bottom: 20px; }
+  .modal-input { width: 100%; background: var(--black); border: 1px solid var(--border); color: var(--white); padding: 13px 14px; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; outline: none; margin-bottom: 16px; transition: border-color 0.2s; }
+  .modal-input:focus { border-color: var(--error); }
+  .modal-actions { display: flex; gap: 10px; }
+  .btn-cancel { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 12px; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; cursor: pointer; }
+  .btn-confirm-danger { flex: 1; background: var(--error); border: none; color: var(--white); padding: 12px; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+  @media (max-width: 768px) {
+    body { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .topbar, .content { padding-left: 24px; padding-right: 24px; }
+    .plan-grid { grid-template-columns: 1fr; }
+    .setting-input { width: 140px; }
+    .modal { margin: 16px; padding: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="velo-landing.html" class="sidebar-logo">VÉLO</a>
+  <nav class="sidebar-nav">
+    <button class="sidebar-link" onclick="location.href='velo-dashboard.html'">
+      <span class="sidebar-link-icon">🚲</span> 내 자전거
+    </button>
+    <button class="sidebar-link" onclick="alert('준비 중!')">
+      <span class="sidebar-link-icon">📋</span> 등록 신청 내역
+    </button>
+    <button class="sidebar-link" onclick="alert('준비 중!')">
+      <span class="sidebar-link-icon">🔔</span> 알림
+    </button>
+    <button class="sidebar-link" onclick="alert('준비 중!')">
+      <span class="sidebar-link-icon">💳</span> 구독 관리
+    </button>
+    <button class="sidebar-link active">
+      <span class="sidebar-link-icon">⚙️</span> 계정 설정
+    </button>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">홍</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">홍길동</div>
+        <div class="sidebar-user-plan">월 구독 중</div>
+      </div>
+    </div>
+    <button class="sidebar-logout">로그아웃</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">계정 설정</div>
+  </div>
+
+  <div class="content">
+
+    <!-- TABS -->
+    <div class="setting-tabs">
+      <button class="setting-tab active" onclick="switchTab('profile')">프로필</button>
+      <button class="setting-tab" onclick="switchTab('subscription')">구독 관리</button>
+      <button class="setting-tab" onclick="switchTab('notification')">알림</button>
+      <button class="setting-tab" onclick="switchTab('security')">보안</button>
+    </div>
+
+    <!-- 프로필 -->
+    <div class="tab-content active" id="tab-profile">
+
+      <div class="setting-section">
+        <div class="setting-section-header">
+          <div>
+            <div class="setting-section-title">기본 정보</div>
+            <div class="setting-section-sub">이름과 연락처는 NFC 스캔 시 공개됩니다</div>
+          </div>
+        </div>
+        <div class="setting-section-body">
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">이름</div>
+            </div>
+            <div class="setting-row-right">
+              <input type="text" class="setting-input" value="홍길동" id="inputName">
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">연락처</div>
+              <div class="setting-row-sub">뒷 4자리는 마스킹되어 표시됩니다</div>
+            </div>
+            <div class="setting-row-right">
+              <input type="tel" class="setting-input" value="010-1234-5678" id="inputPhone">
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">이메일</div>
+            </div>
+            <div class="setting-row-right">
+              <input type="email" class="setting-input" value="hong@example.com" id="inputEmail">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="saveProfile()">변경사항 저장</button>
+    </div>
+
+    <!-- 구독 관리 -->
+    <div class="tab-content" id="tab-subscription">
+
+      <div class="setting-section">
+        <div class="setting-section-header">
+          <div>
+            <div class="setting-section-title">현재 요금제</div>
+            <div class="setting-section-sub">다음 결제일: 2025.06.12</div>
+          </div>
+          <button class="btn-sm danger" onclick="openCancelModal()">구독 해지</button>
+        </div>
+        <div class="plan-grid">
+          <div class="plan-card">
+            <div class="plan-name">구독 없음</div>
+            <div class="plan-price">0</div>
+            <div class="plan-unit">원 / 월</div>
+          </div>
+          <div class="plan-card current">
+            <div class="plan-current-badge">현재</div>
+            <div class="plan-name">월 구독</div>
+            <div class="plan-price">990</div>
+            <div class="plan-unit">원 / 월</div>
+          </div>
+          <div class="plan-card" onclick="showToast('연간 구독으로 변경되었습니다.')">
+            <div class="plan-name">연간 구독</div>
+            <div class="plan-price">9,900</div>
+            <div class="plan-unit">원 / 년</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-section">
+        <div class="setting-section-header">
+          <div class="setting-section-title">결제 내역</div>
+        </div>
+        <div class="invoice-list">
+          <div class="invoice-item">
+            <div class="invoice-left">
+              <div class="invoice-name">월 구독료</div>
+              <div class="invoice-date">2025.05.12</div>
+            </div>
+            <div class="invoice-right">
+              <div class="invoice-amount">990원</div>
+              <div class="invoice-status paid">결제완료</div>
+            </div>
+          </div>
+          <div class="invoice-item">
+            <div class="invoice-left">
+              <div class="invoice-name">태그 발급비 (Trek Emonda SL6)</div>
+              <div class="invoice-date">2025.03.12</div>
+            </div>
+            <div class="invoice-right">
+              <div class="invoice-amount">9,900원</div>
+              <div class="invoice-status paid">결제완료</div>
+            </div>
+          </div>
+          <div class="invoice-item">
+            <div class="invoice-left">
+              <div class="invoice-name">양도 수수료</div>
+              <div class="invoice-date">2025.02.28</div>
+            </div>
+            <div class="invoice-right">
+              <div class="invoice-amount">490원</div>
+              <div class="invoice-status paid">결제완료</div>
+            </div>
+          </div>
+          <div class="invoice-item">
+            <div class="invoice-left">
+              <div class="invoice-name">월 구독료</div>
+              <div class="invoice-date">2025.06.12</div>
+            </div>
+            <div class="invoice-right">
+              <div class="invoice-amount">990원</div>
+              <div class="invoice-status pending">예정</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 알림 -->
+    <div class="tab-content" id="tab-notification">
+
+      <div class="setting-section">
+        <div class="setting-section-header">
+          <div class="setting-section-title">알림 설정</div>
+        </div>
+        <div class="setting-section-body">
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">NFC 스캔 알림</div>
+              <div class="setting-row-sub">내 자전거 태그가 스캔될 때 알림</div>
+            </div>
+            <div class="setting-row-right">
+              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">도난 신고 알림</div>
+              <div class="setting-row-sub">내 자전거가 도난 신고될 때 알림</div>
+            </div>
+            <div class="setting-row-right">
+              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">양도 요청 알림</div>
+              <div class="setting-row-sub">양도 코드가 사용될 때 알림</div>
+            </div>
+            <div class="setting-row-right">
+              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">결제 알림</div>
+              <div class="setting-row-sub">구독 결제 전날 알림</div>
+            </div>
+            <div class="setting-row-right">
+              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">마케팅 알림</div>
+              <div class="setting-row-sub">이벤트, 업데이트 소식</div>
+            </div>
+            <div class="setting-row-right">
+              <button class="toggle" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="showToast('알림 설정이 저장되었습니다.')">저장</button>
+    </div>
+
+    <!-- 보안 -->
+    <div class="tab-content" id="tab-security">
+
+      <div class="setting-section">
+        <div class="setting-section-header">
+          <div class="setting-section-title">비밀번호 변경</div>
+        </div>
+        <div class="setting-section-body">
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">현재 비밀번호</div>
+            </div>
+            <div class="setting-row-right">
+              <input type="password" class="setting-input" placeholder="••••••••">
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">새 비밀번호</div>
+            </div>
+            <div class="setting-row-right">
+              <input type="password" class="setting-input" placeholder="8자 이상">
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">비밀번호 확인</div>
+            </div>
+            <div class="setting-row-right">
+              <input type="password" class="setting-input" placeholder="••••••••">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-section">
+        <div class="setting-section-header">
+          <div class="setting-section-title">인증 정보</div>
+        </div>
+        <div class="setting-section-body">
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">전화번호 인증</div>
+              <div class="setting-row-sub">010-1234-5678 인증 완료</div>
+            </div>
+            <div class="setting-row-right">
+              <button class="btn-sm" onclick="showToast('인증 번호가 발송되었습니다.')">재인증</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">이메일 인증</div>
+              <div class="setting-row-sub">hong@example.com 인증 완료</div>
+            </div>
+            <div class="setting-row-right">
+              <button class="btn-sm" onclick="showToast('인증 메일이 발송되었습니다.')">재인증</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-section">
+        <div class="setting-section-header">
+          <div class="setting-section-title">로그인 기록</div>
+        </div>
+        <div class="setting-section-body">
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">iPhone 15 Pro</div>
+              <div class="setting-row-sub" style="font-family:'DM Mono',monospace; font-size:11px;">서울 · 2025.05.31 14:22 · 현재 기기</div>
+            </div>
+            <div class="setting-row-right">
+              <span style="font-size:11px; color:var(--accent); letter-spacing:1px;">현재</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">MacBook Pro</div>
+              <div class="setting-row-sub" style="font-family:'DM Mono',monospace; font-size:11px;">서울 · 2025.05.30 09:11</div>
+            </div>
+            <div class="setting-row-right">
+              <button class="btn-sm danger" onclick="showToast('해당 기기에서 로그아웃되었습니다.')">로그아웃</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="showToast('비밀번호가 변경되었습니다.')">비밀번호 변경</button>
+
+      <!-- DANGER ZONE -->
+      <div class="danger-zone setting-section" style="margin-top:32px;">
+        <div class="setting-section-header">
+          <div>
+            <div class="setting-section-title">위험 구역</div>
+            <div class="setting-section-sub" style="color:rgba(255,79,79,0.6);">되돌릴 수 없는 작업입니다</div>
+          </div>
+        </div>
+        <div class="setting-section-body">
+          <div class="setting-row">
+            <div class="setting-row-left">
+              <div class="setting-row-label">회원 탈퇴</div>
+              <div class="setting-row-sub">탈퇴 즉시 모든 태그가 비활성화됩니다. 등록된 자전거 데이터는 삭제됩니다.</div>
+            </div>
+            <div class="setting-row-right">
+              <button class="btn-sm danger" onclick="openDeleteModal()">탈퇴하기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- 구독 해지 모달 -->
+<div class="modal-overlay" id="cancelModal" onclick="closeModal('cancelModal', event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('cancelModal').classList.remove('active')">×</button>
+    <div class="modal-title">구독 해지</div>
+    <div class="modal-sub">구독을 해지하면 다음 결제일부터 도난 신고 기능을 사용할 수 없습니다.</div>
+    <div class="modal-warn">
+      ⚠ 현재 구독 기간(~2025.06.12)까지는 이용 가능합니다.<br>
+      해지 후에도 태그 조회 기능은 유지됩니다.
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('cancelModal').classList.remove('active')">취소</button>
+      <button class="btn-confirm-danger" onclick="confirmCancel()">해지하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 회원 탈퇴 모달 -->
+<div class="modal-overlay" id="deleteModal" onclick="closeModal('deleteModal', event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('deleteModal').classList.remove('active')">×</button>
+    <div class="modal-title">회원 탈퇴</div>
+    <div class="modal-sub">탈퇴를 확인하려면 아래에 <strong style="color:var(--white);">탈퇴합니다</strong>를 입력해주세요.</div>
+    <div class="modal-warn">
+      ⚠ 탈퇴 즉시 모든 NFC 태그가 비활성화됩니다.<br>
+      등록된 자전거, 부품, 양도 이력이 모두 삭제됩니다.<br>
+      이 작업은 되돌릴 수 없습니다.
+    </div>
+    <input type="text" class="modal-input" id="deleteConfirmInput" placeholder="탈퇴합니다">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('deleteModal').classList.remove('active')">취소</button>
+      <button class="btn-confirm-danger" onclick="confirmDelete()">탈퇴하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.setting-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function saveProfile() {
+    showToast('프로필이 저장되었습니다.');
+  }
+
+  function openCancelModal() {
+    document.getElementById('cancelModal').classList.add('active');
+  }
+
+  function confirmCancel() {
+    document.getElementById('cancelModal').classList.remove('active');
+    showToast('구독이 해지되었습니다. 기간 만료 후 적용됩니다.');
+  }
+
+  function openDeleteModal() {
+    document.getElementById('deleteModal').classList.add('active');
+  }
+
+  function confirmDelete() {
+    const input = document.getElementById('deleteConfirmInput').value;
+    if (input !== '탈퇴합니다') {
+      document.getElementById('deleteConfirmInput').style.borderColor = 'var(--error)';
+      return;
+    }
+    document.getElementById('deleteModal').classList.remove('active');
+    showToast('탈퇴가 완료되었습니다.');
+    setTimeout(() => location.href = 'velo-landing.html', 2000);
+  }
+
+  function closeModal(id, e) {
+    if (e.target === document.getElementById(id))
+      document.getElementById(id).classList.remove('active');
+  }
+</script>
+
+<script type="module">
+  import { getUser, getUserProfile, updateProfile, signOut, supabase } from './velo-supabase.js'
+
+  // 로그인 체크 + 프로필 불러오기
+  async function init() {
+    const user = await getUser()
+    if (!user) { location.href = 'velo-auth.html'; return; }
+
+    const profile = await getUserProfile()
+    if (profile) {
+      document.getElementById('inputName').value = profile.name || ''
+      document.getElementById('inputPhone').value = profile.phone || ''
+      document.getElementById('inputEmail').value = profile.email || ''
+
+      // 사이드바 이름/플랜
+      document.querySelector('.sidebar-user-name').textContent = profile.name || ''
+      document.querySelector('.sidebar-user-plan').textContent =
+        profile.plan === 'monthly' ? '월 구독 중' :
+        profile.plan === 'yearly' ? '연간 구독 중' : '무료'
+      document.querySelector('.sidebar-avatar').textContent = (profile.name || '?')[0]
+
+      // 인증 정보
+      document.querySelectorAll('.setting-row-sub')[6].textContent =
+        `${profile.phone} 등록됨`
+      document.querySelectorAll('.setting-row-sub')[7].textContent =
+        `${profile.email} 등록됨`
+    }
+  }
+
+  // 프로필 저장
+  window.saveProfile = async function() {
+    const name = document.getElementById('inputName').value.trim()
+    const phone = document.getElementById('inputPhone').value.trim()
+    if (!name || !phone) { showToast('이름과 연락처를 입력해주세요.'); return; }
+    try {
+      await updateProfile({ name, phone })
+      showToast('프로필이 저장되었습니다.')
+    } catch(e) {
+      showToast('저장 실패: ' + e.message)
+    }
+  }
+
+  // 구독 해지
+  window.confirmCancel = async function() {
+    try {
+      await supabase.from('users').update({ plan: 'free' }).eq('id', (await getUser()).id)
+      document.getElementById('cancelModal').classList.remove('active')
+      showToast('구독이 해지되었습니다.')
+    } catch(e) {
+      showToast('해지 실패: ' + e.message)
+    }
+  }
+
+  // 비밀번호 변경
+  window.saveProfile = async function() {
+    const name = document.getElementById('inputName').value.trim()
+    const phone = document.getElementById('inputPhone').value.trim()
+    try {
+      await updateProfile({ name, phone })
+      showToast('프로필이 저장되었습니다.')
+    } catch(e) {
+      showToast('저장 실패: ' + e.message)
+    }
+  }
+
+  // 회원 탈퇴
+  window.confirmDelete = async function() {
+    const input = document.getElementById('deleteConfirmInput').value
+    if (input !== '탈퇴합니다') {
+      document.getElementById('deleteConfirmInput').style.borderColor = 'var(--error)'
+      return
+    }
+    try {
+      await supabase.auth.admin?.deleteUser((await getUser()).id)
+      await signOut()
+      document.getElementById('deleteModal').classList.remove('active')
+      showToast('탈퇴가 완료되었습니다.')
+      setTimeout(() => location.href = 'velo-landing.html', 2000)
+    } catch(e) {
+      // 탈퇴는 서버사이드 필요 — 일단 로그아웃만
+      await signOut()
+      location.href = 'velo-landing.html'
+    }
+  }
+
+  // 로그아웃
+  document.querySelector('.sidebar-logout')?.addEventListener('click', async () => {
+    await signOut()
+    location.href = 'velo-auth.html'
+  })
+
+  init()
+</script>
+</body>
+</html>

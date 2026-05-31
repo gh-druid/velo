@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 대시보드</title>
+<link rel="stylesheet" href="./velo-common.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --accent: #c8f542;
+    --gray: #1a1a1a;
+    --mid: #2e2e2e;
+    --muted: #888;
+    --border: rgba(255,255,255,0.08);
+    --error: #ff4f4f;
+    --warning: #f5a623;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+
+  /* NAV */
+  nav {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:0 40px; height:60px;
+    background:var(--gray);
+    border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:100;
+  }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
+  .nav-links { display:flex; gap:4px; }
+  .nav-link {
+    padding:8px 16px; font-size:13px; color:var(--muted);
+    background:none; border:none; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:color 0.2s; border-radius:2px;
+    letter-spacing:0.5px;
+  }
+  .nav-link:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+  .nav-link.active { color:var(--white); background:rgba(200,245,66,0.08); }
+  .nav-right { display:flex; align-items:center; gap:16px; }
+  .nav-user { font-size:13px; color:var(--muted); }
+  .nav-user span { color:var(--white); }
+  .nav-avatar {
+    width:32px; height:32px; background:var(--accent); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; color:var(--black); cursor:pointer;
+    position:relative;
+  }
+  .nav-dropdown {
+    position:absolute; top:40px; right:0;
+    background:var(--gray); border:1px solid var(--border);
+    min-width:160px; display:none; z-index:200;
+  }
+  .nav-dropdown.show { display:block; }
+  .nav-dropdown-item {
+    padding:12px 16px; font-size:13px; color:var(--muted);
+    cursor:pointer; transition:all 0.2s; display:block;
+    background:none; border:none; font-family:'Noto Sans KR',sans-serif;
+    width:100%; text-align:left;
+  }
+  .nav-dropdown-item:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+  .nav-dropdown-item.danger:hover { color:var(--error); }
+
+  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:8px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.5px; cursor:pointer; transition:opacity 0.2s; }
+  .btn-primary:hover { opacity:0.9; }
+
+  /* CONTENT */
+  .content { max-width:1200px; margin:0 auto; padding:40px 40px; }
+
+  /* SUMMARY */
+  .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-bottom:40px; border:1px solid var(--border); }
+  .summary-card { background:var(--gray); padding:24px; border-right:1px solid var(--border); }
+  .summary-card:last-child { border-right:none; }
+  .summary-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
+  .summary-num { font-family:'Bebas Neue',sans-serif; font-size:40px; line-height:1; }
+  .summary-num.accent { color:var(--accent); }
+  .summary-num.danger { color:var(--error); }
+  .summary-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+
+  /* SECTION */
+  .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px; }
+  .section-title { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; }
+
+  .filter-tabs { display:flex; border:1px solid var(--border); }
+  .filter-tab { padding:7px 18px; font-size:12px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Noto Sans KR',sans-serif; border-right:1px solid var(--border); transition:all 0.2s; letter-spacing:0.5px; }
+  .filter-tab:last-child { border-right:none; }
+  .filter-tab.active { background:var(--accent); color:var(--black); font-weight:700; }
+  .filter-tab:hover:not(.active) { color:var(--white); }
+
+  /* BIKES GRID */
+  .bikes-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:2px; }
+
+  .bike-card { background:var(--gray); border:1px solid var(--border); transition:border-color 0.2s; }
+  .bike-card:hover { border-color:rgba(200,245,66,0.3); }
+
+  .bike-card-header { display:flex; justify-content:space-between; align-items:flex-start; padding:20px 20px 0; }
+  .bike-status { font-size:10px; letter-spacing:2px; padding:3px 8px; border:1px solid; }
+  .bike-status.normal { color:var(--accent); border-color:rgba(200,245,66,0.3); background:rgba(200,245,66,0.06); }
+  .bike-status.stolen { color:var(--error); border-color:rgba(255,79,79,0.3); background:rgba(255,79,79,0.06); }
+  .bike-status.pending { color:var(--warning); border-color:rgba(245,166,35,0.3); background:rgba(245,166,35,0.06); }
+
+  .nfc-indicator { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); }
+  .nfc-dot { width:6px; height:6px; border-radius:50%; background:var(--muted); }
+  .nfc-dot.active { background:var(--accent); box-shadow:0 0 6px rgba(200,245,66,0.5); }
+
+  .bike-card-body { padding:16px 20px; }
+  .bike-brand { font-size:10px; letter-spacing:2px; color:var(--muted); margin-bottom:3px; }
+  .bike-model { font-size:18px; font-weight:500; margin-bottom:6px; }
+  .bike-serial { font-family:'Courier New',monospace; font-size:11px; color:var(--muted); letter-spacing:1px; }
+
+  .bike-card-footer { display:flex; justify-content:space-between; align-items:center; padding:12px 20px; border-top:1px solid var(--border); gap:8px; flex-wrap:wrap; }
+  .bike-meta { font-size:11px; color:var(--muted); }
+  .bike-actions { display:flex; gap:6px; }
+
+  .bike-btn { font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.2s; }
+  .bike-btn:hover { color:var(--white); border-color:rgba(255,255,255,0.3); }
+  .bike-btn.danger:hover { color:var(--error); border-color:rgba(255,79,79,0.4); }
+  .bike-btn.accent { background:var(--accent); color:var(--black); border-color:var(--accent); font-weight:700; }
+  .bike-btn.accent:hover { opacity:0.9; }
+
+  /* EMPTY */
+  .empty-state { text-align:center; padding:80px 0; display:none; }
+  .empty-state.show { display:block; }
+  .empty-icon { font-size:48px; margin-bottom:16px; }
+  .empty-title { font-size:18px; font-weight:500; margin-bottom:8px; }
+  .empty-desc { font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:24px; }
+
+  /* MODAL */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:200; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+  .modal-overlay.active { opacity:1; pointer-events:all; }
+  .modal { background:var(--gray); width:100%; max-width:440px; padding:40px; transform:translateY(16px); transition:transform 0.3s; position:relative; margin:16px; }
+  .modal-overlay.active .modal { transform:translateY(0); }
+  .modal-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; margin-bottom:8px; }
+  .modal-sub { font-size:13px; color:var(--muted); margin-bottom:24px; line-height:1.6; }
+  .modal-close { position:absolute; top:16px; right:20px; background:none; border:none; color:var(--muted); font-size:22px; cursor:pointer; }
+  .modal-warn { background:rgba(255,79,79,0.08); border:1px solid rgba(255,79,79,0.2); padding:14px; font-size:13px; color:var(--error); line-height:1.7; margin-bottom:20px; }
+  .modal-actions { display:flex; gap:10px; }
+  .btn-cancel { flex:1; background:transparent; border:1px solid var(--border); color:var(--muted); padding:12px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer; }
+  .btn-cancel:hover { border-color:var(--white); color:var(--white); }
+  .btn-confirm-danger { flex:1; background:var(--error); border:none; color:var(--white); padding:12px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+
+  .transfer-code { background:var(--black); border:1px solid var(--border); padding:20px; text-align:center; margin-bottom:20px; }
+  .transfer-code-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:12px; }
+  .transfer-code-value { font-family:'Courier New',monospace; font-size:28px; letter-spacing:8px; color:var(--accent); font-weight:700; }
+  .transfer-code-exp { font-size:11px; color:var(--muted); margin-top:8px; }
+  .transfer-notice { font-size:12px; color:var(--muted); line-height:1.8; list-style:none; }
+  .transfer-notice li { padding-left:12px; position:relative; }
+  .transfer-notice li::before { content:"—"; position:absolute; left:0; color:var(--accent); }
+
+  /* PLAN BADGE */
+  .plan-badge { font-size:10px; letter-spacing:1px; padding:3px 8px; border:1px solid rgba(200,245,66,0.3); color:var(--accent); }
+
+  @media (max-width:600px) {
+    nav { padding:0 16px; }
+    .content { padding:24px 16px; }
+    .summary-grid { grid-template-columns:repeat(2,1fr); }
+    .nav-links { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="velo-landing.html" class="nav-logo">VÉLO</a>
+  <div class="nav-links">
+    <button class="nav-link active">🚲 내 자전거</button>
+    <button class="nav-link" onclick="alert('준비 중!')">📋 등록 내역</button>
+    <button class="nav-link" onclick="alert('준비 중!')">🔔 알림</button>
+    <button class="nav-link" onclick="location.href='velo-settings.html'">⚙️ 설정</button>
+  </div>
+  <div class="nav-right">
+    <button class="btn-primary" onclick="location.href='velo-register.html'">+ 자전거 등록</button>
+    <div class="nav-avatar" id="navAvatar" onclick="toggleDropdown()">
+      홍
+      <div class="nav-dropdown" id="navDropdown">
+        <button class="nav-dropdown-item" onclick="location.href='velo-settings.html'">계정 설정</button>
+        <button class="nav-dropdown-item" onclick="alert('준비 중!')">구독 관리</button>
+        <button class="nav-dropdown-item danger" onclick="handleLogout()">로그아웃</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+
+  <!-- 요약 -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-label">등록된 자전거</div>
+      <div class="summary-num accent" id="sumBikes">0</div>
+      <div class="summary-sub">대</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">등록된 부품</div>
+      <div class="summary-num" id="sumParts">0</div>
+      <div class="summary-sub">개</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">도난 신고</div>
+      <div class="summary-num danger" id="sumStolen">0</div>
+      <div class="summary-sub">건</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">양도 이력</div>
+      <div class="summary-num" id="sumTransfer">0</div>
+      <div class="summary-sub">건</div>
+    </div>
+  </div>
+
+  <!-- 자전거 목록 -->
+  <div class="section-header">
+    <div class="section-title">내 자전거</div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterBikes('all',this)">전체</button>
+      <button class="filter-tab" onclick="filterBikes('normal',this)">정상</button>
+      <button class="filter-tab" onclick="filterBikes('stolen',this)">도난</button>
+    </div>
+  </div>
+
+  <div class="bikes-grid" id="bikesGrid">
+    <div style="padding:40px; color:var(--muted); font-size:13px;">불러오는 중...</div>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">🚲</div>
+    <div class="empty-title">등록된 자전거가 없습니다</div>
+    <div class="empty-desc">자전거를 등록하면 소유권 인증과<br>도난 방지 서비스를 이용할 수 있습니다.</div>
+    <button class="btn-primary" onclick="location.href='velo-register.html'">+ 첫 자전거 등록하기</button>
+  </div>
+
+</div>
+
+<!-- 도난 신고 모달 -->
+<div class="modal-overlay" id="stolenModal" onclick="closeModal('stolenModal',event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('stolenModal').classList.remove('active')">×</button>
+    <div class="modal-title">도난 신고</div>
+    <div class="modal-sub" id="stolenModalSub">이 자전거를 도난 신고하시겠습니까?</div>
+    <div class="modal-warn">⚠ 도난 신고 즉시 전국 DB에 등록됩니다.<br>허위 신고 시 법적 책임을 질 수 있으며 계정이 영구정지됩니다.</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('stolenModal').classList.remove('active')">취소</button>
+      <button class="btn-confirm-danger" onclick="confirmStolen()">도난 신고하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 양도 모달 -->
+<div class="modal-overlay" id="transferModal" onclick="closeModal('transferModal',event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('transferModal').classList.remove('active')">×</button>
+    <div class="modal-title">소유권 양도</div>
+    <div class="modal-sub">구매자에게 아래 코드를 전달하세요.</div>
+    <div class="transfer-code">
+      <div class="transfer-code-label">양도 코드</div>
+      <div class="transfer-code-value" id="transferCodeValue">A3K9P2</div>
+      <div class="transfer-code-exp">1시간 후 만료</div>
+    </div>
+    <ul class="transfer-notice">
+      <li>코드는 1회만 사용 가능합니다</li>
+      <li>도난 신고 상태에서는 양도가 불가합니다</li>
+      <li>양도 수수료 490원이 청구됩니다</li>
+    </ul>
+    <div style="margin-top:24px;">
+      <button class="btn-primary" style="width:100%;" onclick="document.getElementById('transferModal').classList.remove('active')">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+</script>
+<script type="module">
+  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode } from './velo-supabase.js'
+
+  let currentBikes = []
+  let currentBikeId = null
+
+  // 로그인 체크
+  async function init() {
+    const user = await getUser()
+    if (!user) { location.href = 'velo-auth.html'; return; }
+
+    // 유저 정보
+    const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single()
+    if (profile) {
+      const initial = profile.name ? profile.name[0] : '?'
+      document.getElementById('navAvatar').textContent = initial
+      document.getElementById('navAvatar').style.fontSize = '14px'
+      // 드롭다운 다시 추가
+      const dropdown = document.createElement('div')
+      dropdown.className = 'nav-dropdown'
+      dropdown.id = 'navDropdown'
+      dropdown.innerHTML = `
+        <button class="nav-dropdown-item" onclick="location.href='velo-settings.html'">계정 설정</button>
+        <button class="nav-dropdown-item" onclick="alert('준비 중!')">구독 관리</button>
+        <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
+      `
+      document.getElementById('navAvatar').appendChild(dropdown)
+      document.getElementById('logoutBtn').addEventListener('click', handleLogout)
+    }
+
+    // 자전거 목록
+    await loadBikes()
+  }
+
+  // 자전거 목록 불러오기
+  async function loadBikes() {
+    const grid = document.getElementById('bikesGrid')
+    grid.innerHTML = '<div style="padding:40px;color:var(--muted);font-size:13px;">불러오는 중...</div>'
+
+    try {
+      const bikes = await getMyBikes()
+      currentBikes = bikes
+
+      // 요약 업데이트
+      const totalParts = bikes.reduce((sum, b) => sum + (b.parts?.length || 0), 0)
+      const stolenCount = bikes.filter(b => b.status === 'stolen').length
+      document.getElementById('sumBikes').textContent = bikes.length
+      document.getElementById('sumParts').textContent = totalParts
+      document.getElementById('sumStolen').textContent = stolenCount
+
+      renderBikes(bikes, 'all')
+    } catch(e) {
+      grid.innerHTML = '<div style="padding:40px;color:var(--error);font-size:13px;">불러오기 실패: ' + e.message + '</div>'
+    }
+  }
+
+  function renderBikes(bikes, filter) {
+    const grid = document.getElementById('bikesGrid')
+    const filtered = filter === 'all' ? bikes : bikes.filter(b => b.status === filter)
+
+    if (filtered.length === 0) {
+      grid.innerHTML = ''
+      document.getElementById('emptyState').classList.add('show')
+      return
+    }
+
+    document.getElementById('emptyState').classList.remove('show')
+    grid.innerHTML = filtered.map(bike => `
+      <div class="bike-card" data-status="${bike.status}" data-id="${bike.id}">
+        <div class="bike-card-header">
+          <div class="nfc-indicator">
+            <div class="nfc-dot ${bike.status === 'normal' ? 'active' : ''}"></div>
+            <span>${bike.status === 'pending' ? '태그 배송 중' : bike.status === 'stolen' ? '도난 신고됨' : '태그 활성화'}</span>
+          </div>
+          <div class="bike-status ${bike.status}">${bike.status === 'pending' ? '배송 중' : bike.status === 'stolen' ? '도난' : '정상'}</div>
+        </div>
+        <div class="bike-card-body">
+          <div class="bike-brand">${bike.brand.toUpperCase()}</div>
+          <div class="bike-model">${bike.model}</div>
+          <div class="bike-serial">${bike.serial}</div>
+        </div>
+        <div class="bike-card-footer">
+          <div class="bike-meta">${new Date(bike.created_at).toLocaleDateString('ko-KR')} · 부품 ${bike.parts?.length || 0}개</div>
+          <div class="bike-actions">
+            <button class="bike-btn" onclick="openTransfer('${bike.id}','${bike.model}')">양도</button>
+            <button class="bike-btn danger" onclick="openStolen('${bike.id}','${bike.model}')">
+              ${bike.status === 'stolen' ? '신고 취소' : '도난 신고'}
+            </button>
+            <button class="bike-btn accent" onclick="location.href='velo-bike.html?serial=${bike.serial}'">상세 →</button>
+          </div>
+        </div>
+      </div>
+    `).join('')
+  }
+
+  // 필터
+  window.filterBikes = function(status, btn) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'))
+    btn.classList.add('active')
+    renderBikes(currentBikes, status)
+  }
+
+  // 도난 신고
+  window.openStolen = function(id, name) {
+    currentBikeId = id
+    document.getElementById('stolenModalSub').textContent = `"${name}"을(를) 도난 신고하시겠습니까?`
+    document.getElementById('stolenModal').classList.add('active')
+  }
+
+  window.confirmStolen = async function() {
+    try {
+      await reportStolen(currentBikeId)
+      document.getElementById('stolenModal').classList.remove('active')
+      await loadBikes()
+    } catch(e) {
+      alert(e.message)
+    }
+  }
+
+  // 양도 코드 생성
+  window.openTransfer = async function(id, name) {
+    currentBikeId = id
+    try {
+      const transfer = await createTransferCode(id)
+      document.getElementById('transferCodeValue').textContent = transfer.code
+      document.getElementById('transferModal').classList.add('active')
+    } catch(e) {
+      alert(e.message)
+    }
+  }
+
+  // 모달 닫기
+  window.closeModal = function(id, e) {
+    if (e.target === document.getElementById(id))
+      document.getElementById(id).classList.remove('active')
+  }
+
+  // 드롭다운
+  window.toggleDropdown = function() {
+    document.getElementById('navDropdown')?.classList.toggle('show')
+  }
+  document.addEventListener('click', e => {
+    if (!document.getElementById('navAvatar')?.contains(e.target))
+      document.getElementById('navDropdown')?.classList.remove('show')
+  })
+
+  // 로그아웃
+  async function handleLogout() {
+    await signOut()
+    location.href = 'velo-auth.html'
+  }
+
+  init()
+</script>
+</body>
+</html>

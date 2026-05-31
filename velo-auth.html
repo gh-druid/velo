@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 로그인</title>
+<link rel="stylesheet" href="./velo-common.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --accent: #c8f542;
+    --gray: #1a1a1a;
+    --mid: #2e2e2e;
+    --muted: #888;
+    --error: #ff4f4f;
+    --border: rgba(255,255,255,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .left {
+    background: var(--gray);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .left-bg { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 60%,rgba(200,245,66,0.06) 0%,transparent 70%); }
+  .left-logo { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
+  .left-body { position:relative; z-index:1; }
+  .left-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(56px,8vw,96px); line-height:0.9; margin-bottom:24px; }
+  .left-title span { color:var(--accent); display:block; }
+  .left-desc { font-size:14px; color:var(--muted); line-height:1.8; max-width:360px; }
+  .left-features { display:flex; flex-direction:column; gap:16px; position:relative; z-index:1; }
+  .left-feature { display:flex; align-items:center; gap:14px; font-size:13px; color:var(--muted); }
+  .left-feature-dot { width:6px; height:6px; background:var(--accent); border-radius:50%; flex-shrink:0; }
+
+  .right { display:flex; align-items:center; justify-content:center; padding:48px; }
+  .auth-box { width:100%; max-width:400px; }
+
+  .tabs { display:flex; gap:0; margin-bottom:40px; border-bottom:1px solid var(--border); }
+  .tab { padding:14px 0; margin-right:32px; font-size:14px; font-weight:400; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color 0.2s,border-color 0.2s; background:none; border-top:none; border-left:none; border-right:none; font-family:'Noto Sans KR',sans-serif; }
+  .tab.active { color:var(--white); border-bottom-color:var(--accent); font-weight:500; }
+
+  .form { display:none; flex-direction:column; gap:20px; }
+  .form.active { display:flex; }
+  .form-title { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:2px; margin-bottom:4px; }
+  .form-sub { font-size:13px; color:var(--muted); margin-bottom:8px; }
+  .form-sub button { background:none; border:none; color:var(--accent); font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer; text-decoration:underline; }
+
+  .field { display:flex; flex-direction:column; gap:8px; }
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field label { font-size:11px; letter-spacing:2px; color:var(--muted); }
+  .field input { background:var(--gray); border:1px solid var(--border); color:var(--white); padding:14px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
+  .field input:focus { border-color:var(--accent); }
+  .field input.error { border-color:var(--error); }
+  .field input::placeholder { color:rgba(255,255,255,0.2); }
+  .field-error { font-size:11px; color:var(--error); display:none; }
+  .field-error.show { display:block; }
+
+  .submit-btn { background:var(--accent); color:var(--black); border:none; padding:16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:opacity 0.2s; margin-top:4px; }
+  .submit-btn:hover { opacity:0.9; }
+  .submit-btn.loading { opacity:0.6; pointer-events:none; }
+
+  .pw-strength { display:flex; gap:4px; margin-top:4px; }
+  .pw-bar { height:3px; flex:1; background:rgba(255,255,255,0.1); transition:background 0.3s; }
+  .pw-bar.weak { background:var(--error); }
+  .pw-bar.medium { background:#f5a623; }
+  .pw-bar.strong { background:var(--accent); }
+
+  .agree-row { display:flex; align-items:flex-start; gap:12px; font-size:12px; color:var(--muted); line-height:1.6; cursor:pointer; }
+  .agree-row input[type="checkbox"] { width:16px; height:16px; accent-color:var(--accent); flex-shrink:0; margin-top:2px; cursor:pointer; }
+  .agree-row a { color:var(--white); text-decoration:underline; }
+
+  .success-box { display:none; flex-direction:column; align-items:center; text-align:center; gap:20px; padding:40px 0; }
+  .success-box.show { display:flex; }
+  .success-icon { width:64px; height:64px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; }
+  .success-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; }
+  .success-desc { font-size:13px; color:var(--muted); line-height:1.7; }
+  .success-btn { background:transparent; border:1px solid var(--border); color:var(--white); padding:12px 32px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer; transition:border-color 0.2s; }
+  .success-btn:hover { border-color:var(--white); }
+
+  .error-banner { background:rgba(255,79,79,0.1); border:1px solid rgba(255,79,79,0.3); color:var(--error); padding:12px 16px; font-size:13px; display:none; }
+  .error-banner.show { display:block; }
+
+  @media(max-width:768px) {
+    body { grid-template-columns:1fr; }
+    .left { display:none; }
+    .right { padding:40px 24px; align-items:flex-start; padding-top:80px; }
+    .auth-box { max-width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="left">
+  <div class="left-bg"></div>
+  <a href="velo-landing.html" class="left-logo">VÉLO</a>
+  <div class="left-body">
+    <h1 class="left-title">내 자전거를<br><span>지킨다.</span></h1>
+    <p class="left-desc">NFC 칩 하나로 소유권을 등록하고, 도난을 막고, 중고거래에서 신뢰를 만드세요.</p>
+  </div>
+  <div class="left-features">
+    <div class="left-feature"><div class="left-feature-dot"></div>차대번호 + NFC 칩 소유권 등록</div>
+    <div class="left-feature"><div class="left-feature-dot"></div>전국 통합 도난 신고 & 조회 DB</div>
+    <div class="left-feature"><div class="left-feature-dot"></div>1회용 코드로 간편 소유권 양도</div>
+    <div class="left-feature"><div class="left-feature-dot"></div>월 490원, 언제든 해지 가능</div>
+  </div>
+</div>
+
+<div class="right">
+  <div class="auth-box">
+    <div class="tabs">
+      <button class="tab active" id="tabLogin" onclick="switchTab('login')">로그인</button>
+      <button class="tab" id="tabSignup" onclick="switchTab('signup')">회원가입</button>
+    </div>
+
+    <!-- 에러 배너 -->
+    <div class="error-banner" id="errorBanner"></div>
+
+    <!-- 로그인 -->
+    <div class="form active" id="loginForm">
+      <div>
+        <div class="form-title">로그인</div>
+        <div class="form-sub">계정이 없으신가요? <button onclick="switchTab('signup')">회원가입</button></div>
+      </div>
+      <div class="field">
+        <label>이메일</label>
+        <input type="email" id="loginEmail" placeholder="hello@velo.kr">
+        <div class="field-error" id="loginEmailErr">올바른 이메일을 입력해주세요.</div>
+      </div>
+      <div class="field">
+        <label>비밀번호</label>
+        <input type="password" id="loginPw" placeholder="••••••••">
+        <div class="field-error" id="loginPwErr">비밀번호를 입력해주세요.</div>
+      </div>
+      <button class="submit-btn" id="loginBtn" onclick="handleLogin()">로그인</button>
+      <div style="font-size:12px; color:var(--muted); text-align:center;">
+        비밀번호를 잊으셨나요? <button style="background:none;border:none;color:var(--accent);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline;" onclick="alert('준비 중입니다.')">재설정하기</button>
+      </div>
+    </div>
+
+    <!-- 회원가입 -->
+    <div class="form" id="signupForm">
+      <div>
+        <div class="form-title">회원가입</div>
+        <div class="form-sub">이미 계정이 있으신가요? <button onclick="switchTab('login')">로그인</button></div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>이름</label>
+          <input type="text" id="signupName" placeholder="홍길동">
+          <div class="field-error" id="signupNameErr">이름을 입력해주세요.</div>
+        </div>
+        <div class="field">
+          <label>연락처</label>
+          <input type="tel" id="signupPhone" placeholder="010-0000-0000">
+          <div class="field-error" id="signupPhoneErr">연락처를 입력해주세요.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>이메일</label>
+        <input type="email" id="signupEmail" placeholder="hello@velo.kr">
+        <div class="field-error" id="signupEmailErr">올바른 이메일을 입력해주세요.</div>
+      </div>
+      <div class="field">
+        <label>비밀번호</label>
+        <input type="password" id="signupPw" placeholder="8자 이상 입력해주세요" oninput="checkPwStrength(this.value)">
+        <div class="pw-strength">
+          <div class="pw-bar" id="bar1"></div>
+          <div class="pw-bar" id="bar2"></div>
+          <div class="pw-bar" id="bar3"></div>
+        </div>
+        <div class="field-error" id="signupPwErr">8자 이상 입력해주세요.</div>
+      </div>
+      <div class="field">
+        <label>비밀번호 확인</label>
+        <input type="password" id="signupPwConfirm" placeholder="••••••••">
+        <div class="field-error" id="signupPwConfirmErr">비밀번호가 일치하지 않습니다.</div>
+      </div>
+      <label class="agree-row">
+        <input type="checkbox" id="agreeTerms">
+        <span><a href="#">이용약관</a> 및 <a href="#">개인정보 처리방침</a>에 동의합니다. (필수)</span>
+      </label>
+      <div class="field-error" id="agreeErr">약관에 동의해주세요.</div>
+      <label class="agree-row">
+        <input type="checkbox" id="agreeStolen">
+        <span>도난 신고 시 허위 신고에 대한 법적 책임을 집니다. (필수)</span>
+      </label>
+      <div class="field-error" id="agreeStolenErr">위 내용에 동의해주세요.</div>
+      <button class="submit-btn" id="signupBtn" onclick="handleSignup()">가입 완료</button>
+    </div>
+
+    <!-- 성공 -->
+    <div class="success-box" id="successBox">
+      <div class="success-icon">✓</div>
+      <div class="success-title">가입 완료!</div>
+      <div class="success-desc">벨로에 오신 걸 환영합니다.<br>이메일 인증 후 로그인해주세요.</div>
+      <button class="success-btn" onclick="switchTab('login')">로그인하러 가기</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { signIn, signUp } from './velo-supabase.js'
+
+  // 탭 전환
+  window.switchTab = function(tab) {
+    document.getElementById('tabLogin').classList.toggle('active', tab==='login')
+    document.getElementById('tabSignup').classList.toggle('active', tab==='signup')
+    document.getElementById('loginForm').classList.toggle('active', tab==='login')
+    document.getElementById('signupForm').classList.toggle('active', tab==='signup')
+    document.getElementById('errorBanner').classList.remove('show')
+  }
+
+  // 비밀번호 강도
+  window.checkPwStrength = function(pw) {
+    const bars = ['bar1','bar2','bar3']
+    bars.forEach(b => { document.getElementById(b).className = 'pw-bar' })
+    if (!pw) return
+    let s = 0
+    if (pw.length >= 8) s++
+    if (/[A-Z]/.test(pw) || /[0-9]/.test(pw)) s++
+    if (/[^A-Za-z0-9]/.test(pw) && pw.length >= 10) s++
+    const cls = ['weak','medium','strong']
+    for (let i = 0; i < s; i++) document.getElementById(bars[i]).classList.add(cls[s-1])
+  }
+
+  function showErr(id, show, msg) {
+    const el = document.getElementById(id)
+    el.classList.toggle('show', show)
+    if (msg) el.textContent = msg
+    return show
+  }
+
+  function showBanner(msg) {
+    const el = document.getElementById('errorBanner')
+    el.textContent = msg
+    el.classList.add('show')
+  }
+
+  // 로그인
+  window.handleLogin = async function() {
+    const email = document.getElementById('loginEmail').value
+    const pw = document.getElementById('loginPw').value
+    let err = false
+    if (!email || !/\S+@\S+\.\S+/.test(email)) err = showErr('loginEmailErr', true)
+    else showErr('loginEmailErr', false)
+    if (!pw) err = showErr('loginPwErr', true)
+    else showErr('loginPwErr', false)
+    if (err) return
+
+    const btn = document.getElementById('loginBtn')
+    btn.textContent = '로그인 중...'; btn.classList.add('loading')
+
+    try {
+      await signIn({ email, password: pw })
+      window.location.href = 'velo-dashboard.html'
+    } catch(e) {
+      btn.textContent = '로그인'; btn.classList.remove('loading')
+      showBanner('이메일 또는 비밀번호가 올바르지 않습니다.')
+    }
+  }
+
+  // 회원가입
+  window.handleSignup = async function() {
+    const name = document.getElementById('signupName').value
+    const phone = document.getElementById('signupPhone').value
+    const email = document.getElementById('signupEmail').value
+    const pw = document.getElementById('signupPw').value
+    const pwc = document.getElementById('signupPwConfirm').value
+    const terms = document.getElementById('agreeTerms').checked
+    const stolen = document.getElementById('agreeStolen').checked
+    let err = false
+
+    if (!name) err = showErr('signupNameErr', true); else showErr('signupNameErr', false)
+    if (!phone) err = showErr('signupPhoneErr', true); else showErr('signupPhoneErr', false)
+    if (!email || !/\S+@\S+\.\S+/.test(email)) err = showErr('signupEmailErr', true); else showErr('signupEmailErr', false)
+    if (!pw || pw.length < 8) err = showErr('signupPwErr', true); else showErr('signupPwErr', false)
+    if (pw !== pwc) err = showErr('signupPwConfirmErr', true); else showErr('signupPwConfirmErr', false)
+    if (!terms) err = showErr('agreeErr', true); else showErr('agreeErr', false)
+    if (!stolen) err = showErr('agreeStolenErr', true); else showErr('agreeStolenErr', false)
+    if (err) return
+
+    const btn = document.getElementById('signupBtn')
+    btn.textContent = '가입 중...'; btn.classList.add('loading')
+
+    try {
+      await signUp({ email, password: pw, name, phone })
+      document.getElementById('signupForm').classList.remove('active')
+      document.querySelector('.tabs').style.display = 'none'
+      document.getElementById('successBox').classList.add('show')
+    } catch(e) {
+      btn.textContent = '가입 완료'; btn.classList.remove('loading')
+      showBanner(e.message || '가입 중 오류가 발생했습니다.')
+    }
+  }
+
+  // 엔터키
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (document.getElementById('loginForm').classList.contains('active')) window.handleLogin()
+      else window.handleSignup()
+    }
+  })
+</script>
+</body>
+</html>

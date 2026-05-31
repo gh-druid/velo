@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 소유권 양도</title>
+<link rel="stylesheet" href="./velo-common.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --accent: #c8f542;
+    --gray: #1a1a1a;
+    --mid: #2e2e2e;
+    --muted: #888;
+    --border: rgba(255,255,255,0.08);
+    --error: #ff4f4f;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .topbar-right { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+
+  .main {
+    flex: 1;
+    max-width: 560px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 56px 24px;
+  }
+
+  /* STEPS */
+  .step { display: none; }
+  .step.active { display: block; }
+
+  /* STEP 1 — 코드 입력 */
+  .step-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .step-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  .code-input-wrap {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .code-prefix {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    padding: 18px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+
+  .code-input {
+    flex: 1;
+    background: var(--gray);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 18px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 24px;
+    letter-spacing: 8px;
+    outline: none;
+    text-transform: uppercase;
+    transition: border-color 0.2s;
+  }
+  .code-input:focus { border-color: var(--accent); }
+  .code-input.error { border-color: var(--error); }
+  .code-input::placeholder { color: rgba(255,255,255,0.15); letter-spacing: 4px; font-size: 20px; }
+
+  .code-error {
+    font-size: 12px;
+    color: var(--error);
+    margin-bottom: 16px;
+    display: none;
+  }
+  .code-error.show { display: block; }
+
+  .code-hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--black);
+    border: none;
+    padding: 16px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary.loading { opacity: 0.6; pointer-events: none; }
+
+  /* STEP 2 — 자전거 확인 */
+  .confirm-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .bike-confirm-card {
+    background: var(--gray);
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .bike-confirm-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bike-confirm-brand {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .bike-confirm-model {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .bike-confirm-tag {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    border: 1px solid rgba(200,245,66,0.3);
+    padding: 4px 10px;
+  }
+
+  .bike-confirm-body { padding: 16px 24px; }
+
+  .confirm-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .confirm-row:last-child { border-bottom: none; }
+  .confirm-key { color: var(--muted); }
+  .confirm-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-align: right;
+  }
+
+  /* 판매자 → 구매자 화살표 */
+  .transfer-arrow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 20px;
+    background: var(--gray);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .transfer-person {
+    flex: 1;
+    padding: 20px 24px;
+  }
+
+  .transfer-person-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .transfer-person-name {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .transfer-person-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .transfer-mid {
+    padding: 20px 16px;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .transfer-arrow-icon {
+    font-size: 20px;
+    color: var(--accent);
+  }
+
+  .transfer-fee {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .transfer-person.receiver .transfer-person-name { color: var(--accent); }
+
+  /* 주의사항 */
+  .notice-box {
+    background: rgba(200,245,66,0.05);
+    border: 1px solid rgba(200,245,66,0.15);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+
+  .notice-title {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .notice-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .notice-list li {
+    font-size: 12px;
+    color: var(--muted);
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.6;
+  }
+
+  .notice-list li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 10px;
+  }
+
+  .confirm-agree {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    cursor: pointer;
+  }
+  .confirm-agree input { accent-color: var(--accent); margin-top: 2px; flex-shrink: 0; }
+
+  .btn-row { display: flex; gap: 10px; }
+
+  .btn-back {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 14px 24px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-back:hover { border-color: var(--white); color: var(--white); }
+
+  /* STEP 3 — 완료 */
+  .complete-wrap {
+    text-align: center;
+    padding: 40px 0;
+  }
+
+  .complete-icon {
+    width: 80px; height: 80px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 32px;
+    animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes pop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .complete-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .complete-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .complete-bike {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+
+  .complete-card {
+    background: var(--gray);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
+  .complete-card-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .complete-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .complete-row:last-child { border-bottom: none; }
+  .complete-row-key { color: var(--muted); }
+  .complete-row-val { font-family: 'DM Mono', monospace; font-size: 12px; }
+
+  .complete-actions { display: flex; flex-direction: column; gap: 10px; }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+
+  .page-footer {
+    padding: 32px 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 4px; color: var(--accent); margin-bottom: 6px; }
+  .footer-text { font-size: 11px; color: var(--muted); line-height: 1.7; }
+
+  @media (max-width: 480px) {
+    .code-input-wrap { flex-direction: column; }
+    .code-prefix { text-align: center; }
+    .transfer-arrow { flex-direction: column; }
+    .transfer-mid { flex-direction: row; border-left: none; border-right: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 24px; justify-content: center; }
+    .transfer-arrow-icon { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="velo-landing.html" class="topbar-logo">VÉLO</a>
+  <div class="topbar-right">소유권 양도</div>
+</div>
+
+<div class="main">
+
+  <!-- STEP 1: 코드 입력 -->
+  <div class="step active" id="step1">
+    <div class="step-title">양도 코드 입력</div>
+    <div class="step-sub">
+      판매자에게 받은 양도 코드를 입력해주세요.<br>
+      코드는 발급 후 24시간 동안 유효합니다.
+    </div>
+
+    <div class="code-input-wrap">
+      <div class="code-prefix">VL —</div>
+      <input
+        type="text"
+        class="code-input"
+        id="codeInput"
+        maxlength="6"
+        placeholder="A3K9P2"
+        oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
+      >
+    </div>
+    <div class="code-error" id="codeError">유효하지 않은 코드입니다. 다시 확인해주세요.</div>
+    <div class="code-hint">
+      코드는 판매자의 벨로 앱에서 생성됩니다.<br>
+      예시: VL — A3K9P2 (영문+숫자 6자리) / 1시간 후 만료<br>
+      5회 오류 시 30분간 잠금됩니다.
+    </div>
+
+    <button class="btn-primary" id="verifyBtn" onclick="verifyCode()">코드 확인</button>
+  </div>
+
+  <!-- STEP 2: 자전거 확인 + 수락 -->
+  <div class="step" id="step2">
+    <div class="confirm-label">양도 정보 확인</div>
+    <div class="step-title">이 자전거가<br>맞으신가요?</div>
+    <div class="step-sub">양도 수락 전 자전거 정보를 꼭 확인하세요.</div>
+
+    <!-- 자전거 정보 -->
+    <div class="bike-confirm-card">
+      <div class="bike-confirm-header">
+        <div>
+          <div class="bike-confirm-brand">TREK</div>
+          <div class="bike-confirm-model">Emonda SL6</div>
+        </div>
+        <div class="bike-confirm-tag">양도 대기 중</div>
+      </div>
+      <div class="bike-confirm-body">
+        <div class="confirm-row">
+          <span class="confirm-key">차대번호</span>
+          <span class="confirm-val">WTU123456789</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-key">연식</span>
+          <span class="confirm-val">2023년식</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-key">색상</span>
+          <span class="confirm-val">매트 블랙</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-key">등록 부품</span>
+          <span class="confirm-val">3개 포함</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-key">코드 만료</span>
+          <span class="confirm-val" id="expireTime">23:47:12 후</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 판매자 → 구매자 -->
+    <div class="transfer-arrow">
+      <div class="transfer-person">
+        <div class="transfer-person-label">판매자</div>
+        <div class="transfer-person-name">홍길동</div>
+        <div class="transfer-person-sub">현재 소유자</div>
+      </div>
+      <div class="transfer-mid">
+        <div class="transfer-arrow-icon">→</div>
+        <div class="transfer-fee">수수료 490원</div>
+      </div>
+      <div class="transfer-person receiver">
+        <div class="transfer-person-label">구매자</div>
+        <div class="transfer-person-name">나 (로그인 필요)</div>
+        <div class="transfer-person-sub">새 소유자</div>
+      </div>
+    </div>
+
+    <!-- 주의사항 -->
+    <div class="notice-box">
+      <div class="notice-title">양도 전 확인사항</div>
+      <ul class="notice-list">
+        <li>양도 수락 즉시 소유권이 이전됩니다</li>
+        <li>도난 신고 상태의 자전거는 양도가 불가합니다</li>
+        <li>양도 수수료 490원이 결제됩니다</li>
+        <li>양도 완료 후에는 취소가 불가합니다</li>
+        <li>이전 소유자 이력은 기록으로 남습니다</li>
+      </ul>
+    </div>
+
+    <label class="confirm-agree">
+      <input type="checkbox" id="agreeCheck">
+      위 자전거 정보를 확인했으며, 양도 수락 및 수수료 490원 결제에 동의합니다.
+    </label>
+    <div class="code-error" id="agreeError">동의 체크가 필요합니다.</div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(1)">← 이전</button>
+      <button class="btn-primary" onclick="acceptTransfer()">양도 수락하기</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: 완료 -->
+  <div class="step" id="step3">
+    <div class="complete-wrap">
+      <div class="complete-icon">🚲</div>
+      <div class="complete-title">양도 완료!</div>
+      <div class="complete-desc">소유권이 성공적으로 이전되었습니다.</div>
+      <div class="complete-bike">TREK Emonda SL6</div>
+
+      <div class="complete-card">
+        <div class="complete-card-label">양도 내역</div>
+        <div class="complete-row">
+          <span class="complete-row-key">이전 소유자</span>
+          <span class="complete-row-val">홍길동</span>
+        </div>
+        <div class="complete-row">
+          <span class="complete-row-key">새 소유자</span>
+          <span class="complete-row-val" style="color:var(--accent);">나</span>
+        </div>
+        <div class="complete-row">
+          <span class="complete-row-key">차대번호</span>
+          <span class="complete-row-val">WTU123456789</span>
+        </div>
+        <div class="complete-row">
+          <span class="complete-row-key">양도 일시</span>
+          <span class="complete-row-val" id="completeTime"></span>
+        </div>
+        <div class="complete-row">
+          <span class="complete-row-key">수수료</span>
+          <span class="complete-row-val">490원</span>
+        </div>
+      </div>
+
+      <div class="complete-actions">
+        <button class="btn-primary" onclick="location.href='velo-dashboard.html'">내 자전거 보기 →</button>
+        <button class="btn-outline" onclick="location.href='velo-bike.html'">소유자 확인 페이지 보기</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <div class="footer-logo">VÉLO</div>
+  <div class="footer-text">양도 관련 문의: support@velo.kr</div>
+</div>
+
+<script>
+  // 만료 타이머
+  let seconds = 23 * 3600 + 47 * 60 + 12;
+  function updateTimer() {
+    const el = document.getElementById('expireTime');
+    if (!el) return;
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} 후`;
+    if (seconds > 0) seconds--;
+  }
+  updateTimer();
+  setInterval(updateTimer, 1000);
+
+  function goStep(n) {
+    document.querySelectorAll('.step').forEach((s,i) => s.classList.toggle('active', i+1===n));
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  let attempts = 0;
+  const MAX_ATTEMPTS = 5;
+
+  function verifyCode() {
+    const code = document.getElementById('codeInput').value.trim();
+    const btn = document.getElementById('verifyBtn');
+    const err = document.getElementById('codeError');
+
+    // 잠금 상태 체크
+    const lockedUntil = localStorage.getItem('velo_locked_until');
+    if (lockedUntil && Date.now() < parseInt(lockedUntil)) {
+      const remaining = Math.ceil((parseInt(lockedUntil) - Date.now()) / 60000);
+      err.textContent = `너무 많이 시도했습니다. ${remaining}분 후 다시 시도해주세요.`;
+      err.classList.add('show');
+      btn.disabled = true;
+      return;
+    }
+
+    if (!code || code.length !== 6) {
+      document.getElementById('codeInput').classList.add('error');
+      err.textContent = '6자리 코드를 입력해주세요. (예: A3K9P2)';
+      err.classList.add('show');
+      return;
+    }
+
+    btn.textContent = '확인 중...';
+    btn.classList.add('loading');
+
+    setTimeout(() => {
+      btn.textContent = '코드 확인';
+      btn.classList.remove('loading');
+
+      // 데모: 아무 6자리나 통과 (실제로는 서버 검증)
+      attempts++;
+      const remaining = MAX_ATTEMPTS - attempts;
+
+      if (attempts >= MAX_ATTEMPTS) {
+        // 30분 잠금
+        localStorage.setItem('velo_locked_until', Date.now() + 30 * 60 * 1000);
+        document.getElementById('codeInput').classList.add('error');
+        err.textContent = '5회 오류로 30분간 잠금됩니다.';
+        err.classList.add('show');
+        btn.disabled = true;
+        return;
+      }
+
+      document.getElementById('codeInput').classList.remove('error');
+      err.classList.remove('show');
+      attempts = 0;
+      goStep(2);
+    }, 800);
+  }
+
+  function acceptTransfer() {
+    const agreed = document.getElementById('agreeCheck').checked;
+    const agreeErr = document.getElementById('agreeError');
+    if (!agreed) { agreeErr.classList.add('show'); return; }
+    agreeErr.classList.remove('show');
+
+    const btn = document.querySelector('#step2 .btn-primary');
+    btn.textContent = '처리 중...';
+    btn.classList.add('loading');
+
+    setTimeout(() => {
+      const now = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      document.getElementById('completeTime').textContent =
+        `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      goStep(3);
+    }, 1200);
+  }
+
+  // 엔터 키
+  document.getElementById('codeInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') verifyCode();
+  });
+</script>
+
+<script type="module">
+  import { getUser, verifyTransferCode, acceptTransfer } from './velo-supabase.js'
+
+  let currentTransfer = null
+
+  // 로그인 체크
+  async function init() {
+    const user = await getUser()
+    if (!user) { location.href = 'velo-auth.html'; return; }
+  }
+
+  // 코드 검증 오버라이드
+  const origVerify = window.verifyCode
+  window.verifyCode = async function() {
+    const code = document.getElementById('codeInput').value.trim().toUpperCase()
+    const btn = document.getElementById('verifyBtn')
+    const err = document.getElementById('codeError')
+
+    // 잠금 체크
+    const lockedUntil = localStorage.getItem('velo_locked_until')
+    if (lockedUntil && Date.now() < parseInt(lockedUntil)) {
+      const remaining = Math.ceil((parseInt(lockedUntil) - Date.now()) / 60000)
+      err.textContent = `너무 많이 시도했습니다. ${remaining}분 후 다시 시도해주세요.`
+      err.classList.add('show')
+      btn.disabled = true
+      return
+    }
+
+    if (!code || code.length !== 6) {
+      document.getElementById('codeInput').classList.add('error')
+      err.textContent = '6자리 코드를 입력해주세요. (예: A3K9P2)'
+      err.classList.add('show')
+      return
+    }
+
+    btn.textContent = '확인 중...'; btn.classList.add('loading')
+
+    try {
+      const transfer = await verifyTransferCode(code)
+      currentTransfer = transfer
+      const bike = transfer.bikes
+
+      // 자전거 정보 채우기
+      document.querySelector('.bike-confirm-brand').textContent = bike.brand.toUpperCase()
+      document.querySelector('.bike-confirm-model').textContent = bike.model
+      document.querySelectorAll('.confirm-val')[0].textContent = bike.serial
+      document.querySelectorAll('.confirm-val')[1].textContent = bike.year ? `${bike.year}년식` : '미입력'
+      document.querySelectorAll('.confirm-val')[2].textContent = bike.color || '미입력'
+      document.querySelectorAll('.confirm-val')[3].textContent = `${bike.parts?.length || 0}개 포함`
+
+      // 판매자 이름
+      document.querySelector('.transfer-person-name').textContent = bike.users?.name || '알 수 없음'
+
+      btn.textContent = '코드 확인'; btn.classList.remove('loading')
+      localStorage.removeItem('velo_locked_until')
+      window.goStep(2)
+    } catch(e) {
+      btn.textContent = '코드 확인'; btn.classList.remove('loading')
+
+      // 시도 횟수 카운트
+      const attempts = parseInt(localStorage.getItem('velo_attempts') || '0') + 1
+      localStorage.setItem('velo_attempts', attempts)
+
+      if (attempts >= 5) {
+        localStorage.setItem('velo_locked_until', Date.now() + 30 * 60 * 1000)
+        localStorage.removeItem('velo_attempts')
+        err.textContent = '5회 오류로 30분간 잠금됩니다.'
+        btn.disabled = true
+      } else {
+        err.textContent = e.message || '유효하지 않은 코드입니다.'
+      }
+
+      document.getElementById('codeInput').classList.add('error')
+      err.classList.add('show')
+    }
+  }
+
+  // 양도 수락 오버라이드
+  window.acceptTransfer = async function() {
+    const agreed = document.getElementById('agreeCheck').checked
+    const agreeErr = document.getElementById('agreeError')
+    if (!agreed) { agreeErr.classList.add('show'); return; }
+    agreeErr.classList.remove('show')
+
+    const btn = document.querySelector('#step2 .btn-primary')
+    btn.textContent = '처리 중...'; btn.classList.add('loading')
+
+    try {
+      await acceptTransfer(currentTransfer.id)
+      const now = new Date()
+      const pad = n => String(n).padStart(2,'0')
+      document.getElementById('completeTime').textContent =
+        `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
+
+      // 자전거 정보 완료 화면에 표시
+      document.querySelector('.complete-bike').textContent =
+        `${currentTransfer.bikes.brand.toUpperCase()} ${currentTransfer.bikes.model}`
+      document.querySelectorAll('.complete-row-val')[2].textContent = currentTransfer.bikes.serial
+
+      window.goStep(3)
+    } catch(e) {
+      btn.textContent = '양도 수락하기'; btn.classList.remove('loading')
+      alert('오류: ' + e.message)
+    }
+  }
+
+  init()
+</script>
+</body>
+</html>

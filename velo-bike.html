@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 자전거 소유자 확인</title>
+<link rel="stylesheet" href="./velo-common.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ee;
+    --accent: #c8f542;
+    --gray: #1a1a1a;
+    --mid: #2e2e2e;
+    --muted: #888;
+    --border: rgba(255,255,255,0.08);
+    --error: #ff4f4f;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .topbar-right {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .scan-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+
+  /* STATUS BANNER */
+  .status-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .status-banner.safe {
+    background: rgba(200,245,66,0.08);
+    border: 1px solid rgba(200,245,66,0.25);
+    color: var(--accent);
+  }
+  .status-banner.stolen {
+    background: rgba(255,79,79,0.1);
+    border: 1px solid rgba(255,79,79,0.3);
+    color: var(--error);
+  }
+  .status-icon { font-size: 20px; }
+  .status-text { flex: 1; }
+  .status-badge {
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border: 1px solid currentColor;
+    opacity: 0.8;
+  }
+
+  /* OWNER CARD */
+  .owner-card {
+    background: var(--gray);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .owner-card-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .owner-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .owner-name {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .owner-contact {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+
+  .owner-avatar {
+    width: 56px; height: 56px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--black);
+    flex-shrink: 0;
+  }
+
+  .owner-card-body {
+    padding: 20px 28px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { color: var(--muted); letter-spacing: 0.5px; }
+  .info-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-align: right;
+  }
+  .info-value.accent { color: var(--accent); }
+
+  /* BIKE CARD */
+  .bike-card {
+    background: var(--gray);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .bike-card-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bike-card-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+  }
+
+  .bike-card-body { padding: 20px 28px; }
+
+  .bike-brand-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .bike-brand {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+  }
+
+  .bike-year {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .bike-model {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .bike-serial-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--black);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .bike-serial-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .bike-serial-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+
+  .bike-parts {
+    margin-top: 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .bike-parts-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .part-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--black);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 4px 6px 0;
+  }
+
+  /* HISTORY */
+  .history-card {
+    background: var(--gray);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .history-header {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+  }
+
+  .history-list { padding: 8px 0; }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .history-item:last-child { border-bottom: none; }
+
+  .history-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .history-dot.current { background: var(--accent); }
+
+  .history-owner { flex: 1; font-weight: 400; }
+  .history-owner.current { color: var(--accent); font-weight: 500; }
+  .history-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .history-tag {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+  }
+  .history-tag.current { color: var(--accent); border-color: rgba(200,245,66,0.3); }
+
+  /* STOLEN ALERT */
+  .stolen-alert {
+    background: rgba(255,79,79,0.08);
+    border: 1px solid rgba(255,79,79,0.25);
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .stolen-alert.show { display: block; }
+  .stolen-alert-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    color: var(--error);
+    margin-bottom: 8px;
+  }
+  .stolen-alert-desc {
+    font-size: 13px;
+    color: rgba(255,79,79,0.8);
+    line-height: 1.7;
+  }
+  .stolen-alert-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,79,79,0.6);
+    margin-top: 12px;
+  }
+
+  /* ACTIONS */
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .btn-report {
+    background: var(--error);
+    color: var(--white);
+    border: none;
+    padding: 15px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s;
+  }
+  .btn-report:hover { opacity: 0.85; }
+
+  .btn-contact {
+    background: var(--accent);
+    color: var(--black);
+    border: none;
+    padding: 15px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s;
+  }
+  .btn-contact:hover { opacity: 0.9; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+
+  /* FOOTER */
+  .page-footer {
+    padding: 32px 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 4px; color: var(--accent); margin-bottom: 8px; }
+  .footer-text { font-size: 11px; color: var(--muted); line-height: 1.7; letter-spacing: 0.5px; }
+
+  /* STOLEN MODE */
+  body.is-stolen { background: #0f0505; }
+  body.is-stolen .topbar { border-bottom-color: rgba(255,79,79,0.15); }
+
+  /* TOGGLE (데모용) */
+  .demo-toggle {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    display: flex; gap: 8px;
+    z-index: 100;
+  }
+  .demo-btn {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 14px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+  .demo-btn:hover { color: var(--white); }
+  .demo-btn.active { background: var(--accent); color: var(--black); border-color: var(--accent); font-weight: 700; }
+
+  @media (max-width: 480px) {
+    .main { padding: 32px 16px; }
+    .owner-card-header { flex-direction: column; gap: 16px; }
+    .bike-serial-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .history-item { gap: 10px; }
+    .history-tag { display: none; }
+  }
+</style>
+</head>
+<body id="pageBody">
+
+<div class="topbar">
+  <a href="velo-landing.html" class="topbar-logo">VÉLO</a>
+  <div class="topbar-right">
+    <span class="scan-time" id="scanTime"></span>
+    <span>조회됨</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STATUS BANNER -->
+  <div class="status-banner safe" id="statusBanner">
+    <span class="status-icon">✓</span>
+    <span class="status-text">벨로에 등록된 자전거입니다</span>
+    <span class="status-badge">정상</span>
+  </div>
+
+  <!-- STOLEN ALERT -->
+  <div class="stolen-alert" id="stolenAlert">
+    <div class="stolen-alert-title">🚨 도난 신고된 자전거입니다</div>
+    <div class="stolen-alert-desc">
+      이 자전거는 소유자에 의해 도난 신고된 상태입니다.<br>
+      중고거래 또는 구매를 즉시 중단하고 경찰에 신고해주세요.
+    </div>
+    <div class="stolen-alert-date" id="stolenDate">신고일: 2025.05.15 14:32</div>
+  </div>
+
+  <!-- OWNER CARD -->
+  <div class="owner-card">
+    <div class="owner-card-header">
+      <div>
+        <div class="owner-label">소유자</div>
+        <div class="owner-name">홍길동</div>
+        <div class="owner-contact">010-1234-****</div>
+      </div>
+      <div class="owner-avatar">홍</div>
+    </div>
+    <div class="owner-card-body">
+      <div class="info-row">
+        <span class="info-label">등록일</span>
+        <span class="info-value">2025.03.12</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">소유 기간</span>
+        <span class="info-value">2년 3개월</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">소유 이력</span>
+        <span class="info-value accent">2대 소유</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIKE CARD -->
+  <div class="bike-card">
+    <div class="bike-card-header">
+      <div class="bike-card-label">자전거 정보</div>
+      <div style="font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:1px;">velo.kr/bike/WTU123456789</div>
+    </div>
+    <div class="bike-card-body">
+      <div class="bike-brand-row">
+        <span class="bike-brand">TREK</span>
+        <span class="bike-year">2023년식</span>
+      </div>
+      <div class="bike-model">Emonda SL6</div>
+
+      <div class="bike-serial-row">
+        <span class="bike-serial-label">차대번호</span>
+        <span class="bike-serial-value">WTU123456789</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">색상</span>
+        <span class="info-value">매트 블랙</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">등록 부품</span>
+        <span class="info-value">3개</span>
+      </div>
+
+      <div class="bike-parts">
+        <div class="bike-parts-label">등록된 부품</div>
+        <span class="part-chip">🔧 Shimano Ultegra R8000</span>
+        <span class="part-chip">⚙️ Zipp 303 휠셋</span>
+        <span class="part-chip">🪑 Fizik Argo 안장</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OWNERSHIP HISTORY -->
+  <div class="history-card">
+    <div class="history-header">소유 이력</div>
+    <div class="history-list">
+      <div class="history-item">
+        <div class="history-dot current"></div>
+        <div class="history-owner current">홍길동 (현재)</div>
+        <div class="history-date">2023.02.10</div>
+        <div class="history-tag current">현재</div>
+      </div>
+      <div class="history-item">
+        <div class="history-dot"></div>
+        <div class="history-owner">김**(이전)</div>
+        <div class="history-date">2021.06.03</div>
+        <div class="history-tag">1대</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button class="btn-contact" onclick="alert('준비 중입니다.')">소유자에게 연락하기</button>
+    <button class="btn-report" id="reportBtn" onclick="alert('경찰청 신고: 112\n벨로 도난 DB 등록은 소유자만 가능합니다.')">
+      🚨 도난 의심 신고
+    </button>
+    <button class="btn-outline" onclick="location.href='velo-landing.html'">벨로 서비스 알아보기</button>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <div class="footer-logo">VÉLO</div>
+  <div class="footer-text">
+    본 페이지는 벨로(Vélo) 자전거 소유권 인증 서비스를 통해 제공됩니다.<br>
+    소유자 정보는 등록자 동의 하에 공개됩니다.<br>
+    도난 신고는 경찰청 112로 신고하세요.
+  </div>
+</div>
+
+<!-- 데모 토글 -->
+<div class="demo-toggle">
+  <button class="demo-btn active" id="demoNormal" onclick="setMode('normal')">정상 모드</button>
+  <button class="demo-btn" id="demoStolen" onclick="setMode('stolen')">도난 모드</button>
+</div>
+
+<script>
+  // 현재 시각
+  function updateTime() {
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('scanTime').textContent =
+      `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  }
+  updateTime();
+</script>
+
+<script type="module">
+  import { getBikeBySerial, maskPhone } from './velo-supabase.js'
+
+  const pad = n => String(n).padStart(2, '0')
+
+  async function init() {
+    // URL에서 차대번호 읽기 (?serial=WTU123)
+    const params = new URLSearchParams(location.search)
+    const serial = params.get('serial')
+
+    if (!serial) {
+      showError('차대번호가 없습니다.')
+      return
+    }
+
+    try {
+      const bike = await getBikeBySerial(serial)
+      renderBike(bike)
+    } catch(e) {
+      showError('등록되지 않은 자전거입니다.')
+    }
+  }
+
+  function renderBike(bike) {
+    const owner = bike.users
+    const isStolen = bike.status === 'stolen'
+
+    // 상태 배너
+    const banner = document.getElementById('statusBanner')
+    if (isStolen) {
+      document.getElementById('pageBody').classList.add('is-stolen')
+      banner.className = 'status-banner stolen'
+      banner.innerHTML = '<span class="status-icon">🚨</span><span class="status-text">도난 신고된 자전거입니다</span><span class="status-badge">도난</span>'
+      document.getElementById('stolenAlert').classList.add('show')
+      const now = new Date(bike.stolen_at)
+      document.getElementById('stolenDate').textContent =
+        `신고일: ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
+    } else {
+      banner.className = 'status-banner safe'
+      banner.innerHTML = '<span class="status-icon">✓</span><span class="status-text">벨로에 등록된 자전거입니다</span><span class="status-badge">정상</span>'
+    }
+
+    // 소유자
+    const initial = owner?.name ? owner.name[0] : '?'
+    document.querySelector('.owner-avatar').textContent = initial
+    document.querySelector('.owner-name').textContent = owner?.name || '알 수 없음'
+    document.querySelector('.owner-contact').textContent = maskPhone(owner?.phone || '')
+
+    // 등록일 / 소유 기간
+    const createdAt = new Date(bike.created_at)
+    const months = Math.floor((Date.now() - createdAt) / (1000 * 60 * 60 * 24 * 30))
+    const years = Math.floor(months / 12)
+    const remMonths = months % 12
+    const duration = years > 0 ? `${years}년 ${remMonths}개월` : `${remMonths}개월`
+    document.querySelectorAll('.info-value')[0].textContent =
+      `${createdAt.getFullYear()}.${pad(createdAt.getMonth()+1)}.${pad(createdAt.getDate())}`
+    document.querySelectorAll('.info-value')[1].textContent = duration
+
+    // 자전거 정보
+    document.querySelector('.bike-brand').textContent = bike.brand.toUpperCase()
+    document.querySelector('.bike-model').textContent = bike.model
+    document.querySelector('.bike-serial-value').textContent = bike.serial
+    if (bike.color) document.querySelectorAll('.info-value')[3].textContent = bike.color
+    document.querySelectorAll('.info-value')[4].textContent = `${bike.parts?.length || 0}개`
+
+    // URL 표시
+    document.querySelector('.bike-card-header div:last-child').textContent =
+      `velo.kr/bike/${bike.serial}`
+
+    // 부품
+    if (bike.parts?.length > 0) {
+      document.querySelector('.bike-parts').style.display = 'block'
+      document.querySelector('.bike-parts .bike-parts-label').textContent = '등록된 부품'
+      const chipsEl = document.querySelector('.bike-parts')
+      const chips = bike.parts.map(p =>
+        `<span class="part-chip">🔧 ${p.name}</span>`
+      ).join('')
+      chipsEl.innerHTML = `<div class="bike-parts-label">등록된 부품</div>${chips}`
+    }
+
+    // 연식
+    if (bike.year) document.querySelector('.bike-year').textContent = `${bike.year}년식`
+  }
+
+  function showError(msg) {
+    document.querySelector('.main').innerHTML = `
+      <div style="text-align:center; padding:80px 0; color:var(--muted);">
+        <div style="font-size:48px; margin-bottom:16px;">🔍</div>
+        <div style="font-size:18px; color:var(--white); margin-bottom:8px;">${msg}</div>
+        <div style="font-size:13px; line-height:1.7;">벨로에 등록되지 않은 자전거입니다.<br>등록하시려면 아래 버튼을 눌러주세요.</div>
+        <a href="velo-landing.html" style="display:inline-block; margin-top:24px; background:var(--accent); color:var(--black); padding:12px 32px; font-weight:700; text-decoration:none; font-size:13px;">벨로 알아보기</a>
+      </div>
+    `
+  }
+
+  // 데모 토글 숨기기 (실제 서비스에서는 불필요)
+  document.querySelector('.demo-toggle')?.remove()
+
+  init()
+</script>
+</body>
+</html>
