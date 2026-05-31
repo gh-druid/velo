@@ -270,7 +270,11 @@
       window.location.href = 'velo-dashboard.html'
     } catch(e) {
       btn.textContent = '로그인'; btn.classList.remove('loading')
-      showBanner('이메일 또는 비밀번호가 올바르지 않습니다.')
+      if (e.message?.includes('Email not confirmed')) {
+        showBanner('이메일 인증이 필요합니다. 받은 편지함을 확인해주세요.')
+      } else {
+        showBanner('이메일 또는 비밀번호가 올바르지 않습니다.')
+      }
     }
   }
 
