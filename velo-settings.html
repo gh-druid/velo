@@ -25,39 +25,25 @@
     font-family: 'Noto Sans KR', sans-serif;
     font-weight: 300;
     min-height: 100vh;
-    display: grid;
-    grid-template-columns: 240px 1fr;
   }
 
-  /* SIDEBAR */
-  .sidebar {
-    background: var(--gray);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    padding: 32px 0;
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    width: 240px;
-    z-index: 50;
-  }
-  .sidebar-logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 4px; color: var(--accent); text-decoration: none; padding: 0 28px 32px; border-bottom: 1px solid var(--border); display: block; }
-  .sidebar-nav { flex: 1; padding: 24px 0; display: flex; flex-direction: column; gap: 2px; }
-  .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 12px 28px; font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s, background 0.2s; cursor: pointer; border: none; background: none; font-family: 'Noto Sans KR', sans-serif; width: 100%; text-align: left; letter-spacing: 0.5px; }
-  .sidebar-link:hover { color: var(--white); background: rgba(255,255,255,0.04); }
-  .sidebar-link.active { color: var(--white); background: rgba(200,245,66,0.08); border-left: 2px solid var(--accent); padding-left: 26px; }
-  .sidebar-link-icon { font-size: 16px; flex-shrink: 0; }
-  .sidebar-bottom { padding: 24px 28px; border-top: 1px solid var(--border); }
-  .sidebar-user { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .sidebar-avatar { width: 36px; height: 36px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--black); flex-shrink: 0; }
-  .sidebar-user-info { flex: 1; min-width: 0; }
-  .sidebar-user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sidebar-user-plan { font-size: 11px; color: var(--accent); letter-spacing: 1px; }
-  .sidebar-logout { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; padding: 0; transition: color 0.2s; }
-  .sidebar-logout:hover { color: var(--white); }
+  /* NAV */
+  nav { display:flex; justify-content:space-between; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
+  .nav-links-inner { display:flex; gap:4px; }
+  .nav-link { padding:8px 14px; font-size:13px; color:var(--muted); background:none; border:none; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:color 0.2s,background 0.2s; letter-spacing:0.5px; text-decoration:none; }
+  .nav-link:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+  .nav-link.active { color:var(--white); background:rgba(200,245,66,0.08); }
+  .nav-right { display:flex; align-items:center; gap:12px; }
+  .nav-avatar { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--black); cursor:pointer; position:relative; }
+  .nav-dropdown { position:absolute; top:40px; right:0; background:var(--gray); border:1px solid var(--border); min-width:160px; display:none; z-index:200; }
+  .nav-dropdown.show { display:block; }
+  .nav-dropdown-item { padding:12px 16px; font-size:13px; color:var(--muted); cursor:pointer; display:block; background:none; border:none; font-family:'Noto Sans KR',sans-serif; width:100%; text-align:left; transition:all 0.2s; }
+  .nav-dropdown-item:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+  .nav-dropdown-item.danger:hover { color:var(--error); }
 
   /* MAIN */
-  .main { margin-left: 240px; min-height: 100vh; }
+  .main { min-height: 100vh; }
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 48px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.6); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 40; }
   .topbar-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
 
@@ -318,37 +304,22 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <a href="velo-landing.html" class="sidebar-logo">VÉLO</a>
-  <nav class="sidebar-nav">
-    <button class="sidebar-link" onclick="location.href='velo-dashboard.html'">
-      <span class="sidebar-link-icon">🚲</span> 내 자전거
-    </button>
-    <button class="sidebar-link" onclick="alert('준비 중!')">
-      <span class="sidebar-link-icon">📋</span> 등록 신청 내역
-    </button>
-    <button class="sidebar-link" onclick="alert('준비 중!')">
-      <span class="sidebar-link-icon">🔔</span> 알림
-    </button>
-    <button class="sidebar-link" onclick="alert('준비 중!')">
-      <span class="sidebar-link-icon">💳</span> 구독 관리
-    </button>
-    <button class="sidebar-link active">
-      <span class="sidebar-link-icon">⚙️</span> 계정 설정
-    </button>
-  </nav>
-  <div class="sidebar-bottom">
-    <div class="sidebar-user">
-      <div class="sidebar-avatar">홍</div>
-      <div class="sidebar-user-info">
-        <div class="sidebar-user-name">홍길동</div>
-        <div class="sidebar-user-plan">월 구독 중</div>
+<!-- NAV -->
+<nav>
+  <a href="velo-landing.html" class="nav-logo">VÉLO</a>
+  <div class="nav-links-inner">
+    <a href="velo-dashboard.html" class="nav-link">🚲 내 자전거</a>
+    <a href="velo-settings.html" class="nav-link active">⚙️ 설정</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-avatar" id="navAvatar" onclick="document.getElementById('navDropdown').classList.toggle('show')">
+      ?
+      <div class="nav-dropdown" id="navDropdown">
+        <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
       </div>
     </div>
-    <button class="sidebar-logout">로그아웃</button>
   </div>
-</aside>
+</nav>
 
 <!-- MAIN -->
 <div class="main">
@@ -765,19 +736,24 @@
       document.getElementById('inputPhone').value = profile.phone || ''
       document.getElementById('inputEmail').value = profile.email || ''
 
-      // 사이드바 이름/플랜
-      document.querySelector('.sidebar-user-name').textContent = profile.name || ''
-      document.querySelector('.sidebar-user-plan').textContent =
-        profile.plan === 'monthly' ? '월 구독 중' :
-        profile.plan === 'yearly' ? '연간 구독 중' : '무료'
-      document.querySelector('.sidebar-avatar').textContent = (profile.name || '?')[0]
+      // 네비 아바타
+      const avatar = document.getElementById('navAvatar')
+      const initial = (profile.name || '?')[0]
+      avatar.childNodes[0].textContent = initial
 
-      // 인증 정보
-      document.querySelectorAll('.setting-row-sub')[6].textContent =
-        `${profile.phone} 등록됨`
-      document.querySelectorAll('.setting-row-sub')[7].textContent =
-        `${profile.email} 등록됨`
+      document.querySelectorAll('.setting-row-sub')[6].textContent = `${profile.phone} 등록됨`
+      document.querySelectorAll('.setting-row-sub')[7].textContent = `${profile.email} 등록됨`
     }
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut()
+      location.href = 'velo-auth.html'
+    })
+
+    document.addEventListener('click', e => {
+      if (!document.getElementById('navAvatar').contains(e.target))
+        document.getElementById('navDropdown').classList.remove('show')
+    })
   }
 
   // 프로필 저장
