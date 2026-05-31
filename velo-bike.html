@@ -473,23 +473,23 @@
     <div class="owner-card-header">
       <div>
         <div class="owner-label">소유자</div>
-        <div class="owner-name">홍길동</div>
-        <div class="owner-contact">010-1234-****</div>
+        <div class="owner-name">불러오는 중...</div>
+        <div class="owner-contact"></div>
       </div>
       <div class="owner-avatar">홍</div>
     </div>
     <div class="owner-card-body">
       <div class="info-row">
         <span class="info-label">등록일</span>
-        <span class="info-value">2025.03.12</span>
+        <span class="info-value" id="regDate">-</span>
       </div>
       <div class="info-row">
         <span class="info-label">소유 기간</span>
-        <span class="info-value">2년 3개월</span>
+        <span class="info-value" id="ownDuration">-</span>
       </div>
       <div class="info-row">
         <span class="info-label">소유 이력</span>
-        <span class="info-value accent">2대 소유</span>
+        <span class="info-value accent" id="ownCount">-</span>
       </div>
     </div>
   </div>
@@ -498,7 +498,7 @@
   <div class="bike-card">
     <div class="bike-card-header">
       <div class="bike-card-label">자전거 정보</div>
-      <div style="font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:1px;">velo.kr/bike/WTU123456789</div>
+      <div style="font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:1px;" id="bikeUrl"></div>
     </div>
     <div class="bike-card-body">
       <div class="bike-brand-row">
@@ -509,12 +509,12 @@
 
       <div class="bike-serial-row">
         <span class="bike-serial-label">차대번호</span>
-        <span class="bike-serial-value">WTU123456789</span>
+        <span class="bike-serial-value" id="bikeSerial">-</span>
       </div>
 
       <div class="info-row">
         <span class="info-label">색상</span>
-        <span class="info-value">매트 블랙</span>
+        <span class="info-value" id="bikeColor">-</span>
       </div>
       <div class="info-row">
         <span class="info-label">등록 부품</span>
@@ -620,26 +620,23 @@
     document.querySelector('.owner-name').textContent = owner?.name || '알 수 없음'
     document.querySelector('.owner-contact').textContent = maskPhone(owner?.phone || '')
 
-    // 등록일 / 소유 기간
     const createdAt = new Date(bike.created_at)
     const months = Math.floor((Date.now() - createdAt) / (1000 * 60 * 60 * 24 * 30))
     const years = Math.floor(months / 12)
     const remMonths = months % 12
     const duration = years > 0 ? `${years}년 ${remMonths}개월` : `${remMonths}개월`
-    document.querySelectorAll('.info-value')[0].textContent =
-      `${createdAt.getFullYear()}.${pad(createdAt.getMonth()+1)}.${pad(createdAt.getDate())}`
-    document.querySelectorAll('.info-value')[1].textContent = duration
 
-    // 자전거 정보
+    document.getElementById('regDate').textContent =
+      `${createdAt.getFullYear()}.${pad(createdAt.getMonth()+1)}.${pad(createdAt.getDate())}`
+    document.getElementById('ownDuration').textContent = duration
+    document.getElementById('bikeUrl').textContent = `velo.kr/bike/${bike.serial}`
+    document.getElementById('bikeSerial').textContent = bike.serial
+    document.getElementById('bikeColor').textContent = bike.color || '미입력'
+
+    // 브랜드, 모델
     document.querySelector('.bike-brand').textContent = bike.brand.toUpperCase()
     document.querySelector('.bike-model').textContent = bike.model
-    document.querySelector('.bike-serial-value').textContent = bike.serial
-    if (bike.color) document.querySelectorAll('.info-value')[3].textContent = bike.color
-    document.querySelectorAll('.info-value')[4].textContent = `${bike.parts?.length || 0}개`
-
-    // URL 표시
-    document.querySelector('.bike-card-header div:last-child').textContent =
-      `velo.kr/bike/${bike.serial}`
+    if (bike.year) document.querySelector('.bike-year').textContent = `${bike.year}년식`
 
     // 부품
     const parts = bike.parts || []
@@ -695,6 +692,19 @@
     } catch(e) { console.log('이력 조회 오류:', e) }
 
     historyList.innerHTML = historyHTML
+
+    // 소유 이력 수
+    try {
+      const { data: transferCount } = await supabase
+        .from('transfers')
+        .select('id', { count: 'exact' })
+        .eq('bike_id', bike.id)
+        .eq('status', 'completed')
+      const total = (transferCount?.length || 0) + 1
+      document.getElementById('ownCount').textContent = `${total}대 소유`
+    } catch(e) {
+      document.getElementById('ownCount').textContent = '1대 소유'
+    }
 
     // 연식
     if (bike.year) document.querySelector('.bike-year').textContent = `${bike.year}년식`
