@@ -548,7 +548,7 @@
     <div class="pricing-summary" id="partPricing" style="margin-top:32px;">
       <div class="pricing-row">
         <span>프레임 등록</span>
-        <span class="price">9,900원</span>
+        <span class="price">7,900원</span>
       </div>
       <div id="partPricingRows"></div>
       <div class="pricing-row" id="discountRow" style="display:none;">
@@ -557,7 +557,7 @@
       </div>
       <div class="pricing-row total">
         <span>태그 발급 합계</span>
-        <span class="price" id="totalPrice">9,900원</span>
+        <span class="price" id="totalPrice">7,900원</span>
       </div>
     </div>
 
@@ -583,14 +583,14 @@
       <div class="plan-card selected" id="plan1" onclick="selectPlan(1)">
         <input type="radio" name="plan" value="monthly" checked>
         <div class="plan-name">월 구독 ★ 추천</div>
-        <div class="plan-price">990</div>
+        <div class="plan-price">490</div>
         <div class="plan-unit">원 / 월</div>
         <div class="plan-desc">도난 신고 포함. 언제든 해지 가능.</div>
       </div>
       <div class="plan-card" id="plan2" onclick="selectPlan(2)">
         <input type="radio" name="plan" value="yearly">
         <div class="plan-name">연간 구독</div>
-        <div class="plan-price">9,900</div>
+        <div class="plan-price">4,900</div>
         <div class="plan-unit">원 / 년</div>
         <div class="plan-desc">월 구독 대비 약 17% 절약.</div>
         <div class="discount-badge">2개월 무료</div>
@@ -600,11 +600,11 @@
     <div class="pricing-summary">
       <div class="pricing-row">
         <span>태그 발급비</span>
-        <span class="price" id="summaryTag">9,900원</span>
+        <span class="price" id="summaryTag">7,900원</span>
       </div>
       <div class="pricing-row">
         <span id="summaryPlanLabel">월 구독료</span>
-        <span class="price" id="summaryPlan">990원/월</span>
+        <span class="price" id="summaryPlan">490원/월</span>
       </div>
       <div class="pricing-row total">
         <span>오늘 결제 금액</span>
@@ -746,7 +746,7 @@
   }
 
   function updatePricing() {
-    const base = 9900;
+    const base = 7900;
     const perPart = 5900;
     let discount = 0;
     if (parts.length >= 2) discount = parts.length * 1000;
