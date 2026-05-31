@@ -651,7 +651,6 @@
 
     // 소유 이력 (transfers 기반)
     const historyList = document.getElementById('historyList')
-    const pad = n => String(n).padStart(2,'0')
     const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
 
     // 현재 소유자
