@@ -256,11 +256,17 @@
     <li><a href="#how">이용방법</a></li>
     <li><a href="#features">기능</a></li>
     <li><a href="#pricing">요금제</a></li>
-    <li><a href="velo-auth.html">로그인</a></li>
+    <li><a href="velo-auth.html" id="navAuthBtn">로그인</a></li>
     <li><a href="#" class="nav-cta" onclick="location.href='velo-payment.html';return false;">등록 신청</a></li>
   </ul>
-  </ul>
 </nav>
+<script type="module">
+  import { getUser } from './velo-supabase.js'
+  getUser().then(user => {
+    const btn = document.getElementById('navAuthBtn')
+    if (user && btn) { btn.textContent = '대시보드'; btn.href = 'velo-dashboard.html'; }
+  })
+</script>
 
 <section class="hero">
   <div class="hero-bg"></div>
