@@ -145,18 +145,11 @@
         <div class="screen-sub">가입 후 이메일 인증을 완료해주세요.</div>
       </div>
 
-      <div class="field-row">
-        <div class="field">
+      <div class="field">
           <label>이름</label>
           <input type="text" id="signupName" placeholder="홍길동">
           <div class="field-error" id="signupNameErr">이름을 입력해주세요.</div>
         </div>
-        <div class="field">
-          <label>연락처</label>
-          <input type="tel" id="signupPhone" placeholder="010-0000-0000">
-          <div class="field-error" id="signupPhoneErr">연락처를 입력해주세요.</div>
-        </div>
-      </div>
 
       <div class="field">
         <label>이메일</label>
@@ -286,7 +279,6 @@
 
   window.handleSignup = async function() {
     const name = document.getElementById('signupName').value
-    const phone = document.getElementById('signupPhone').value
     const email = document.getElementById('signupEmail').value
     const pw = document.getElementById('signupPw').value
     const pwc = document.getElementById('signupPwConfirm').value
@@ -294,7 +286,6 @@
     const stolen = document.getElementById('agreeStolen').checked
     let err = false
     if (!name) err = showErr('signupNameErr', true); else showErr('signupNameErr', false)
-    if (!phone) err = showErr('signupPhoneErr', true); else showErr('signupPhoneErr', false)
     if (!email || !/\S+@\S+\.\S+/.test(email)) err = showErr('signupEmailErr', true); else showErr('signupEmailErr', false)
     if (!pw || pw.length < 8) err = showErr('signupPwErr', true); else showErr('signupPwErr', false)
     if (pw !== pwc) err = showErr('signupPwConfirmErr', true); else showErr('signupPwConfirmErr', false)
@@ -304,7 +295,7 @@
     const btn = document.getElementById('signupBtn')
     btn.textContent = '가입 중...'; btn.classList.add('loading')
     try {
-      await signUp({ email, password: pw, name, phone })
+      await signUp({ email, password: pw, name, phone: '' })
       pendingEmail = email
       document.getElementById('verifySubText').textContent = `${email} 로 전송된 6자리 코드를 입력해주세요.`
       goScreen('screenVerify')

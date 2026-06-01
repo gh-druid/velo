@@ -257,15 +257,22 @@
     <li><a href="#features">기능</a></li>
     <li><a href="#pricing">요금제</a></li>
     <li><a href="velo-auth.html" id="navAuthBtn">로그인</a></li>
-    <li><a href="#" class="nav-cta" onclick="location.href='velo-payment.html';return false;">등록 신청</a></li>
+    <li><a href="#" class="nav-cta" onclick="_goPayment();return false;">등록 신청</a></li>
   </ul>
 </nav>
 <script type="module">
   import { getUser } from './velo-supabase.js'
-  getUser().then(user => {
+  async function checkAuth() {
+    const user = await getUser()
     const btn = document.getElementById('navAuthBtn')
     if (user && btn) { btn.textContent = '대시보드'; btn.href = 'velo-dashboard.html'; }
-  })
+    // 등록 신청 버튼들 로그인 체크
+    window._goPayment = async function() {
+      const u = await getUser()
+      location.href = u ? 'velo-payment.html' : 'velo-auth.html'
+    }
+  }
+  checkAuth()
 </script>
 
 <section class="hero">
@@ -274,7 +281,7 @@
   <h1 class="hero-title">내 자전거를<br><span>증명하다.</span></h1>
   <p class="hero-sub">NFC 칩 하나로 소유권을 등록하고, 도난을 막고,<br>중고거래에서 신뢰를 만드세요.</p>
   <div class="hero-actions">
-    <button class="btn-primary" onclick="location.href='velo-payment.html'">지금 등록하기</button>
+    <button class="btn-primary" onclick="_goPayment()">지금 등록하기</button>
     <button class="btn-secondary" onclick="document.getElementById('live').scrollIntoView({behavior:'smooth'})">등록 현황 보기</button>
   </div>
   <div class="hero-scroll">SCROLL DOWN</div>
@@ -355,7 +362,7 @@
         <li>소유자 확인 페이지</li>
         <li>도난품 조회</li>
       </ul>
-      <button class="price-cta" onclick="location.href='velo-payment.html'">신청하기</button>
+      <button class="price-cta" onclick="_goPayment()">신청하기</button>
     </div>
     <div class="price-card featured reveal">
       <div class="price-label">칩 2개 + 카드</div>
@@ -368,7 +375,7 @@
         <li>소유자 확인 페이지</li>
         <li>도난품 조회</li>
       </ul>
-      <button class="price-cta" onclick="location.href='velo-payment.html'">신청하기</button>
+      <button class="price-cta" onclick="_goPayment()">신청하기</button>
     </div>
     <div class="price-card reveal">
       <div class="price-label">월 구독</div>
@@ -381,7 +388,7 @@
         <li>이의제기 우선 처리</li>
         <li>연간 결제 시 2개월 무료</li>
       </ul>
-      <button class="price-cta" onclick="location.href='velo-payment.html'">구독 시작</button>
+      <button class="price-cta" onclick="_goPayment()">구독 시작</button>
     </div>
   </div>
   <p style="margin-top:24px;font-size:12px;color:var(--text-muted);">* 양도 시 건당 수수료 490원 별도 / 칩 재발급 시 50% 할인 적용</p>
@@ -391,7 +398,7 @@
   <h2 class="cta-title">지금<br>내 자전거를<br>등록하세요.</h2>
   <div class="cta-right">
     <p class="cta-desc">비싼 자전거일수록 더 필요합니다.<br>스캔 하나로 내 거라는 걸 증명하세요.</p>
-    <button class="btn-dark" onclick="location.href='velo-payment.html'">등록 신청하기 →</button>
+    <button class="btn-dark" onclick="_goPayment()">등록 신청하기 →</button>
   </div>
 </section>
 
@@ -414,64 +421,81 @@
   </div>
 </div>
 
+<script type="module">
+  import { getPublicRegistry } from './velo-supabase.js'
+
+  const emojis = ['🚴', '🚵', '🏆', '⚡', '🔥']
+
+  function maskName(name) {
+    if (!name || name.length < 2) return '익명'
+    if (name.length === 2) return name[0] + '*'
+    return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1]
+  }
+
+  function fmtDate(d) {
+    const dt = new Date(d)
+    const m = String(dt.getMonth()+1).padStart(2,'0')
+    const day = String(dt.getDate()).padStart(2,'0')
+    return `${m}.${day}`
+  }
+
+  async function loadRegistry() {
+    try {
+      const data = await getPublicRegistry(50)
+
+      if (!data || data.length === 0) {
+        // 데이터 없으면 슬라이더 숨기기
+        document.getElementById('sliderTrack').innerHTML = ''
+        return
+      }
+
+      // 슬라이더 생성
+      const track = document.getElementById('sliderTrack')
+      track.innerHTML = ''
+      const allData = [...data, ...data] // 무한 루프용 2배
+      allData.forEach((d, i) => {
+        const card = document.createElement('div')
+        card.className = 'slider-card'
+        card.innerHTML = `
+          <div class="slider-avatar">${emojis[i % emojis.length]}</div>
+          <div class="slider-info">
+            <div class="slider-name">${maskName(d.ownerName)}</div>
+            <div class="slider-bike">${d.brand} ${d.model}</div>
+            <div class="slider-date">${fmtDate(d.created_at)} 등록</div>
+          </div>
+          <div class="slider-dot"></div>
+        `
+        track.appendChild(card)
+      })
+
+      // 등록 수 업데이트
+      const countEl = document.getElementById('registryCount')
+      if (countEl) countEl.textContent = `총 ${data.length}대 등록됨`
+
+      // 레지스트리 목록 생성
+      const items = document.getElementById('registryItems')
+      items.innerHTML = ''
+      data.forEach((d, i) => {
+        const item = document.createElement('div')
+        item.className = 'registry-item'
+        item.innerHTML = `
+          <span class="registry-item-num">${String(i+1).padStart(3,'0')}</span>
+          <span class="registry-item-name">${maskName(d.ownerName)}</span>
+          <span class="registry-item-bike">${d.brand} ${d.model}</span>
+          <span class="registry-item-date">${fmtDate(d.created_at)}</span>
+        `
+        items.appendChild(item)
+      })
+
+    } catch(e) {
+      console.log('등록 현황 로딩 실패:', e)
+    }
+  }
+
+  loadRegistry()
+</script>
+
 <script>
-  // 더미 데이터
-  const dummyData = [
-    { name:'홍*동', bike:'Trek Emonda SL6', date:'05.31', emoji:'🚴' },
-    { name:'김*수', bike:'Specialized Tarmac SL7', date:'05.31', emoji:'🚵' },
-    { name:'이*진', bike:'Giant TCR Advanced', date:'05.30', emoji:'🚴' },
-    { name:'박*현', bike:'Cannondale SuperSix', date:'05.30', emoji:'🚵' },
-    { name:'최*우', bike:'Scott Addict RC', date:'05.29', emoji:'🚴' },
-    { name:'정*아', bike:'Pinarello Dogma F', date:'05.29', emoji:'🚵' },
-    { name:'강*민', bike:'Cervélo R5', date:'05.28', emoji:'🚴' },
-    { name:'윤*서', bike:'Bianchi Oltre XR4', date:'05.28', emoji:'🚵' },
-    { name:'조*훈', bike:'Merida Scultura', date:'05.27', emoji:'🚴' },
-    { name:'임*연', bike:'Trek Madone SLR', date:'05.27', emoji:'🚵' },
-    { name:'한*준', bike:'Colnago V4Rs', date:'05.26', emoji:'🚴' },
-    { name:'오*희', bike:'Giant Propel Advanced', date:'05.26', emoji:'🚵' },
-  ];
-
-  // 슬라이더 생성 (2배 복제로 무한 루프)
-  const track = document.getElementById('sliderTrack');
-  const allData = [...dummyData, ...dummyData];
-  allData.forEach(d => {
-    const card = document.createElement('div');
-    card.className = 'slider-card';
-    card.innerHTML = `
-      <div class="slider-avatar">${d.emoji}</div>
-      <div class="slider-info">
-        <div class="slider-name">${d.name}</div>
-        <div class="slider-bike">${d.bike}</div>
-        <div class="slider-date">${d.date} 등록</div>
-      </div>
-      <div class="slider-dot"></div>
-    `;
-    track.appendChild(card);
-  });
-
-  // 레지스트리 목록 생성
-  const items = document.getElementById('registryItems');
-  const fullData = [
-    ...dummyData,
-    { name:'신*철', bike:'Scott Foil RC', date:'05.25', emoji:'🚴' },
-    { name:'권*영', bike:'Specialized Venge', date:'05.25', emoji:'🚵' },
-    { name:'황*수', bike:'Trek Domane SLR', date:'05.24', emoji:'🚴' },
-    { name:'송*진', bike:'Giant Defy Advanced', date:'05.24', emoji:'🚵' },
-    { name:'류*민', bike:'Cannondale Synapse', date:'05.23', emoji:'🚴' },
-    { name:'전*아', bike:'Merida Reacto', date:'05.23', emoji:'🚵' },
-  ];
-
-  fullData.forEach((d, i) => {
-    const item = document.createElement('div');
-    item.className = 'registry-item';
-    item.innerHTML = `
-      <span class="registry-item-num">${String(i+1).padStart(3,'0')}</span>
-      <span class="registry-item-name">${d.name}</span>
-      <span class="registry-item-bike">${d.bike}</span>
-      <span class="registry-item-date">${d.date}</span>
-    `;
-    items.appendChild(item);
-  });
 
   function toggleRegistry() {
     const list = document.getElementById('registryList');
