@@ -228,6 +228,13 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
     document.getElementById(id).classList.add('active')
     document.getElementById('errorBanner').classList.remove('show')
+    // 버튼 로딩 상태 초기화
+    document.querySelectorAll('.btn-main.loading').forEach(btn => {
+      btn.classList.remove('loading')
+      if (btn.id === 'signupBtn') btn.textContent = '가입하기'
+      if (btn.id === 'loginBtn') btn.textContent = '로그인'
+      if (btn.id === 'verifyBtn') btn.textContent = '인증 완료'
+    })
   }
 
   function showBanner(msg) {
