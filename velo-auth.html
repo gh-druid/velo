@@ -286,10 +286,8 @@
     }
   }
 
-  window.handleForgot = async function() {
-    const email = document.getElementById('loginEmail').value.trim()
-    if (!email) { showBanner('이메일을 먼저 입력해주세요.'); return; }
-    showBanner('비밀번호 재설정 이메일을 발송했습니다.')
+  window.handleForgot = function() {
+    location.href = 'velo-reset.html'
   }
 
   // OTP 자동 포커스
