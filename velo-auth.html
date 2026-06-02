@@ -303,10 +303,7 @@
     btn.textContent = '가입 중...'; btn.classList.add('loading')
     try {
       await signUp({ email, password: pw, name, phone: '' })
-      pendingEmail = email
-      document.getElementById('verifySubText').textContent = `${email} 로 전송된 6자리 코드를 입력해주세요.`
-      goScreen('screenVerify')
-      document.getElementById('otp0').focus()
+      location.href = 'velo-dashboard.html'
     } catch(e) {
       btn.textContent = '가입하기'; btn.classList.remove('loading')
       showBanner(e.message || '가입 중 오류가 발생했습니다.')
