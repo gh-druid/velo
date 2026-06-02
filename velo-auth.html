@@ -190,31 +190,7 @@
       <button class="btn-ghost" onclick="goScreen('screenLogin')">← 로그인으로 돌아가기</button>
     </div>
 
-    <!-- 코드 인증 화면 -->
-    <div class="screen" id="screenVerify">
-      <div>
-        <div class="screen-title">코드 입력</div>
-        <div class="screen-sub" id="verifySubText">이메일로 전송된 6자리 코드를 입력해주세요.</div>
-      </div>
-
-      <div style="display:flex; gap:8px; justify-content:center;">
-        <input class="otp-input" maxlength="1" id="otp0">
-        <input class="otp-input" maxlength="1" id="otp1">
-        <input class="otp-input" maxlength="1" id="otp2">
-        <input class="otp-input" maxlength="1" id="otp3">
-        <input class="otp-input" maxlength="1" id="otp4">
-        <input class="otp-input" maxlength="1" id="otp5">
-      </div>
-
-      <button class="btn-main" id="verifyBtn" onclick="handleVerify()">인증 완료</button>
-
-      <div style="text-align:center; font-size:12px; color:var(--muted);">
-        코드를 못 받으셨나요?
-        <button style="background:none;border:none;color:var(--accent);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline;" id="resendBtn" onclick="handleResend()">재발송</button>
-      </div>
-
-      <button style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;" onclick="goScreen('screenSignup')">← 돌아가기</button>
-    </div>
+    <!-- 회원가입 끝 -->
 
   </div>
 </div>
