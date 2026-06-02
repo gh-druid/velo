@@ -593,6 +593,15 @@
 
     try {
       const bike = await getBikeBySerial(serial)
+
+      // 소유자에게 스캔 알림
+      if (bike && bike.user_id) {
+        try {
+          const { createNotification } = await import('./velo-supabase.js')
+          await createNotification(bike.user_id, 'scan', `누군가 ${bike.brand} ${bike.model} 태그를 스캔했습니다.`, bike.id)
+        } catch(e) {}
+      }
+
       renderBike(bike)
     } catch(e) {
       showError('등록되지 않은 자전거입니다.')

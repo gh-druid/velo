@@ -168,7 +168,10 @@
   <div class="nav-links">
     <button class="nav-link active">🚲 내 자전거</button>
     <button class="nav-link" onclick="alert('준비 중!')">📋 등록 내역</button>
-    <button class="nav-link" onclick="alert('준비 중!')">🔔 알림</button>
+    <button class="nav-link" onclick="toggleNotif()" style="position:relative;">
+      🔔 알림
+      <span id="notifBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--error); color:white; font-size:9px; font-weight:700; width:14px; height:14px; border-radius:50%; align-items:center; justify-content:center;"></span>
+    </button>
     <button class="nav-link" onclick="location.href='velo-settings.html'">⚙️ 설정</button>
   </div>
   <div class="nav-right">
@@ -250,6 +253,17 @@
   </div>
 </div>
 
+<!-- 알림 드롭다운 -->
+<div id="notifDropdown" style="display:none; position:fixed; top:60px; left:50%; transform:translateX(-25%); width:320px; background:var(--gray); border:1px solid var(--border); z-index:200; max-height:400px; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+  <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+    <span style="font-size:13px; font-weight:500; letter-spacing:1px;">알림</span>
+    <button onclick="readAll()" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;letter-spacing:1px;font-family:'Noto Sans KR',sans-serif;">모두 읽음</button>
+  </div>
+  <div id="notifList">
+    <div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">알림이 없습니다.</div>
+  </div>
+</div>
+
 <!-- 도난 신고 모달 -->
 <div class="modal-overlay" id="stolenModal" onclick="closeModal('stolenModal',event)">
   <div class="modal">
@@ -289,7 +303,7 @@
 <script>
 </script>
 <script type="module">
-  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode } from './velo-supabase.js'
+  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getNotifications, getUnreadCount, markAllRead } from './velo-supabase.js'
 
   let currentBikes = []
   let currentBikeId = null
@@ -320,6 +334,7 @@
 
     // 자전거 목록
     await loadBikes()
+    await loadNotifications()
   }
 
   // 자전거 목록 불러오기
@@ -412,6 +427,58 @@
     }
   }
 
+  // 알림
+  async function loadNotifications() {
+    const count = await getUnreadCount()
+    const badge = document.getElementById('notifBadge')
+    if (count > 0) {
+      badge.style.display = 'flex'
+      badge.textContent = count > 9 ? '9+' : count
+    } else {
+      badge.style.display = 'none'
+    }
+  }
+
+  window.toggleNotif = async function() {
+    const dropdown = document.getElementById('notifDropdown')
+    const isOpen = dropdown.style.display === 'block'
+    dropdown.style.display = isOpen ? 'none' : 'block'
+
+    if (!isOpen) {
+      const notifs = await getNotifications()
+      const list = document.getElementById('notifList')
+      if (notifs.length === 0) {
+        list.innerHTML = '<div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">알림이 없습니다.</div>'
+      } else {
+        list.innerHTML = notifs.map(n => `
+          <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:flex-start; background:${n.is_read ? 'transparent' : 'rgba(200,245,66,0.03)'};">
+            <span style="font-size:18px; flex-shrink:0;">${n.type === 'scan' ? '📡' : n.type === 'stolen' ? '🚨' : '🤝'}</span>
+            <div style="flex:1;">
+              <div style="font-size:13px; line-height:1.5;">${n.message}</div>
+              <div style="font-size:11px; color:var(--muted); margin-top:4px; font-family:'Courier New',monospace;">${new Date(n.created_at).toLocaleDateString('ko-KR')}</div>
+            </div>
+            ${!n.is_read ? '<div style="width:6px;height:6px;background:var(--accent);border-radius:50%;flex-shrink:0;margin-top:4px;"></div>' : ''}
+          </div>
+        `).join('')
+      }
+    }
+  }
+
+  window.readAll = async function() {
+    await markAllRead()
+    document.getElementById('notifBadge').style.display = 'none'
+    document.getElementById('notifList').innerHTML = '<div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">알림이 없습니다.</div>'
+  }
+
+  // 알림 드롭다운 외부 클릭 닫기
+  document.addEventListener('click', e => {
+    const dropdown = document.getElementById('notifDropdown')
+    const bell = document.querySelector('[onclick="toggleNotif()"]')
+    if (dropdown && !dropdown.contains(e.target) && bell && !bell.contains(e.target)) {
+      dropdown.style.display = 'none'
+    }
+  })
+
   // 도난 신고
   window.openStolen = function(id, name) {
     currentBikeId = id
@@ -422,8 +489,15 @@
   window.confirmStolen = async function() {
     try {
       await reportStolen(currentBikeId)
+      // 알림 생성
+      const bike = currentBikes.find(b => b.id === currentBikeId)
+      if (bike) {
+        const { createNotification } = await import('./velo-supabase.js')
+        await createNotification(currentUser.id, 'stolen', `${bike.brand} ${bike.model} 도난 신고가 완료됐습니다.`, currentBikeId)
+      }
       document.getElementById('stolenModal').classList.remove('active')
       await loadBikes()
+      await loadNotifications()
     } catch(e) {
       alert(e.message)
     }

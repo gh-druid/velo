@@ -6,7 +6,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
 const SUPABASE_URL = 'https://kfeksnbxucmkilxrbhth.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWtzbmJ4dWNta2lseHJiaHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjQ1NTksImV4cCI6MjA5NTgwMDU1OX0.lXBqhrM_xgrNqZ6WqEWYwgo4NTyodLx9rV3TS25nyjM' // 여기에 anon key 입력
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY' // 여기에 anon key 입력
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
@@ -344,8 +344,55 @@ export async function startSubscription(plan) {
 }
 
 // =============================================
-// IMAGE UPLOAD (Supabase Storage)
+// NOTIFICATIONS (알림)
 // =============================================
+
+// 알림 목록 가져오기
+export async function getNotifications() {
+  const user = await getUser()
+  if (!user) return []
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(20)
+  if (error) return []
+  return data || []
+}
+
+// 읽지 않은 알림 수
+export async function getUnreadCount() {
+  const user = await getUser()
+  if (!user) return 0
+  const { count } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('is_read', false)
+  return count || 0
+}
+
+// 알림 읽음 처리
+export async function markAllRead() {
+  const user = await getUser()
+  if (!user) return
+  await supabase
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('user_id', user.id)
+    .eq('is_read', false)
+}
+
+// 알림 생성
+export async function createNotification(userId, type, message, bikeId = null) {
+  await supabase.from('notifications').insert({
+    user_id: userId,
+    type,
+    message,
+    bike_id: bikeId
+  })
+}
 
 // 이미지 업로드
 export async function uploadBikePhoto(file, bikeId) {
