@@ -325,6 +325,15 @@
       const initial = profile.name ? profile.name[0] : '?'
       document.getElementById('navAvatar').textContent = initial
       document.getElementById('navAvatar').style.fontSize = '14px'
+      // 관리자면 버튼 추가
+      if (profile.is_admin) {
+        const adminBtn = document.createElement('a')
+        adminBtn.href = 'velo-admin.html'
+        adminBtn.className = 'nav-link'
+        adminBtn.style = 'font-size:12px; color:var(--accent); border:1px solid rgba(200,245,66,0.3); padding:4px 10px; text-decoration:none;'
+        adminBtn.textContent = '⚙ 관리자'
+        document.querySelector('.nav-right').prepend(adminBtn)
+      }
       // 드롭다운 다시 추가
       const dropdown = document.createElement('div')
       dropdown.className = 'nav-dropdown'
