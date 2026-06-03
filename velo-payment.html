@@ -237,6 +237,16 @@
       </div>
     </div>
 
+    <!-- 할인코드 -->
+    <div style="margin-bottom:24px;">
+      <div class="section-label">할인코드</div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="discountInput" placeholder="할인코드 입력" style="flex:1; background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'DM Mono',monospace; font-size:13px; outline:none; letter-spacing:2px;" oninput="this.value=this.value.toUpperCase()">
+        <button onclick="applyDiscount()" style="background:var(--accent); color:var(--black); border:none; padding:12px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer;">적용</button>
+      </div>
+      <div id="discountMsg" style="font-size:12px; margin-top:6px;"></div>
+    </div>
+
     <!-- 약관 -->
     <label class="agree-row">
       <input type="checkbox" id="agreePayment">
@@ -279,9 +289,11 @@
 </div>
 
 <script type="module">
-  import { getUser, getUserProfile, startSubscription, getMyBikes, supabase } from './velo-supabase.js'
+  import { getUser, getUserProfile, startSubscription, getMyBikes, supabase, validateDiscountCode, useDiscountCode } from './velo-supabase.js'
 
   const TOSS_CLIENT_KEY = 'test_ck_Ba5PzR0Arnx6zywGEDEB3vmYnNeD'
+
+  let appliedDiscount = null
 
   const products = [
     { name: '칩 2개 (기본)', price: 7900 },
@@ -353,6 +365,88 @@
     })
   }
 
+  // 할인코드 적용
+  window.applyDiscount = async function() {
+    const code = document.getElementById('discountInput').value.trim()
+    const msg = document.getElementById('discountMsg')
+    if (!code) return
+
+    try {
+      const discount = await validateDiscountCode(code)
+      appliedDiscount = discount
+
+      const label = discount.discount_type === 'percent'
+        ? `${discount.discount_value}% 할인`
+        : `${discount.discount_value.toLocaleString()}원 할인`
+      const target = { all: '전체', tag: '태그 발급비', subscription: '구독료' }[discount.target]
+
+      msg.style.color = 'var(--accent)'
+      msg.textContent = `✓ ${label} 적용됨 (${target} 대상)`
+      updateSummary()
+    } catch(e) {
+      appliedDiscount = null
+      msg.style.color = 'var(--error)'
+      msg.textContent = e.message
+      updateSummary()
+    }
+  }
+
+  function calcDiscount(price, target, currentTarget) {
+    if (!appliedDiscount) return 0
+    if (appliedDiscount.target !== 'all' && appliedDiscount.target !== currentTarget) return 0
+    if (appliedDiscount.discount_type === 'percent') {
+      return Math.floor(price * appliedDiscount.discount_value / 100)
+    }
+    return Math.min(appliedDiscount.discount_value, price)
+  }
+
+  // 결제 시작 시 할인코드 사용 처리
+  window.startPayment = async function() {
+    const agree1 = document.getElementById('agreePayment').checked
+    const agree2 = document.getElementById('agreeInfo').checked
+    if (!agree1 || !agree2) { alert('약관에 동의해주세요.'); return; }
+
+    const prod = products[selectedProd]
+    const sub = subs[selectedSub]
+
+    let tagPrice = prod.price
+    let subPrice = sub.price
+
+    // 할인 적용
+    if (appliedDiscount) {
+      if (appliedDiscount.target === 'all' || appliedDiscount.target === 'tag') {
+        tagPrice -= calcDiscount(tagPrice, appliedDiscount.target, 'tag')
+      }
+      if (appliedDiscount.target === 'all' || appliedDiscount.target === 'subscription') {
+        subPrice -= calcDiscount(subPrice, appliedDiscount.target, 'subscription')
+      }
+    }
+
+    const total = tagPrice + subPrice
+    const orderId = 'velo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
+    const orderName = sub.plan === 'free' ? prod.name : `${prod.name} + ${sub.name}`
+
+    // 할인코드 사용 처리
+    if (appliedDiscount) {
+      try { await useDiscountCode(appliedDiscount.id) } catch(e) {}
+    }
+
+    const tossPayments = TossPayments(TOSS_CLIENT_KEY)
+    try {
+      await tossPayments.requestPayment('카드', {
+        amount: total,
+        orderId,
+        orderName,
+        customerName: currentProfile?.name || '고객',
+        customerEmail: currentUser?.email || '',
+        successUrl: window.location.origin + '/velo-payment.html?plan=' + sub.plan,
+        failUrl: window.location.origin + '/velo-payment.html',
+      })
+    } catch(e) {
+      if (e.code !== 'USER_CANCEL') alert('결제 오류: ' + e.message)
+    }
+  }
+
   window.selectProduct = function(n) {
     selectedProd = n
     document.querySelectorAll('.product-card').forEach((c, i) => {
@@ -372,46 +466,44 @@
   function updateSummary() {
     const prod = products[selectedProd]
     const sub = subs[selectedSub]
-    const total = prod.price + sub.price
+
+    let tagPrice = prod.price
+    let subPrice = sub.price
+    let discountAmt = 0
+
+    if (appliedDiscount) {
+      const tagDiscount = (appliedDiscount.target === 'all' || appliedDiscount.target === 'tag')
+        ? calcDiscount(tagPrice, appliedDiscount.target, 'tag') : 0
+      const subDiscount = (appliedDiscount.target === 'all' || appliedDiscount.target === 'subscription')
+        ? calcDiscount(subPrice, appliedDiscount.target, 'subscription') : 0
+      discountAmt = tagDiscount + subDiscount
+    }
+
+    const total = tagPrice + subPrice - discountAmt
 
     document.getElementById('tagName').textContent = prod.name
     document.getElementById('tagPrice').textContent = prod.price.toLocaleString() + '원'
     document.getElementById('subName').textContent = sub.name
     document.getElementById('subPrice').textContent = sub.price.toLocaleString() + '원'
+
+    // 할인 행 표시
+    let discountRow = document.getElementById('discountRow')
+    if (!discountRow) {
+      discountRow = document.createElement('div')
+      discountRow.id = 'discountRow'
+      discountRow.className = 'order-row'
+      discountRow.style.color = 'var(--accent)'
+      document.getElementById('totalPrice').parentElement.before(discountRow)
+    }
+    if (discountAmt > 0) {
+      discountRow.style.display = 'flex'
+      discountRow.innerHTML = `<span>할인 (${appliedDiscount.code})</span><span class="price">-${discountAmt.toLocaleString()}원</span>`
+    } else {
+      discountRow.style.display = 'none'
+    }
+
     document.getElementById('totalPrice').textContent = total.toLocaleString() + '원'
     document.getElementById('payBtnText').textContent = `${total.toLocaleString()}원 결제하기`
-  }
-
-  window.startPayment = async function() {
-    const agree1 = document.getElementById('agreePayment').checked
-    const agree2 = document.getElementById('agreeInfo').checked
-    if (!agree1 || !agree2) { alert('약관에 동의해주세요.'); return; }
-
-    const prod = products[selectedProd]
-    const sub = subs[selectedSub]
-    const total = prod.price + sub.price
-    const orderId = 'velo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
-    const orderName = sub.plan === 'free'
-      ? prod.name
-      : `${prod.name} + ${sub.name}`
-
-    const tossPayments = TossPayments(TOSS_CLIENT_KEY)
-
-    try {
-      await tossPayments.requestPayment('카드', {
-        amount: total,
-        orderId,
-        orderName,
-        customerName: currentProfile?.name || '고객',
-        customerEmail: currentUser?.email || '',
-        successUrl: window.location.origin + '/velo-payment.html?plan=' + sub.plan,
-        failUrl: window.location.origin + '/velo-payment.html',
-      })
-    } catch(e) {
-      if (e.code !== 'USER_CANCEL') {
-        alert('결제 오류: ' + e.message)
-      }
-    }
   }
 
   async function handleSuccess(params) {

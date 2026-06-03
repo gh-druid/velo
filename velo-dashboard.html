@@ -220,6 +220,7 @@
       <button class="filter-tab active" onclick="filterBikes('all',this)">전체</button>
       <button class="filter-tab" onclick="filterBikes('normal',this)">정상</button>
       <button class="filter-tab" onclick="filterBikes('stolen',this)">도난</button>
+      <button class="filter-tab" onclick="showTransferHistory(this)">양도 이력</button>
     </div>
   </div>
 
@@ -244,8 +245,10 @@
     <div class="modal-sub" id="deleteModalSub">이 자전거를 삭제하시겠습니까?</div>
     <div class="modal-warn">
       ⚠ 삭제하면 등록된 모든 정보가 사라집니다.<br>
-      NFC 태그도 비활성화됩니다. 되돌릴 수 없습니다.
+      NFC 태그도 비활성화됩니다. 되돌릴 수 없습니다.<br><br>
+      확인을 위해 아래에 <strong style="color:var(--white);">삭제하겠습니다</strong>를 입력해주세요.
     </div>
+    <input type="text" id="deleteConfirmInput" placeholder="삭제하겠습니다" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; width:100%; margin-bottom:16px;">
     <div class="modal-actions">
       <button class="btn-cancel" onclick="document.getElementById('deleteModal').classList.remove('active')">취소</button>
       <button class="btn-confirm-danger" onclick="confirmDelete()">삭제하기</button>
@@ -307,15 +310,18 @@
 
   let currentBikes = []
   let currentBikeId = null
+  let currentUser = null
+  let hasSubscription = false
 
   // 로그인 체크
   async function init() {
-    const user = await getUser()
-    if (!user) { location.href = 'velo-auth.html'; return; }
+    currentUser = await getUser()
+    if (!currentUser) { location.href = 'velo-auth.html'; return; }
 
     // 유저 정보
-    const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('users').select('*').eq('id', currentUser.id).single()
     if (profile) {
+      hasSubscription = profile.plan === 'monthly' || profile.plan === 'yearly'
       const initial = profile.name ? profile.name[0] : '?'
       document.getElementById('navAvatar').textContent = initial
       document.getElementById('navAvatar').style.fontSize = '14px'
@@ -325,7 +331,7 @@
       dropdown.id = 'navDropdown'
       dropdown.innerHTML = `
         <button class="nav-dropdown-item" onclick="location.href='velo-settings.html'">계정 설정</button>
-        <button class="nav-dropdown-item" onclick="alert('준비 중!')">구독 관리</button>
+        <button class="nav-dropdown-item" onclick="location.href='velo-payment.html'">구독 관리</button>
         <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
       `
       document.getElementById('navAvatar').appendChild(dropdown)
@@ -365,7 +371,13 @@
 
     if (filtered.length === 0) {
       grid.innerHTML = ''
-      document.getElementById('emptyState').classList.add('show')
+      const emptyState = document.getElementById('emptyState')
+      if (filter === 'all') {
+        emptyState.classList.add('show')
+      } else {
+        emptyState.classList.remove('show')
+        grid.innerHTML = `<div style="padding:40px; color:var(--muted); font-size:13px; text-align:center;">${filter === 'normal' ? '정상' : '도난'} 상태의 자전거가 없습니다.</div>`
+      }
       return
     }
 
@@ -374,8 +386,8 @@
       <div class="bike-card" data-status="${bike.status}" data-id="${bike.id}">
         <div class="bike-card-header">
           <div class="nfc-indicator">
-            <div class="nfc-dot ${bike.status === 'normal' ? 'active' : ''}"></div>
-            <span>${bike.status === 'pending' ? '태그 배송 중' : bike.status === 'stolen' ? '도난 신고됨' : '태그 활성화'}</span>
+            <div class="nfc-dot ${bike.status === 'normal' && hasSubscription ? 'active' : ''}"></div>
+            <span>${bike.status === 'pending' ? '태그 배송 중' : bike.status === 'stolen' ? '도난 신고됨' : hasSubscription ? '태그 활성화' : '태그 비활성 (구독 필요)'}</span>
           </div>
           <div class="bike-status ${bike.status}">${bike.status === 'pending' ? '배송 중' : bike.status === 'stolen' ? '도난' : '정상'}</div>
         </div>
@@ -388,7 +400,7 @@
           <div class="bike-meta">${new Date(bike.created_at).toLocaleDateString('ko-KR')} · 부품 ${bike.parts?.length || 0}개</div>
           <div class="bike-actions">
             <button class="bike-btn" onclick="openTransfer('${bike.id}','${bike.model}')">양도</button>
-            <button class="bike-btn danger" onclick="openStolen('${bike.id}','${bike.model}')">
+            <button class="bike-btn danger" ${!hasSubscription ? 'onclick="alert(\'도난 신고는 구독자만 이용 가능합니다.\')" style="opacity:0.4;"' : `onclick="openStolen('${bike.id}','${bike.model}')"`}>
               ${bike.status === 'stolen' ? '신고 취소' : '도난 신고'}
             </button>
             <button class="bike-btn accent" onclick="location.href='velo-bike.html?serial=${bike.serial}'">상세 →</button>
@@ -397,6 +409,53 @@
         </div>
       </div>
     `).join('')
+  }
+
+  window.showTransferHistory = async function(btn) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'))
+    btn.classList.add('active')
+    const grid = document.getElementById('bikesGrid')
+    grid.innerHTML = '<div style="padding:40px; color:var(--muted); font-size:13px;">불러오는 중...</div>'
+    document.getElementById('emptyState').classList.remove('show')
+
+    const { data: transfers } = await supabase
+      .from('transfers')
+      .select('*, bikes(brand, model, serial), from_user:from_user_id(name), to_user:to_user_id(name)')
+      .or(`from_user_id.eq.${currentUser.id},to_user_id.eq.${currentUser.id}`)
+      .eq('status', 'completed')
+      .order('completed_at', { ascending: false })
+
+    if (!transfers?.length) {
+      grid.innerHTML = ''
+      document.getElementById('emptyState').classList.add('show')
+      return
+    }
+
+    const pad = n => String(n).padStart(2,'0')
+    grid.innerHTML = transfers.map(t => {
+      const isSender = t.from_user_id === currentUser.id
+      const dt = new Date(t.completed_at)
+      const dateStr = `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}`
+      return `
+        <div class="bike-card">
+          <div class="bike-card-header">
+            <div class="nfc-indicator">
+              <div class="nfc-dot"></div>
+              <span>${isSender ? '양도 완료' : '양수 완료'}</span>
+            </div>
+            <div class="bike-status normal">${isSender ? '판매' : '구매'}</div>
+          </div>
+          <div class="bike-card-body">
+            <div class="bike-brand">${t.bikes?.brand?.toUpperCase() || '-'}</div>
+            <div class="bike-model">${t.bikes?.model || '-'}</div>
+            <div class="bike-serial">${t.bikes?.serial || '-'}</div>
+          </div>
+          <div class="bike-card-footer">
+            <div class="bike-meta">${dateStr} · ${isSender ? `→ ${t.to_user?.name || '알 수 없음'}` : `← ${t.from_user?.name || '알 수 없음'}`}</div>
+          </div>
+        </div>
+      `
+    }).join('')
   }
 
   // 필터
@@ -410,10 +469,17 @@
   window.openDelete = function(id, name) {
     currentBikeId = id
     document.getElementById('deleteModalSub').textContent = `"${name}"을(를) 삭제하시겠습니까?`
+    document.getElementById('deleteConfirmInput').value = ''
     document.getElementById('deleteModal').classList.add('active')
   }
 
   window.confirmDelete = async function() {
+    const input = document.getElementById('deleteConfirmInput').value.trim()
+    if (input !== '삭제하겠습니다') {
+      document.getElementById('deleteConfirmInput').style.borderColor = 'var(--error)'
+      document.getElementById('deleteConfirmInput').placeholder = '삭제하겠습니다 를 정확히 입력해주세요'
+      return
+    }
     try {
       const { error } = await supabase
         .from('bikes')

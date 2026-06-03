@@ -25,6 +25,16 @@
   .nav-links { display:flex; gap:40px; list-style:none; }
   .nav-links a { color:var(--white); text-decoration:none; font-size:13px; letter-spacing:1px; opacity:0.7; transition:opacity 0.2s; }
   .nav-links a:hover { opacity:1; }
+
+  /* 햄버거 메뉴 */
+  .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
+  .hamburger span { width:22px; height:2px; background:var(--white); display:block; transition:all 0.3s; }
+
+  .mobile-menu { display:none; position:fixed; top:60px; left:0; right:0; background:var(--gray); border-bottom:1px solid var(--border); z-index:99; padding:16px 24px; flex-direction:column; gap:4px; }
+  .mobile-menu.open { display:flex; }
+  .mobile-menu a { color:var(--muted); text-decoration:none; font-size:14px; padding:12px 0; border-bottom:1px solid var(--border); letter-spacing:0.5px; }
+  .mobile-menu a:last-child { border-bottom:none; }
+  .mobile-menu a:hover { color:var(--white); }
   .nav-cta { background:var(--accent); color:var(--black)!important; padding:10px 24px; font-weight:700!important; opacity:1!important; letter-spacing:0.5px!important; }
 
   /* HERO */
@@ -40,6 +50,7 @@
   .btn-secondary { background:transparent; color:var(--white); border:1px solid rgba(255,255,255,0.2); padding:16px 40px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:300; letter-spacing:1px; cursor:pointer; transition:border-color 0.2s; }
   .btn-secondary:hover { border-color:var(--white); }
   .hero-scroll { position:absolute; right:48px; bottom:80px; writing-mode:vertical-rl; font-size:11px; letter-spacing:3px; color:var(--text-muted); opacity:0; animation:fadeUp 0.8s 1.2s forwards; }
+  @media(max-width:768px) { .hero-scroll { display:none; } }
 
   /* STATS */
   .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(255,255,255,0.08); border-bottom:1px solid rgba(255,255,255,0.08); }
@@ -232,6 +243,7 @@
   @media(max-width:768px) {
     nav { padding:20px 24px; }
     .nav-links { display:none; }
+    .hamburger { display:flex; }
     .hero { padding:0 24px 64px; }
     .stats { grid-template-columns:1fr; }
     .stat { border-right:none; border-bottom:1px solid rgba(255,255,255,0.08); }
@@ -251,28 +263,52 @@
 <body>
 
 <nav>
-  <div class="nav-logo">VÉLO</div>
+  <a href="#" class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">VÉLO</a>
   <ul class="nav-links">
     <li><a href="#how">이용방법</a></li>
     <li><a href="#features">기능</a></li>
     <li><a href="#pricing">요금제</a></li>
+    <li><a href="velo-partner.html">샵 파트너십</a></li>
     <li><a href="velo-auth.html" id="navAuthBtn">로그인</a></li>
     <li><a href="#" class="nav-cta" onclick="_goPayment();return false;">등록 신청</a></li>
   </ul>
+  <button class="hamburger" onclick="toggleMobileMenu()" id="hamburgerBtn">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#how" onclick="closeMobileMenu()">이용방법</a>
+  <a href="#features" onclick="closeMobileMenu()">기능</a>
+  <a href="#pricing" onclick="closeMobileMenu()">요금제</a>
+  <a href="velo-partner.html">샵 파트너십</a>
+  <a href="velo-auth.html" id="mobileAuthBtn">로그인</a>
+  <a href="#" onclick="_goPayment();return false;" style="color:var(--accent); font-weight:700;">등록 신청 →</a>
+</div>
 <script type="module">
   import { getUser } from './velo-supabase.js'
   async function checkAuth() {
     const user = await getUser()
     const btn = document.getElementById('navAuthBtn')
-    if (user && btn) { btn.textContent = '대시보드'; btn.href = 'velo-dashboard.html'; }
-    // 등록 신청 버튼들 로그인 체크
+    const mobileBtn = document.getElementById('mobileAuthBtn')
+    if (user) {
+      if (btn) { btn.textContent = '대시보드'; btn.href = 'velo-dashboard.html'; }
+      if (mobileBtn) { mobileBtn.textContent = '대시보드'; mobileBtn.href = 'velo-dashboard.html'; }
+    }
     window._goPayment = async function() {
       const u = await getUser()
       location.href = u ? 'velo-payment.html' : 'velo-auth.html'
     }
   }
   checkAuth()
+</script>
+<script>
+  function toggleMobileMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open')
+  }
+  function closeMobileMenu() {
+    document.getElementById('mobileMenu').classList.remove('open')
+  }
 </script>
 
 <section class="hero">
@@ -404,7 +440,11 @@
 
 <footer>
   <div class="footer-logo">VÉLO</div>
-  <div class="footer-text">© 2025 Vélo. 자전거 소유권 인증 플랫폼.</div>
+  <div class="footer-text">
+    © 2025 Vélo. 자전거 소유권 인증 플랫폼.<br>
+    <a href="velo-terms.html" style="color:var(--text-muted); text-decoration:none; margin-right:16px;">이용약관</a>
+    <a href="velo-privacy.html" style="color:var(--text-muted); text-decoration:none;">개인정보처리방침</a>
+  </div>
 </footer>
 
 <!-- MODAL -->

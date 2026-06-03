@@ -151,7 +151,7 @@ export async function registerBike({ serial, brand, model, year, color, memo, ph
       color,
       memo,
       photos,
-      status: 'pending'
+      status: 'normal'
     })
     .select()
     .single()
@@ -344,8 +344,59 @@ export async function startSubscription(plan) {
 }
 
 // =============================================
-// NOTIFICATIONS (알림)
+// DISCOUNT CODES (할인코드)
 // =============================================
+
+// 할인코드 검증
+export async function validateDiscountCode(code) {
+  const { data, error } = await supabase
+    .from('discount_codes')
+    .select('*')
+    .eq('code', code.toUpperCase())
+    .eq('is_active', true)
+    .single()
+
+  if (error || !data) throw new Error('유효하지 않은 할인코드입니다.')
+
+  // 만료 확인
+  if (data.expires_at && new Date(data.expires_at) < new Date()) {
+    throw new Error('만료된 할인코드입니다.')
+  }
+
+  // 사용 횟수 확인
+  if (data.max_uses !== null && data.used_count >= data.max_uses) {
+    throw new Error('사용 가능 횟수가 초과된 할인코드입니다.')
+  }
+
+  // 이미 사용했는지 확인
+  const user = await getUser()
+  if (user) {
+    const { data: used } = await supabase
+      .from('discount_code_uses')
+      .select('id')
+      .eq('code_id', data.id)
+      .eq('user_id', user.id)
+      .single()
+    if (used) throw new Error('이미 사용한 할인코드입니다.')
+  }
+
+  return data
+}
+
+// 할인코드 사용 처리
+export async function useDiscountCode(codeId) {
+  const user = await getUser()
+  if (!user) throw new Error('로그인이 필요합니다.')
+
+  // 사용 기록 추가
+  await supabase.from('discount_code_uses').insert({
+    code_id: codeId,
+    user_id: user.id
+  })
+
+  // used_count 증가
+  await supabase.rpc('increment_discount_code_use', { code_id: codeId })
+}
 
 // 알림 목록 가져오기
 export async function getNotifications() {

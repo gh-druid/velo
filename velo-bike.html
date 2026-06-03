@@ -494,6 +494,15 @@
     </div>
   </div>
 
+  <!-- 탭 -->
+  <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.08); margin:0 0 0 0;">
+    <button onclick="switchTab('info')" id="tabInfo" style="flex:1; padding:14px; font-size:13px; color:var(--white); background:none; border:none; border-bottom:2px solid var(--accent); cursor:pointer; font-family:'Noto Sans KR',sans-serif; letter-spacing:0.5px;">자전거 정보</button>
+    <button onclick="switchTab('parts')" id="tabParts" style="flex:1; padding:14px; font-size:13px; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:'Noto Sans KR',sans-serif; letter-spacing:0.5px;">부품 <span id="partsTabCount"></span></button>
+    <button onclick="switchTab('history')" id="tabHistory" style="flex:1; padding:14px; font-size:13px; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:'Noto Sans KR',sans-serif; letter-spacing:0.5px;">소유 이력</button>
+  </div>
+
+  <!-- 자전거 정보 탭 -->
+  <div id="tabContentInfo">
   <!-- BIKE CARD -->
   <div class="bike-card">
     <div class="bike-card-header">
@@ -524,25 +533,36 @@
         <span class="info-label">등록 부품</span>
         <span class="info-value" id="partsCount">0개</span>
       </div>
+    </div>
+  </div>
+  </div>
 
-      <div class="bike-parts" id="bikeParts" style="display:none;">
-        <div class="bike-parts-label">등록된 부품</div>
-        <div id="partsChips"></div>
+  <!-- 부품 탭 -->
+  <div id="tabContentParts" style="display:none;">
+    <div class="bike-card">
+      <div class="bike-card-header">
+        <div class="bike-card-label">등록된 부품</div>
+      </div>
+      <div id="partsDetailList" style="padding:8px 0;">
+        <div style="padding:32px; text-align:center; color:var(--muted); font-size:13px;">등록된 부품이 없습니다.</div>
       </div>
     </div>
   </div>
 
+  <!-- 소유 이력 탭 -->
+  <div id="tabContentHistory" style="display:none;">
   <!-- OWNERSHIP HISTORY -->
   <div class="history-card">
     <div class="history-header">소유 이력</div>
     <div class="history-list" id="historyList">
     </div>
   </div>
+  </div>
 
   <!-- ACTIONS -->
   <div class="actions">
-    <button class="btn-contact" onclick="alert('준비 중입니다.')">소유자에게 연락하기</button>
-    <button class="btn-report" id="reportBtn" onclick="alert('경찰청 신고: 112\n벨로 도난 DB 등록은 소유자만 가능합니다.')">
+    <a class="btn-contact" id="contactBtn" href="mailto:?subject=벨로 자전거 문의" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">소유자에게 연락하기</a>
+    <button class="btn-report" id="reportBtn" onclick="alert('도난 의심 차량은 경찰청 112로 신고해주세요.\n\n이 자전거가 도난품으로 의심된다면\n가까운 경찰서에 신고 부탁드립니다.')">
       🚨 도난 의심 신고
     </button>
     <button class="btn-outline" onclick="location.href='velo-landing.html'">벨로 서비스 알아보기</button>
@@ -633,6 +653,12 @@
     document.querySelector('.owner-name').textContent = owner?.name || '알 수 없음'
     document.querySelector('.owner-contact').textContent = maskPhone(owner?.phone || '')
 
+    // 소유자 연락하기 이메일 연결
+    const contactBtn = document.getElementById('contactBtn')
+    if (owner?.email) {
+      contactBtn.href = `mailto:${owner.email}?subject=벨로 자전거 문의 (${bike.serial})`
+    }
+
     const createdAt = new Date(bike.created_at)
     const months = Math.floor((Date.now() - createdAt) / (1000 * 60 * 60 * 24 * 30))
     const years = Math.floor(months / 12)
@@ -662,12 +688,29 @@
     // 부품
     const parts = bike.parts || []
     document.getElementById('partsCount').textContent = `${parts.length}개`
-    if (parts.length > 0) {
-      document.getElementById('bikeParts').style.display = 'block'
-      const icons = { '휠셋': '⚙️', '구동계': '🔧', '핸들바': '🚴', '스템': '🔩', '체인링': '⚙️', '안장': '🪑', '포크': '🔧', '기타': '🔧' }
-      document.getElementById('partsChips').innerHTML = parts.map(p =>
-        `<span class="part-chip">${icons[p.type] || '🔧'} ${p.name}</span>`
-      ).join('')
+    document.getElementById('partsTabCount').textContent = parts.length > 0 ? `(${parts.length})` : ''
+
+    // 부품 상세 목록
+    const icons = { '휠셋': '⚙️', '구동계': '🔧', '핸들바': '🚴', '스템': '🔩', '체인링': '⚙️', '안장': '🪑', '포크': '🔧', '기타': '🔧' }
+    const partsDetailList = document.getElementById('partsDetailList')
+    if (parts.length === 0) {
+      partsDetailList.innerHTML = '<div style="padding:32px; text-align:center; color:var(--muted); font-size:13px;">등록된 부품이 없습니다.</div>'
+    } else {
+      partsDetailList.innerHTML = parts.map(p => `
+        <div style="padding:16px 24px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:20px;">${icons[p.type] || '🔧'}</span>
+            <div>
+              <div style="font-size:14px; font-weight:500;">${p.name}</div>
+              <div style="font-size:11px; color:var(--muted); margin-top:2px;">${p.type}${p.serial ? ' · ' + p.serial : ''}</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:10px; padding:3px 8px; border:1px solid; ${p.status === 'lost' ? 'color:#ff4f4f; border-color:rgba(255,79,79,0.3);' : 'color:#c8f542; border-color:rgba(200,245,66,0.3);'}">${p.status === 'lost' ? '분실' : '정상'}</span>
+            <button onclick="reportPartLost('${p.id}','${p.name}','${p.status}')" style="font-size:11px; padding:4px 10px; border:1px solid rgba(255,79,79,0.3); background:none; color:#ff4f4f; cursor:pointer; font-family:'Noto Sans KR',sans-serif;">${p.status === 'lost' ? '신고 취소' : '분실 신고'}</button>
+          </div>
+        </div>
+      `).join('')
     }
 
     // 소유 이력 (transfers 기반)
@@ -728,6 +771,39 @@
 
     // 연식
     if (bike.year) document.querySelector('.bike-year').textContent = `${bike.year}년식`
+  }
+
+  // 탭 전환
+  window.switchTab = function(tab) {
+    const tabs = { info: 'tabInfo', parts: 'tabParts', history: 'tabHistory' }
+    const contents = { info: 'tabContentInfo', parts: 'tabContentParts', history: 'tabContentHistory' }
+    Object.entries(tabs).forEach(([key, id]) => {
+      const btn = document.getElementById(id)
+      btn.style.color = key === tab ? 'var(--white)' : 'var(--muted)'
+      btn.style.borderBottomColor = key === tab ? 'var(--accent)' : 'transparent'
+    })
+    Object.entries(contents).forEach(([key, id]) => {
+      document.getElementById(id).style.display = key === tab ? 'block' : 'none'
+    })
+  }
+
+  // 부품 분실 신고
+  window.reportPartLost = async function(partId, partName, currentStatus) {
+    const isLost = currentStatus === 'lost'
+    const msg = isLost
+      ? `"${partName}" 분실 신고를 취소하시겠습니까?`
+      : `"${partName}"을(를) 분실 신고하시겠습니까?`
+    if (!confirm(msg)) return
+
+    const newStatus = isLost ? 'normal' : 'lost'
+    const { error } = await supabase
+      .from('parts')
+      .update({ status: newStatus, lost_at: isLost ? null : new Date().toISOString() })
+      .eq('id', partId)
+
+    if (error) { alert('오류: ' + error.message); return; }
+    alert(isLost ? '분실 신고가 취소되었습니다.' : '분실 신고가 완료되었습니다.')
+    location.reload()
   }
 
   function showError(msg) {
