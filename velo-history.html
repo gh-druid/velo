@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 등록 내역</title>
+<link rel="stylesheet" href="./velo-common.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; --warning:#f5a623; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+
+  nav { display:flex; justify-content:space-between; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
+  .nav-links { display:flex; gap:4px; }
+  .nav-link { padding:8px 14px; font-size:13px; color:var(--muted); background:none; border:none; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:color 0.2s; text-decoration:none; letter-spacing:0.5px; }
+  .nav-link:hover { color:var(--white); }
+  .nav-link.active { color:var(--white); background:rgba(200,245,66,0.08); }
+  .nav-right { display:flex; align-items:center; gap:12px; }
+  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:8px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; }
+  .nav-avatar { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--black); cursor:pointer; }
+
+  .content { max-width:900px; margin:0 auto; padding:40px; }
+
+  .page-title { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:2px; margin-bottom:8px; }
+  .page-sub { font-size:13px; color:var(--muted); margin-bottom:40px; }
+
+  /* 탭 */
+  .tabs { display:flex; border-bottom:1px solid var(--border); margin-bottom:32px; }
+  .tab { padding:12px 20px; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Noto Sans KR',sans-serif; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.2s; }
+  .tab.active { color:var(--white); border-bottom-color:var(--accent); }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* 카드 */
+  .record-card { background:var(--gray); border:1px solid var(--border); padding:24px 28px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+  .record-card:hover { border-color:rgba(255,255,255,0.12); }
+  .record-left { display:flex; align-items:center; gap:16px; flex:1; }
+  .record-icon { font-size:28px; flex-shrink:0; }
+  .record-info { flex:1; }
+  .record-title { font-size:15px; font-weight:500; margin-bottom:4px; }
+  .record-sub { font-size:12px; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:0.5px; }
+  .record-right { text-align:right; flex-shrink:0; }
+  .record-date { font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; margin-bottom:6px; }
+  .record-status { font-size:10px; letter-spacing:2px; padding:3px 8px; border:1px solid; }
+  .status-normal { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+  .status-pending { color:var(--warning); border-color:rgba(245,166,35,0.3); }
+  .status-done { color:var(--muted); border-color:var(--border); }
+
+  /* 빈 상태 */
+  .empty { text-align:center; padding:64px 0; color:var(--muted); }
+  .empty-icon { font-size:40px; margin-bottom:16px; }
+  .empty-text { font-size:14px; }
+
+  /* 배송 추적 */
+  .delivery-steps { display:flex; gap:0; margin-top:16px; }
+  .delivery-step { flex:1; text-align:center; position:relative; }
+  .delivery-step::before { content:''; position:absolute; top:14px; left:50%; right:-50%; height:2px; background:var(--border); z-index:0; }
+  .delivery-step:last-child::before { display:none; }
+  .step-dot { width:28px; height:28px; border-radius:50%; background:var(--border); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; margin:0 auto 8px; font-size:12px; position:relative; z-index:1; }
+  .step-dot.done { background:var(--accent); border-color:var(--accent); }
+  .step-dot.current { background:var(--black); border-color:var(--accent); box-shadow:0 0 8px rgba(200,245,66,0.4); }
+  .step-label { font-size:10px; color:var(--muted); letter-spacing:0.5px; }
+  .step-label.done { color:var(--accent); }
+  .step-label.current { color:var(--white); }
+
+  @media(max-width:768px) {
+    .content { padding:24px 16px; }
+    nav { padding:0 16px; }
+    .nav-links { display:none; }
+    .record-card { flex-direction:column; align-items:flex-start; gap:12px; }
+    .record-right { text-align:left; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="velo-landing.html" class="nav-logo">VÉLO</a>
+  <div class="nav-links">
+    <a href="velo-dashboard.html" class="nav-link">🚲 내 자전거</a>
+    <a href="velo-history.html" class="nav-link active">📋 등록 내역</a>
+    <a href="velo-settings.html" class="nav-link">⚙️ 설정</a>
+  </div>
+  <div class="nav-right">
+    <a href="velo-register.html" class="btn-primary">+ 자전거 등록</a>
+    <div class="nav-avatar" id="navAvatar">?</div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-title">등록 내역</div>
+  <div class="page-sub">자전거 등록, 결제, 배송 현황을 확인하세요.</div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('bikes', this)">🚲 자전거 등록</button>
+    <button class="tab" onclick="switchTab('payments', this)">💳 결제 내역</button>
+    <button class="tab" onclick="switchTab('delivery', this)">📦 배송 현황</button>
+    <button class="tab" onclick="switchTab('transfers', this)">🤝 양도 내역</button>
+  </div>
+
+  <!-- 자전거 등록 탭 -->
+  <div class="tab-content active" id="tab-bikes">
+    <div id="bikesList">
+      <div class="empty"><div class="empty-icon">🚲</div><div class="empty-text">등록된 자전거가 없습니다.</div></div>
+    </div>
+  </div>
+
+  <!-- 결제 내역 탭 -->
+  <div class="tab-content" id="tab-payments">
+    <div id="paymentsList">
+      <div class="empty"><div class="empty-icon">💳</div><div class="empty-text">결제 내역이 없습니다.</div></div>
+    </div>
+  </div>
+
+  <!-- 배송 현황 탭 -->
+  <div class="tab-content" id="tab-delivery">
+    <div id="deliveryList">
+      <div class="empty"><div class="empty-icon">📦</div><div class="empty-text">배송 중인 태그가 없습니다.</div></div>
+    </div>
+  </div>
+
+  <!-- 양도 내역 탭 -->
+  <div class="tab-content" id="tab-transfers">
+    <div id="transfersList">
+      <div class="empty"><div class="empty-icon">🤝</div><div class="empty-text">양도 내역이 없습니다.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { supabase, getUser, getMyBikes, signOut } from './velo-supabase.js'
+
+  let currentUser = null
+
+  async function init() {
+    currentUser = await getUser()
+    if (!currentUser) { location.href = 'velo-auth.html'; return; }
+
+    const { data: profile } = await supabase.from('users').select('name').eq('id', currentUser.id).single()
+    if (profile?.name) document.getElementById('navAvatar').textContent = profile.name[0]
+
+    await Promise.all([loadBikes(), loadTransfers()])
+  }
+
+  // 자전거 등록 내역
+  async function loadBikes() {
+    const bikes = await getMyBikes()
+    const list = document.getElementById('bikesList')
+    const deliveryList = document.getElementById('deliveryList')
+
+    if (!bikes.length) return
+
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => {
+      const dt = new Date(d)
+      return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}`
+    }
+
+    list.innerHTML = bikes.map(b => `
+      <div class="record-card">
+        <div class="record-left">
+          <div class="record-icon">🚲</div>
+          <div class="record-info">
+            <div class="record-title">${b.brand.toUpperCase()} ${b.model}</div>
+            <div class="record-sub">${b.serial} · 부품 ${b.parts?.length || 0}개</div>
+          </div>
+        </div>
+        <div class="record-right">
+          <div class="record-date">${fmtDate(b.created_at)}</div>
+          <span class="record-status ${b.status === 'normal' ? 'status-normal' : b.status === 'stolen' ? '' : 'status-pending'}">
+            ${b.status === 'normal' ? '정상' : b.status === 'stolen' ? '도난' : '배송 중'}
+          </span>
+        </div>
+      </div>
+    `).join('')
+
+    // 배송 중인 자전거
+    const pending = bikes.filter(b => b.status === 'pending')
+    if (pending.length) {
+      deliveryList.innerHTML = pending.map(b => `
+        <div class="record-card" style="flex-direction:column; align-items:flex-start; gap:20px;">
+          <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+            <div>
+              <div class="record-title">${b.brand.toUpperCase()} ${b.model}</div>
+              <div class="record-sub">${b.serial}</div>
+            </div>
+            <span class="record-status status-pending">배송 중</span>
+          </div>
+          <div class="delivery-steps">
+            <div class="delivery-step">
+              <div class="step-dot done">✓</div>
+              <div class="step-label done">신청 완료</div>
+            </div>
+            <div class="delivery-step">
+              <div class="step-dot done">✓</div>
+              <div class="step-label done">결제 완료</div>
+            </div>
+            <div class="delivery-step">
+              <div class="step-dot current">→</div>
+              <div class="step-label current">발송 준비</div>
+            </div>
+            <div class="delivery-step">
+              <div class="step-dot"></div>
+              <div class="step-label">배송 중</div>
+            </div>
+            <div class="delivery-step">
+              <div class="step-dot"></div>
+              <div class="step-label">수령 완료</div>
+            </div>
+          </div>
+          <div style="font-size:12px; color:var(--muted);">배송 관련 문의: velokr20@gmail.com · @velokr20</div>
+        </div>
+      `).join('')
+    }
+  }
+
+  // 양도 내역
+  async function loadTransfers() {
+    const { data: transfers } = await supabase
+      .from('transfers')
+      .select('*, bikes(brand, model, serial), from_user:from_user_id(name), to_user:to_user_id(name)')
+      .or(`from_user_id.eq.${currentUser.id},to_user_id.eq.${currentUser.id}`)
+      .order('created_at', { ascending: false })
+
+    const list = document.getElementById('transfersList')
+    if (!transfers?.length) return
+
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => {
+      const dt = new Date(d)
+      return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}`
+    }
+
+    list.innerHTML = transfers.map(t => {
+      const isSender = t.from_user_id === currentUser.id
+      const status = t.status === 'completed' ? '완료' : t.status === 'expired' ? '만료' : '진행 중'
+      const statusClass = t.status === 'completed' ? 'status-done' : t.status === 'expired' ? '' : 'status-pending'
+      return `
+        <div class="record-card">
+          <div class="record-left">
+            <div class="record-icon">${isSender ? '📤' : '📥'}</div>
+            <div class="record-info">
+              <div class="record-title">${isSender ? '양도' : '양수'} — ${t.bikes?.brand || ''} ${t.bikes?.model || ''}</div>
+              <div class="record-sub">${t.bikes?.serial || ''} · ${isSender ? `→ ${t.to_user?.name || '미완료'}` : `← ${t.from_user?.name || '알 수 없음'}`}</div>
+            </div>
+          </div>
+          <div class="record-right">
+            <div class="record-date">${fmtDate(t.created_at)}</div>
+            <span class="record-status ${statusClass}">${status}</span>
+          </div>
+        </div>
+      `
+    }).join('')
+  }
+
+  window.switchTab = function(name, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
+    btn.classList.add('active')
+    document.getElementById('tab-' + name).classList.add('active')
+  }
+
+  init()
+</script>
+</body>
+</html>
