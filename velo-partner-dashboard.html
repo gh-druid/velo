@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 파트너 대시보드</title>
+<link rel="stylesheet" href="./velo-common.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --mid:#2e2e2e; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; --warning:#f5a623; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+
+  nav { display:flex; justify-content:space-between; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
+  .nav-badge { font-size:10px; letter-spacing:2px; color:var(--black); background:var(--accent); padding:3px 8px; margin-left:8px; }
+  .nav-right { display:flex; gap:16px; align-items:center; }
+  .nav-link { font-size:13px; color:var(--muted); text-decoration:none; cursor:pointer; background:none; border:none; font-family:'Noto Sans KR',sans-serif; }
+  .nav-link:hover { color:var(--white); }
+
+  .content { max-width:1100px; margin:0 auto; padding:40px; }
+
+  /* 상태 배너 */
+  .status-banner { padding:20px 28px; margin-bottom:32px; display:flex; align-items:center; gap:16px; }
+  .status-banner.pending { background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.2); }
+  .status-banner.approved { background:rgba(200,245,66,0.08); border:1px solid rgba(200,245,66,0.2); }
+  .status-banner.rejected { background:rgba(255,79,79,0.08); border:1px solid rgba(255,79,79,0.2); }
+  .status-icon { font-size:28px; }
+  .status-text h3 { font-size:16px; font-weight:500; margin-bottom:4px; }
+  .status-text p { font-size:13px; color:var(--muted); line-height:1.6; }
+
+  /* 요약 카드 */
+  .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-bottom:32px; border:1px solid var(--border); }
+  .summary-card { background:var(--gray); padding:24px; border-right:1px solid var(--border); }
+  .summary-card:last-child { border-right:none; }
+  .summary-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
+  .summary-num { font-family:'Bebas Neue',sans-serif; font-size:40px; line-height:1; }
+  .summary-num.accent { color:var(--accent); }
+  .summary-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+
+  /* 탭 */
+  .tabs { display:flex; gap:2px; margin-bottom:24px; border-bottom:1px solid var(--border); }
+  .tab { padding:12px 20px; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Noto Sans KR',sans-serif; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.2s; letter-spacing:0.5px; }
+  .tab.active { color:var(--white); border-bottom-color:var(--accent); }
+
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* 테이블 */
+  .table-wrap { background:var(--gray); border:1px solid var(--border); overflow:hidden; }
+  .table-header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .table-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; }
+  table { width:100%; border-collapse:collapse; }
+  th { padding:12px 20px; font-size:10px; letter-spacing:2px; color:var(--muted); text-align:left; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+  td { padding:14px 20px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+
+  .badge { font-size:10px; letter-spacing:1px; padding:3px 8px; border:1px solid; }
+  .badge-normal { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+  .badge-pending { color:var(--warning); border-color:rgba(245,166,35,0.3); }
+  .badge-stolen { color:var(--error); border-color:rgba(255,79,79,0.3); }
+
+  /* 수익 */
+  .revenue-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:24px; }
+  .revenue-card { background:var(--gray); border:1px solid var(--border); padding:28px; }
+  .revenue-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px; }
+  .revenue-num { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; color:var(--accent); }
+  .revenue-sub { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.7; }
+
+  /* 신청 없을 때 */
+  .empty-state { text-align:center; padding:80px 0; }
+  .empty-icon { font-size:48px; margin-bottom:16px; }
+  .empty-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; margin-bottom:8px; }
+  .empty-desc { font-size:13px; color:var(--muted); line-height:1.8; margin-bottom:24px; }
+  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:14px 32px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
+
+  /* 태그 재고 */
+  .stock-card { background:var(--gray); border:1px solid var(--border); padding:28px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
+  .stock-info h3 { font-size:16px; font-weight:500; margin-bottom:4px; }
+  .stock-info p { font-size:13px; color:var(--muted); }
+  .stock-num { font-family:'Bebas Neue',sans-serif; font-size:48px; color:var(--accent); }
+
+  .toast { position:fixed; bottom:32px; right:32px; background:var(--accent); color:var(--black); padding:14px 24px; font-size:13px; font-weight:700; transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:999; }
+  .toast.show { transform:translateY(0); opacity:1; }
+
+  @media(max-width:768px) {
+    .content { padding:24px 16px; }
+    nav { padding:0 16px; }
+    .summary-grid { grid-template-columns:1fr 1fr; }
+    .revenue-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div style="display:flex; align-items:center;">
+    <a href="velo-landing.html" class="nav-logo">VÉLO</a>
+    <span class="nav-badge">PARTNER</span>
+  </div>
+  <div class="nav-right">
+    <a href="velo-dashboard.html" class="nav-link">내 자전거</a>
+    <button onclick="handleLogout()" class="nav-link">로그아웃</button>
+  </div>
+</nav>
+
+<div class="content">
+
+  <!-- 파트너십 없을 때 -->
+  <div id="noPartner" style="display:none;">
+    <div class="empty-state">
+      <div class="empty-icon">🤝</div>
+      <div class="empty-title">파트너 신청을 해주세요</div>
+      <div class="empty-desc">벨로 파트너 샵이 되면 태그 발급 수수료의 30%를 수익으로 받을 수 있습니다.<br>신청 후 1~2 영업일 내 검토 후 연락드립니다.</div>
+      <a href="velo-partner.html" class="btn-primary">파트너 신청하기 →</a>
+    </div>
+  </div>
+
+  <!-- 파트너십 있을 때 -->
+  <div id="hasPartner" style="display:none;">
+
+    <!-- 상태 배너 -->
+    <div class="status-banner" id="statusBanner">
+      <div class="status-icon" id="statusIcon">⏳</div>
+      <div class="status-text">
+        <h3 id="statusTitle">검토 중</h3>
+        <p id="statusDesc">파트너십 신청이 접수되었습니다. 1~2 영업일 내 검토 후 연락드립니다.</p>
+      </div>
+    </div>
+
+    <!-- 승인된 경우만 표시 -->
+    <div id="approvedContent" style="display:none;">
+
+      <!-- 요약 -->
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">이번 달 등록</div>
+          <div class="summary-num accent" id="monthRegistered">0</div>
+          <div class="summary-sub">대</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">누적 등록</div>
+          <div class="summary-num" id="totalRegistered">0</div>
+          <div class="summary-sub">대</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">이번 달 수익</div>
+          <div class="summary-num accent" id="monthRevenue">0</div>
+          <div class="summary-sub">원</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">누적 수익</div>
+          <div class="summary-num" id="totalRevenue">0</div>
+          <div class="summary-sub">원</div>
+        </div>
+      </div>
+
+      <!-- 탭 -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('overview', this)">📊 현황</button>
+        <button class="tab" onclick="switchTab('bikes', this)">🚲 등록 자전거</button>
+        <button class="tab" onclick="switchTab('revenue', this)">💰 수익 내역</button>
+        <button class="tab" onclick="switchTab('stock', this)">📦 태그 재고</button>
+      </div>
+
+      <!-- 현황 탭 -->
+      <div class="tab-content active" id="tab-overview">
+        <div class="revenue-grid">
+          <div class="revenue-card">
+            <div class="revenue-label">이번 달 수익</div>
+            <div class="revenue-num" id="overviewMonthRevenue">0</div>
+            <div class="revenue-sub">원<br>태그 발급 수수료의 30% 지급<br>매월 말일 정산</div>
+          </div>
+          <div class="revenue-card">
+            <div class="revenue-label">수익 구조</div>
+            <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+              <div style="display:flex; justify-content:space-between; font-size:13px;">
+                <span style="color:var(--muted);">칩 2개 기본 (7,900원)</span>
+                <span style="color:var(--accent);">+2,370원</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:13px;">
+                <span style="color:var(--muted);">칩 2개 + 카드 (9,900원)</span>
+                <span style="color:var(--accent);">+2,970원</span>
+              </div>
+              <div style="border-top:1px solid var(--border); padding-top:12px; font-size:12px; color:var(--muted);">
+                * 수익은 매월 말일 정산 후 익월 10일 이내 지급
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">최근 등록 현황</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>자전거</th>
+                <th>차대번호</th>
+                <th>등록자</th>
+                <th>등록일</th>
+                <th>수익</th>
+              </tr>
+            </thead>
+            <tbody id="recentBikesTable">
+              <tr><td colspan="5" style="text-align:center; padding:32px; color:var(--muted);">등록 내역이 없습니다.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 자전거 탭 -->
+      <div class="tab-content" id="tab-bikes">
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">등록된 자전거</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>브랜드/모델</th>
+                <th>차대번호</th>
+                <th>소유자</th>
+                <th>상태</th>
+                <th>등록일</th>
+              </tr>
+            </thead>
+            <tbody id="allBikesTable">
+              <tr><td colspan="5" style="text-align:center; padding:32px; color:var(--muted);">등록된 자전거가 없습니다.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 수익 탭 -->
+      <div class="tab-content" id="tab-revenue">
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">수익 내역</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>항목</th>
+                <th>금액</th>
+                <th>수익 (30%)</th>
+                <th>날짜</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody id="revenueTable">
+              <tr><td colspan="5" style="text-align:center; padding:32px; color:var(--muted);">수익 내역이 없습니다.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 태그 재고 탭 -->
+      <div class="tab-content" id="tab-stock">
+        <div class="stock-card">
+          <div class="stock-info">
+            <h3>현재 태그 재고</h3>
+            <p>NFC 칩 (NTAG213) · 방수</p>
+          </div>
+          <div class="stock-num" id="stockCount">-</div>
+        </div>
+        <div style="background:var(--gray); border:1px solid var(--border); padding:24px; font-size:13px; color:var(--muted); line-height:1.8;">
+          태그 재고가 부족하면 velokr20@gmail.com 또는 @velokr20으로 연락해주세요.<br>
+          파트너 원가로 추가 구매 가능합니다.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { supabase, getUser, signOut } from './velo-supabase.js'
+
+  let currentUser = null
+  let partnerData = null
+
+  async function init() {
+    currentUser = await getUser()
+    if (!currentUser) { location.href = 'velo-auth.html'; return; }
+
+    // 파트너십 신청 확인
+    const { data } = await supabase
+      .from('partnerships')
+      .select('*')
+      .eq('email', currentUser.email)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    if (!data) {
+      document.getElementById('noPartner').style.display = 'block'
+      return
+    }
+
+    partnerData = data
+    document.getElementById('hasPartner').style.display = 'block'
+
+    // 상태 배너 설정
+    const banner = document.getElementById('statusBanner')
+    const icon = document.getElementById('statusIcon')
+    const title = document.getElementById('statusTitle')
+    const desc = document.getElementById('statusDesc')
+
+    if (data.status === 'approved') {
+      banner.className = 'status-banner approved'
+      icon.textContent = '✅'
+      title.textContent = `${data.shop_name} — 파트너 승인됨`
+      desc.textContent = '벨로 공식 파트너입니다. 아래에서 등록 현황과 수익을 확인하세요.'
+      document.getElementById('approvedContent').style.display = 'block'
+      await loadPartnerData()
+    } else if (data.status === 'rejected') {
+      banner.className = 'status-banner rejected'
+      icon.textContent = '❌'
+      title.textContent = '파트너십 신청 거절'
+      desc.textContent = '파트너십 신청이 거절되었습니다. 자세한 사유는 이메일을 확인해주세요.'
+    } else {
+      banner.className = 'status-banner pending'
+      icon.textContent = '⏳'
+      title.textContent = `${data.shop_name} — 검토 중`
+      desc.textContent = `${new Date(data.created_at).toLocaleDateString('ko-KR')} 신청 · 1~2 영업일 내 검토 후 연락드립니다.`
+    }
+  }
+
+  async function loadPartnerData() {
+    // 파트너가 등록한 자전거 (partner_id 기반, 지금은 이메일로 연결)
+    // 실제로는 bikes 테이블에 partner_id 컬럼 추가 필요
+    // 지금은 더미로 표시
+    document.getElementById('monthRegistered').textContent = '0'
+    document.getElementById('totalRegistered').textContent = '0'
+    document.getElementById('monthRevenue').textContent = '0'
+    document.getElementById('totalRevenue').textContent = '0'
+    document.getElementById('overviewMonthRevenue').textContent = '0'
+    document.getElementById('stockCount').textContent = '20'
+  }
+
+  window.switchTab = function(name, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
+    btn.classList.add('active')
+    document.getElementById('tab-' + name).classList.add('active')
+  }
+
+  window.handleLogout = async function() {
+    await signOut()
+    location.href = 'velo-auth.html'
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast')
+    t.textContent = msg; t.classList.add('show')
+    setTimeout(() => t.classList.remove('show'), 2500)
+  }
+
+  init()
+</script>
+</body>
+</html>

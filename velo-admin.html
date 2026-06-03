@@ -287,9 +287,40 @@
 
   <!-- 파트너십 탭 -->
   <div class="tab-content" id="tab-partners">
+
+    <!-- 파트너 요약 -->
+    <div class="summary-grid" style="margin-bottom:16px;">
+      <div class="summary-card">
+        <div class="summary-label">전체 신청</div>
+        <div class="summary-num accent" id="partnerTotal">-</div>
+        <div class="summary-sub">건</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">승인된 파트너</div>
+        <div class="summary-num" id="partnerApproved">-</div>
+        <div class="summary-sub">곳</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">검토 대기</div>
+        <div class="summary-num warning" id="partnerPending">-</div>
+        <div class="summary-sub">건</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">거절</div>
+        <div class="summary-num danger" id="partnerRejected">-</div>
+        <div class="summary-sub">건</div>
+      </div>
+    </div>
+
     <div class="table-wrap">
       <div class="table-header">
-        <div class="table-title">파트너십 신청</div>
+        <div class="table-title">파트너십 신청 목록</div>
+        <div style="display:flex; gap:8px;">
+          <button onclick="filterPartners('all')" id="pf-all" style="font-size:11px; padding:5px 12px; border:1px solid var(--accent); background:var(--accent); color:var(--black); cursor:pointer; font-family:'Noto Sans KR',sans-serif;">전체</button>
+          <button onclick="filterPartners('pending')" id="pf-pending" style="font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif;">대기</button>
+          <button onclick="filterPartners('approved')" id="pf-approved" style="font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif;">승인</button>
+          <button onclick="filterPartners('rejected')" id="pf-rejected" style="font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif;">거절</button>
+        </div>
       </div>
       <table>
         <thead>
@@ -297,14 +328,16 @@
             <th>샵 이름</th>
             <th>담당자</th>
             <th>연락처</th>
+            <th>이메일</th>
             <th>지역</th>
+            <th>월 판매량</th>
             <th>신청일</th>
             <th>상태</th>
             <th>처리</th>
           </tr>
         </thead>
         <tbody id="partnersTable">
-          <tr class="loading-row"><td colspan="7">불러오는 중...</td></tr>
+          <tr class="loading-row"><td colspan="9">불러오는 중...</td></tr>
         </tbody>
       </table>
     </div>
@@ -619,32 +652,58 @@
   }
 
   // 파트너십 신청
+  let allPartners = []
+
   async function loadPartners() {
     const { data } = await supabase
       .from('partnerships')
       .select('*')
       .order('created_at', { ascending: false })
+
+    allPartners = data || []
+    document.getElementById('partnerTotal').textContent = allPartners.length
+    document.getElementById('partnerApproved').textContent = allPartners.filter(p => p.status === 'approved').length
+    document.getElementById('partnerPending').textContent = allPartners.filter(p => p.status === 'pending').length
+    document.getElementById('partnerRejected').textContent = allPartners.filter(p => p.status === 'rejected').length
+    renderPartners(allPartners)
+  }
+
+  window.filterPartners = function(status) {
+    document.querySelectorAll('[id^="pf-"]').forEach(b => {
+      b.style.background = 'none'; b.style.color = 'var(--muted)'; b.style.borderColor = 'var(--border)';
+    })
+    const active = document.getElementById('pf-' + status)
+    if (active) { active.style.background = 'var(--accent)'; active.style.color = 'var(--black)'; active.style.borderColor = 'var(--accent)'; }
+    const filtered = status === 'all' ? allPartners : allPartners.filter(p => p.status === status)
+    renderPartners(filtered)
+  }
+
+  function renderPartners(partners) {
     const tbody = document.getElementById('partnersTable')
-    if (!data?.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="7">신청 내역이 없습니다.</td></tr>'; return; }
-    tbody.innerHTML = data.map(p => `
+    if (!partners?.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="9">신청 내역이 없습니다.</td></tr>'; return; }
+    tbody.innerHTML = partners.map(p => {
+      const msg = p.message ? p.message.replace(/'/g, "&#39;") : ''
+      return `
       <tr>
-        <td>${p.shop_name}</td>
+        <td><strong>${p.shop_name}</strong></td>
         <td>${p.owner_name}</td>
         <td style="font-family:'DM Mono',monospace; font-size:12px;">${p.phone}</td>
+        <td style="font-family:'DM Mono',monospace; font-size:12px;">${p.email}</td>
         <td>${p.region || '-'}</td>
+        <td>${p.monthly_sales || '-'}</td>
         <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${new Date(p.created_at).toLocaleDateString('ko-KR')}</td>
         <td><span class="badge badge-${p.status === 'approved' ? 'normal' : p.status === 'rejected' ? 'stolen' : 'pending'}">${p.status === 'approved' ? '승인' : p.status === 'rejected' ? '거절' : '대기'}</span></td>
         <td>
-          <button class="action-btn accent" onclick="updatePartner('${p.id}','approved')">승인</button>
-          <button class="action-btn danger" onclick="updatePartner('${p.id}','rejected')">거절</button>
+          ${p.status !== 'approved' ? `<button class="action-btn accent" onclick="updatePartner('${p.id}','approved')">승인</button>` : ''}
+          ${p.status !== 'rejected' ? `<button class="action-btn danger" onclick="updatePartner('${p.id}','rejected')">거절</button>` : ''}
         </td>
-      </tr>
-    `).join('')
+      </tr>`
+    }).join('')
   }
 
   window.updatePartner = async function(id, status) {
     await supabase.from('partnerships').update({ status }).eq('id', id)
-    showToast(status === 'approved' ? '승인 완료!' : '거절 완료!')
+    showToast(status === 'approved' ? '✅ 승인 완료!' : '❌ 거절 완료!')
     await loadPartners()
   }
 
