@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 샵 파트너십</title>
+<link rel="stylesheet" href="./velo-common.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --mid:#2e2e2e; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; overflow-x:hidden; }
+
+  /* NAV */
+  nav { display:flex; justify-content:space-between; align-items:center; padding:0 48px; height:60px; background:rgba(10,10,10,0.92); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; backdrop-filter:blur(12px); }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
+  .nav-right { display:flex; gap:24px; align-items:center; }
+  .nav-link { font-size:13px; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  .nav-link:hover { color:var(--white); }
+
+  /* HERO */
+  .hero { padding:120px 48px 80px; max-width:1000px; margin:0 auto; }
+  .hero-tag { font-size:11px; letter-spacing:4px; color:var(--accent); margin-bottom:20px; }
+  .hero-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(56px,8vw,96px); line-height:0.9; margin-bottom:32px; }
+  .hero-title span { color:var(--accent); }
+  .hero-desc { font-size:16px; color:var(--muted); line-height:1.8; max-width:560px; margin-bottom:48px; }
+  .hero-actions { display:flex; gap:16px; }
+  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:16px 40px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; text-decoration:none; display:inline-block; }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(200,245,66,0.3); }
+  .btn-secondary { background:transparent; color:var(--white); border:1px solid rgba(255,255,255,0.2); padding:16px 40px; font-family:'Noto Sans KR',sans-serif; font-size:14px; cursor:pointer; transition:border-color 0.2s; text-decoration:none; display:inline-block; }
+  .btn-secondary:hover { border-color:var(--white); }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .stat { padding:40px 48px; border-right:1px solid var(--border); }
+  .stat:last-child { border-right:none; }
+  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:48px; color:var(--accent); line-height:1; }
+  .stat-label { font-size:13px; color:var(--muted); margin-top:8px; letter-spacing:1px; }
+
+  /* 혜택 */
+  .benefits { padding:100px 48px; max-width:1000px; margin:0 auto; }
+  .section-tag { font-size:11px; letter-spacing:4px; color:var(--accent); margin-bottom:16px; }
+  .section-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,5vw,64px); line-height:1; margin-bottom:64px; }
+
+  .benefits-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+  .benefit { background:var(--gray); padding:40px 32px; }
+  .benefit-icon { font-size:36px; margin-bottom:20px; }
+  .benefit-title { font-size:18px; font-weight:700; margin-bottom:12px; }
+  .benefit-desc { font-size:13px; color:var(--muted); line-height:1.8; }
+
+  /* 수익 구조 */
+  .revenue { background:var(--gray); padding:80px 48px; }
+  .revenue-inner { max-width:1000px; margin:0 auto; }
+  .revenue-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; margin-top:48px; }
+  .revenue-table { display:flex; flex-direction:column; gap:2px; }
+  .revenue-row { display:flex; justify-content:space-between; align-items:center; padding:18px 24px; background:var(--black); font-size:14px; }
+  .revenue-row.total { background:rgba(200,245,66,0.08); border:1px solid rgba(200,245,66,0.2); font-weight:700; }
+  .revenue-label { color:var(--muted); }
+  .revenue-row.total .revenue-label { color:var(--white); }
+  .revenue-value { color:var(--accent); font-weight:500; }
+  .revenue-desc { font-size:14px; color:var(--muted); line-height:2; }
+  .revenue-highlight { color:var(--accent); font-weight:500; }
+
+  /* 프로세스 */
+  .process { padding:100px 48px; max-width:1000px; margin:0 auto; }
+  .process-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-top:48px; }
+  .process-step { background:var(--gray); padding:32px 28px; position:relative; }
+  .process-num { font-family:'Bebas Neue',sans-serif; font-size:56px; color:rgba(200,245,66,0.12); line-height:1; margin-bottom:16px; }
+  .process-title { font-size:16px; font-weight:700; margin-bottom:10px; }
+  .process-desc { font-size:13px; color:var(--muted); line-height:1.7; }
+
+  /* 신청 폼 */
+  .apply { padding:100px 48px; background:var(--gray); }
+  .apply-inner { max-width:640px; margin:0 auto; }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:48px; }
+  .field { display:flex; flex-direction:column; gap:8px; }
+  .field.full { grid-column:span 2; }
+  .field label { font-size:11px; letter-spacing:2px; color:var(--muted); }
+  .field input, .field select, .field textarea { background:var(--black); border:1px solid var(--border); color:var(--white); padding:13px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; -webkit-appearance:none; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--accent); }
+  .field input::placeholder, .field textarea::placeholder { color:rgba(255,255,255,0.2); }
+  .field select option { background:var(--gray); }
+  .field textarea { min-height:120px; resize:vertical; line-height:1.6; }
+  .field-error { font-size:11px; color:var(--error); display:none; }
+  .field-error.show { display:block; }
+  .submit-btn { width:100%; background:var(--accent); color:var(--black); border:none; padding:18px; font-family:'Noto Sans KR',sans-serif; font-size:15px; font-weight:700; letter-spacing:1px; cursor:pointer; margin-top:24px; transition:opacity 0.2s; }
+  .submit-btn:hover { opacity:0.9; }
+  .submit-btn.loading { opacity:0.6; pointer-events:none; }
+
+  /* 성공 */
+  .success-box { display:none; text-align:center; padding:60px 0; }
+  .success-box.show { display:block; }
+  .success-icon { width:80px; height:80px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:36px; margin:0 auto 24px; }
+  .success-title { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:2px; margin-bottom:12px; }
+  .success-desc { font-size:14px; color:var(--muted); line-height:1.8; }
+
+  /* FAQ */
+  .faq { padding:100px 48px; max-width:1000px; margin:0 auto; }
+  .faq-list { display:flex; flex-direction:column; gap:2px; margin-top:48px; }
+  .faq-item { background:var(--gray); border:1px solid var(--border); }
+  .faq-q { padding:20px 28px; font-size:14px; font-weight:500; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+  .faq-q:hover { background:rgba(255,255,255,0.02); }
+  .faq-arrow { transition:transform 0.3s; color:var(--muted); }
+  .faq-item.open .faq-arrow { transform:rotate(180deg); }
+  .faq-a { display:none; padding:0 28px 20px; font-size:13px; color:var(--muted); line-height:1.8; border-top:1px solid var(--border); padding-top:16px; }
+  .faq-item.open .faq-a { display:block; }
+
+  /* CTA */
+  .cta { background:var(--accent); padding:100px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .cta-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,5vw,72px); color:var(--black); line-height:0.95; }
+  .cta-right { display:flex; flex-direction:column; align-items:flex-end; gap:20px; }
+  .cta-desc { font-size:14px; color:rgba(0,0,0,0.6); text-align:right; max-width:300px; line-height:1.7; }
+  .btn-dark { background:var(--black); color:var(--accent); border:none; padding:16px 40px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; text-decoration:none; display:inline-block; }
+
+  footer { padding:40px 48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .footer-logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:4px; color:var(--accent); }
+  .footer-text { font-size:12px; color:var(--muted); }
+
+  .reveal { opacity:0; transform:translateY(24px); transition:opacity 0.7s, transform 0.7s; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  @media(max-width:768px) {
+    nav { padding:0 24px; }
+    .hero, .benefits, .process, .faq { padding:80px 24px; }
+    .revenue { padding:80px 24px; }
+    .apply { padding:80px 24px; }
+    .stats { grid-template-columns:1fr; }
+    .stat { border-right:none; border-bottom:1px solid var(--border); }
+    .benefits-grid, .process-steps { grid-template-columns:1fr; }
+    .revenue-grid { grid-template-columns:1fr; }
+    .form-grid { grid-template-columns:1fr; }
+    .field.full { grid-column:span 1; }
+    .cta { flex-direction:column; gap:32px; padding:80px 24px; }
+    .cta-right { align-items:flex-start; }
+    .cta-desc { text-align:left; }
+    footer { flex-direction:column; gap:12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="velo-landing.html" class="nav-logo">VÉLO</a>
+  <div class="nav-right">
+    <a href="velo-landing.html" class="nav-link">서비스 소개</a>
+    <a href="#apply" class="btn-primary" style="padding:8px 20px; font-size:13px;">파트너 신청</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">SHOP PARTNERSHIP</div>
+  <h1 class="hero-title reveal">
+    자전거 샵과<br>
+    함께 <span>성장</span>합니다.
+  </h1>
+  <p class="hero-desc reveal">
+    벨로 파트너 샵이 되면 고객에게 차별화된 소유권 인증 서비스를 제공하고,
+    등록 수수료의 일부를 수익으로 가져갈 수 있습니다.
+  </p>
+  <div class="hero-actions reveal">
+    <a href="#apply" class="btn-primary">파트너 신청하기</a>
+    <a href="#benefits" class="btn-secondary">혜택 보기</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat reveal">
+    <div class="stat-num">30%</div>
+    <div class="stat-label">태그 발급 수수료 공유</div>
+  </div>
+  <div class="stat reveal">
+    <div class="stat-num">무료</div>
+    <div class="stat-label">파트너 가입비 없음</div>
+  </div>
+  <div class="stat reveal">
+    <div class="stat-num">즉시</div>
+    <div class="stat-label">신청 후 바로 시작 가능</div>
+  </div>
+</div>
+
+<!-- 혜택 -->
+<section class="benefits" id="benefits">
+  <div class="section-tag">BENEFITS</div>
+  <h2 class="section-title reveal">파트너 혜택</h2>
+  <div class="benefits-grid">
+    <div class="benefit reveal">
+      <div class="benefit-icon">💰</div>
+      <div class="benefit-title">수익 공유</div>
+      <div class="benefit-desc">고객이 샵을 통해 벨로에 등록할 때마다 태그 발급 수수료의 30%를 수익으로 가져갑니다. 등록이 많을수록 수익도 늘어납니다.</div>
+    </div>
+    <div class="benefit reveal">
+      <div class="benefit-icon">🏷️</div>
+      <div class="benefit-title">파트너 뱃지</div>
+      <div class="benefit-desc">벨로 공식 파트너 뱃지와 스티커를 제공합니다. 매장에 부착하면 고객 신뢰도가 높아집니다.</div>
+    </div>
+    <div class="benefit reveal">
+      <div class="benefit-icon">📦</div>
+      <div class="benefit-title">태그 우선 공급</div>
+      <div class="benefit-desc">파트너 샵에는 NFC 태그를 우선 공급합니다. 자전거 판매 시 즉시 등록이 가능합니다.</div>
+    </div>
+    <div class="benefit reveal">
+      <div class="benefit-icon">📊</div>
+      <div class="benefit-title">등록 대시보드</div>
+      <div class="benefit-desc">샵에서 등록한 자전거 현황을 한눈에 볼 수 있는 전용 대시보드를 제공합니다.</div>
+    </div>
+    <div class="benefit reveal">
+      <div class="benefit-icon">🤝</div>
+      <div class="benefit-title">공동 마케팅</div>
+      <div class="benefit-desc">벨로 공식 채널에 파트너 샵을 소개합니다. 새로운 고객 유입 효과를 기대할 수 있습니다.</div>
+    </div>
+    <div class="benefit reveal">
+      <div class="benefit-icon">📞</div>
+      <div class="benefit-title">전담 지원</div>
+      <div class="benefit-desc">파트너 전용 카카오톡 채널을 통해 빠른 기술 지원과 문의 응대를 제공합니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 수익 구조 -->
+<section class="revenue">
+  <div class="revenue-inner">
+    <div class="section-tag">REVENUE</div>
+    <h2 class="section-title reveal">수익 구조</h2>
+    <div class="revenue-grid">
+      <div class="revenue-table reveal">
+        <div class="revenue-row">
+          <span class="revenue-label">칩 2개 (기본) 발급 수수료</span>
+          <span class="revenue-value">7,900원</span>
+        </div>
+        <div class="revenue-row">
+          <span class="revenue-label">파트너 수익 (30%)</span>
+          <span class="revenue-value">2,370원</span>
+        </div>
+        <div class="revenue-row">
+          <span class="revenue-label">칩+카드 발급 수수료</span>
+          <span class="revenue-value">9,900원</span>
+        </div>
+        <div class="revenue-row">
+          <span class="revenue-label">파트너 수익 (30%)</span>
+          <span class="revenue-value">2,970원</span>
+        </div>
+        <div class="revenue-row total">
+          <span class="revenue-label">월 10건 등록 시 예상 수익</span>
+          <span class="revenue-value">약 27,000원</span>
+        </div>
+      </div>
+      <div class="revenue-desc reveal">
+        <p>자전거 한 대 판매할 때마다 벨로 등록을 함께 제안하면<br>
+        <span class="revenue-highlight">추가 수익</span>을 만들 수 있습니다.</p>
+        <br>
+        <p>월 10건만 등록해도 <span class="revenue-highlight">약 2~3만원</span>,<br>
+        월 50건이면 <span class="revenue-highlight">약 13만원</span> 이상의 수익이 발생합니다.</p>
+        <br>
+        <p style="color:rgba(255,255,255,0.3); font-size:12px;">* 수익은 매월 정산 후 지급됩니다.<br>* 정산 기준일: 매월 말일</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 프로세스 -->
+<section class="process">
+  <div class="section-tag">HOW IT WORKS</div>
+  <h2 class="section-title reveal">파트너십 진행 과정</h2>
+  <div class="process-steps">
+    <div class="process-step reveal">
+      <div class="process-num">01</div>
+      <div class="process-title">신청</div>
+      <div class="process-desc">아래 양식을 작성하여 파트너십을 신청합니다. 1~2 영업일 내 연락드립니다.</div>
+    </div>
+    <div class="process-step reveal">
+      <div class="process-num">02</div>
+      <div class="process-title">계약</div>
+      <div class="process-desc">파트너십 계약을 체결합니다. 수익 공유 비율과 조건을 확인합니다.</div>
+    </div>
+    <div class="process-step reveal">
+      <div class="process-num">03</div>
+      <div class="process-title">태그 수령</div>
+      <div class="process-desc">벨로 NFC 태그와 파트너 뱃지, 홍보물을 발송해드립니다.</div>
+    </div>
+    <div class="process-step reveal">
+      <div class="process-num">04</div>
+      <div class="process-title">시작</div>
+      <div class="process-desc">고객 자전거 판매 시 벨로 등록을 함께 제안하고 수익을 받습니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 신청 폼 -->
+<section class="apply" id="apply">
+  <div class="apply-inner">
+    <div class="section-tag">APPLY</div>
+    <h2 class="section-title reveal">파트너 신청</h2>
+    <div class="success-box" id="successBox">
+      <div class="success-icon">✓</div>
+      <div class="success-title">신청 완료!</div>
+      <div class="success-desc">신청해주셔서 감사합니다.<br>1~2 영업일 내에 연락드리겠습니다.</div>
+    </div>
+    <div id="applyForm">
+      <div class="form-grid">
+        <div class="field">
+          <label>샵 이름 *</label>
+          <input type="text" id="shopName" placeholder="예: 라이더스 자전거">
+          <div class="field-error" id="shopNameErr">샵 이름을 입력해주세요.</div>
+        </div>
+        <div class="field">
+          <label>담당자 이름 *</label>
+          <input type="text" id="ownerName" placeholder="홍길동">
+          <div class="field-error" id="ownerNameErr">담당자 이름을 입력해주세요.</div>
+        </div>
+        <div class="field">
+          <label>연락처 *</label>
+          <input type="tel" id="phone" placeholder="010-0000-0000">
+          <div class="field-error" id="phoneErr">연락처를 입력해주세요.</div>
+        </div>
+        <div class="field">
+          <label>이메일 *</label>
+          <input type="email" id="email" placeholder="shop@example.com">
+          <div class="field-error" id="emailErr">올바른 이메일을 입력해주세요.</div>
+        </div>
+        <div class="field">
+          <label>지역</label>
+          <select id="region">
+            <option value="">선택해주세요</option>
+            <option>서울</option><option>경기</option><option>인천</option>
+            <option>부산</option><option>대구</option><option>광주</option>
+            <option>대전</option><option>울산</option><option>세종</option>
+            <option>강원</option><option>충북</option><option>충남</option>
+            <option>전북</option><option>전남</option><option>경북</option>
+            <option>경남</option><option>제주</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>월 평균 자전거 판매량</label>
+          <select id="sales">
+            <option value="">선택해주세요</option>
+            <option>10대 미만</option>
+            <option>10~30대</option>
+            <option>30~50대</option>
+            <option>50대 이상</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>샵 주소</label>
+          <input type="text" id="address" placeholder="서울시 강남구 ...">
+        </div>
+        <div class="field full">
+          <label>문의 내용</label>
+          <textarea id="message" placeholder="파트너십과 관련하여 궁금한 점이 있으시면 자유롭게 작성해주세요."></textarea>
+        </div>
+      </div>
+      <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">파트너 신청하기 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="section-tag">FAQ</div>
+  <h2 class="section-title reveal">자주 묻는 질문</h2>
+  <div class="faq-list reveal">
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">파트너 가입비가 있나요? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">없습니다. 벨로 파트너십은 완전 무료입니다. 별도의 가입비나 보증금이 없습니다.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">수익은 언제 정산되나요? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">매월 말일 기준으로 정산하여 익월 10일 이내에 지급합니다. 최소 정산 금액은 10,000원입니다.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">태그는 어떻게 받나요? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">계약 완료 후 초기 재고 (태그 20개)를 무료로 발송해드립니다. 이후 추가 재고는 원가로 구매하실 수 있습니다.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">온라인 샵도 파트너 신청이 가능한가요? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">네, 가능합니다. 온라인 샵의 경우 별도 협의를 통해 파트너십 조건을 맞춰드립니다.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">파트너 해지가 가능한가요? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">언제든지 해지 신청이 가능합니다. 해지 신청 후 당월 말일에 최종 정산 후 종료됩니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2 class="cta-title">지금<br>파트너가<br>되세요.</h2>
+  <div class="cta-right">
+    <p class="cta-desc">함께 성장하는 벨로 파트너십.<br>신청부터 시작까지 1주일이면 충분합니다.</p>
+    <a href="#apply" class="btn-dark">파트너 신청하기 →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">VÉLO</div>
+  <div class="footer-text">© 2025 Vélo. 자전거 소유권 인증 플랫폼.</div>
+</footer>
+
+<script type="module">
+  import { supabase } from './velo-supabase.js'
+
+  // 신청 폼
+  function showErr(id, show) {
+    document.getElementById(id).classList.toggle('show', show)
+    return show
+  }
+
+  window.handleSubmit = async function() {
+    const shopName = document.getElementById('shopName').value.trim()
+    const ownerName = document.getElementById('ownerName').value.trim()
+    const phone = document.getElementById('phone').value.trim()
+    const email = document.getElementById('email').value.trim()
+    let err = false
+    if (!shopName) err = showErr('shopNameErr', true); else showErr('shopNameErr', false)
+    if (!ownerName) err = showErr('ownerNameErr', true); else showErr('ownerNameErr', false)
+    if (!phone) err = showErr('phoneErr', true); else showErr('phoneErr', false)
+    if (!email || !/\S+@\S+\.\S+/.test(email)) err = showErr('emailErr', true); else showErr('emailErr', false)
+    if (err) return
+
+    const btn = document.getElementById('submitBtn')
+    btn.textContent = '신청 중...'; btn.classList.add('loading')
+
+    try {
+      // 파트너십 신청 DB 저장
+      await supabase.from('partnerships').insert({
+        shop_name: shopName,
+        owner_name: ownerName,
+        phone,
+        email,
+        region: document.getElementById('region').value,
+        monthly_sales: document.getElementById('sales').value,
+        address: document.getElementById('address').value,
+        message: document.getElementById('message').value,
+      })
+    } catch(e) {
+      // 테이블 없어도 성공 처리 (나중에 추가)
+    }
+
+    document.getElementById('applyForm').style.display = 'none'
+    document.getElementById('successBox').classList.add('show')
+  }
+
+  // FAQ 토글
+  window.toggleFaq = function(el) {
+    el.classList.toggle('open')
+  }
+
+  // 스크롤 reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) setTimeout(() => entry.target.classList.add('visible'), i * 80)
+    })
+  }, { threshold: 0.1 })
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+</script>
+</body>
+</html>

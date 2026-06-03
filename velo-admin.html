@@ -151,6 +151,7 @@
     <button class="tab" onclick="switchTab('bikes')">🚲 자전거</button>
     <button class="tab" onclick="switchTab('stolen')">🚨 도난 신고</button>
     <button class="tab" onclick="switchTab('delivery')">📦 태그 발급</button>
+    <button class="tab" onclick="switchTab('partners')">🤝 파트너십</button>
   </div>
 
   <!-- 수익 탭 -->
@@ -283,6 +284,33 @@
 
 </div>
 
+  <!-- 파트너십 탭 -->
+  <div class="tab-content" id="tab-partners">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">파트너십 신청</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>샵 이름</th>
+            <th>담당자</th>
+            <th>연락처</th>
+            <th>지역</th>
+            <th>신청일</th>
+            <th>상태</th>
+            <th>처리</th>
+          </tr>
+        </thead>
+        <tbody id="partnersTable">
+          <tr class="loading-row"><td colspan="7">불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
 <!-- 계정 정지 모달 -->
 <div class="modal-overlay" id="suspendModal" onclick="closeModal('suspendModal',event)">
   <div class="modal">
@@ -326,7 +354,18 @@
   async function init() {
     const user = await getUser()
     if (!user) { location.href = 'velo-auth.html'; return; }
-    if (user.email !== ADMIN_EMAIL) { location.href = 'velo-dashboard.html'; return; }
+
+    // DB에서 관리자 권한 체크
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.is_admin) {
+      location.href = 'velo-dashboard.html'
+      return
+    }
 
     await Promise.all([loadStats(), loadUsers(), loadBikes(), loadStolen(), loadDelivery()])
   }
@@ -505,12 +544,43 @@
     if (user) alert(`이름: ${user.name}\n이메일: ${user.email}\n플랜: ${user.plan}\n가입일: ${new Date(user.created_at).toLocaleDateString('ko-KR')}`)
   }
 
+  // 파트너십 신청
+  async function loadPartners() {
+    const { data } = await supabase
+      .from('partnerships')
+      .select('*')
+      .order('created_at', { ascending: false })
+    const tbody = document.getElementById('partnersTable')
+    if (!data?.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="7">신청 내역이 없습니다.</td></tr>'; return; }
+    tbody.innerHTML = data.map(p => `
+      <tr>
+        <td>${p.shop_name}</td>
+        <td>${p.owner_name}</td>
+        <td style="font-family:'DM Mono',monospace; font-size:12px;">${p.phone}</td>
+        <td>${p.region || '-'}</td>
+        <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${new Date(p.created_at).toLocaleDateString('ko-KR')}</td>
+        <td><span class="badge badge-${p.status === 'approved' ? 'normal' : p.status === 'rejected' ? 'stolen' : 'pending'}">${p.status === 'approved' ? '승인' : p.status === 'rejected' ? '거절' : '대기'}</span></td>
+        <td>
+          <button class="action-btn accent" onclick="updatePartner('${p.id}','approved')">승인</button>
+          <button class="action-btn danger" onclick="updatePartner('${p.id}','rejected')">거절</button>
+        </td>
+      </tr>
+    `).join('')
+  }
+
+  window.updatePartner = async function(id, status) {
+    await supabase.from('partnerships').update({ status }).eq('id', id)
+    showToast(status === 'approved' ? '승인 완료!' : '거절 완료!')
+    await loadPartners()
+  }
+
   // 탭 전환
   window.switchTab = function(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
     event.target.classList.add('active')
     document.getElementById('tab-' + name).classList.add('active')
+    if (name === 'partners') loadPartners()
   }
 
   // 모달 닫기
