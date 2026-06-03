@@ -353,7 +353,7 @@
               <div class="setting-row-label">이름</div>
             </div>
             <div class="setting-row-right">
-              <input type="text" class="setting-input" value="홍길동" id="inputName">
+              <input type="text" class="setting-input" placeholder="이름" id="inputName">
             </div>
           </div>
           <div class="setting-row">
@@ -362,7 +362,7 @@
               <div class="setting-row-sub">뒷 4자리는 마스킹되어 표시됩니다</div>
             </div>
             <div class="setting-row-right">
-              <input type="tel" class="setting-input" value="010-1234-5678" id="inputPhone">
+              <input type="tel" class="setting-input" placeholder="010-0000-0000" id="inputPhone">
             </div>
           </div>
           <div class="setting-row">
@@ -370,7 +370,7 @@
               <div class="setting-row-label">이메일</div>
             </div>
             <div class="setting-row-right">
-              <input type="email" class="setting-input" value="hong@example.com" id="inputEmail">
+              <input type="email" class="setting-input" placeholder="이메일" id="inputEmail" readonly style="opacity:0.5;">
             </div>
           </div>
         </div>
@@ -386,23 +386,22 @@
         <div class="setting-section-header">
           <div>
             <div class="setting-section-title">현재 요금제</div>
-            <div class="setting-section-sub">다음 결제일: 2025.06.12</div>
+            <div class="setting-section-sub" id="nextBillingDate"></div>
           </div>
           <button class="btn-sm danger" onclick="openCancelModal()">구독 해지</button>
         </div>
-        <div class="plan-grid">
-          <div class="plan-card">
+        <div class="plan-grid" id="planGrid">
+          <div class="plan-card" onclick="location.href='velo-payment.html'">
             <div class="plan-name">구독 없음</div>
             <div class="plan-price">0</div>
             <div class="plan-unit">원 / 월</div>
           </div>
-          <div class="plan-card current">
-            <div class="plan-current-badge">현재</div>
+          <div class="plan-card" onclick="location.href='velo-payment.html'">
             <div class="plan-name">월 구독</div>
             <div class="plan-price">490</div>
             <div class="plan-unit">원 / 월</div>
           </div>
-          <div class="plan-card" onclick="showToast('연간 구독으로 변경되었습니다.')">
+          <div class="plan-card" onclick="location.href='velo-payment.html'">
             <div class="plan-name">연간 구독</div>
             <div class="plan-price">4,900</div>
             <div class="plan-unit">원 / 년</div>
@@ -414,47 +413,8 @@
         <div class="setting-section-header">
           <div class="setting-section-title">결제 내역</div>
         </div>
-        <div class="invoice-list">
-          <div class="invoice-item">
-            <div class="invoice-left">
-              <div class="invoice-name">월 구독료</div>
-              <div class="invoice-date">2025.05.12</div>
-            </div>
-            <div class="invoice-right">
-              <div class="invoice-amount">490원</div>
-              <div class="invoice-status paid">결제완료</div>
-            </div>
-          </div>
-          <div class="invoice-item">
-            <div class="invoice-left">
-              <div class="invoice-name">태그 발급비 (Trek Emonda SL6)</div>
-              <div class="invoice-date">2025.03.12</div>
-            </div>
-            <div class="invoice-right">
-              <div class="invoice-amount">4,900원</div>
-              <div class="invoice-status paid">결제완료</div>
-            </div>
-          </div>
-          <div class="invoice-item">
-            <div class="invoice-left">
-              <div class="invoice-name">양도 수수료</div>
-              <div class="invoice-date">2025.02.28</div>
-            </div>
-            <div class="invoice-right">
-              <div class="invoice-amount">490원</div>
-              <div class="invoice-status paid">결제완료</div>
-            </div>
-          </div>
-          <div class="invoice-item">
-            <div class="invoice-left">
-              <div class="invoice-name">월 구독료</div>
-              <div class="invoice-date">2025.06.12</div>
-            </div>
-            <div class="invoice-right">
-              <div class="invoice-amount">490원</div>
-              <div class="invoice-status pending">예정</div>
-            </div>
-          </div>
+        <div class="invoice-list" id="invoiceList">
+          <div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">결제 내역이 없습니다.</div>
         </div>
       </div>
 
@@ -474,7 +434,7 @@
               <div class="setting-row-sub">내 자전거 태그가 스캔될 때 알림</div>
             </div>
             <div class="setting-row-right">
-              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              <button class="toggle on" id="notif-scan" onclick="this.classList.toggle('on')"></button>
             </div>
           </div>
           <div class="setting-row">
@@ -483,7 +443,7 @@
               <div class="setting-row-sub">내 자전거가 도난 신고될 때 알림</div>
             </div>
             <div class="setting-row-right">
-              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              <button class="toggle on" id="notif-stolen" onclick="this.classList.toggle('on')"></button>
             </div>
           </div>
           <div class="setting-row">
@@ -492,16 +452,7 @@
               <div class="setting-row-sub">양도 코드가 사용될 때 알림</div>
             </div>
             <div class="setting-row-right">
-              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
-            </div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-row-left">
-              <div class="setting-row-label">결제 알림</div>
-              <div class="setting-row-sub">구독 결제 전날 알림</div>
-            </div>
-            <div class="setting-row-right">
-              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+              <button class="toggle on" id="notif-transfer" onclick="this.classList.toggle('on')"></button>
             </div>
           </div>
           <div class="setting-row">
@@ -510,13 +461,13 @@
               <div class="setting-row-sub">이벤트, 업데이트 소식</div>
             </div>
             <div class="setting-row-right">
-              <button class="toggle" onclick="this.classList.toggle('on')"></button>
+              <button class="toggle" id="notif-marketing" onclick="this.classList.toggle('on')"></button>
             </div>
           </div>
         </div>
       </div>
 
-      <button class="btn-primary" onclick="showToast('알림 설정이 저장되었습니다.')">저장</button>
+      <button class="btn-primary" onclick="saveNotifSettings()">저장</button>
     </div>
 
     <!-- 보안 -->
@@ -529,18 +480,10 @@
         <div class="setting-section-body">
           <div class="setting-row">
             <div class="setting-row-left">
-              <div class="setting-row-label">현재 비밀번호</div>
-            </div>
-            <div class="setting-row-right">
-              <input type="password" class="setting-input" placeholder="••••••••">
-            </div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-row-left">
               <div class="setting-row-label">새 비밀번호</div>
             </div>
             <div class="setting-row-right">
-              <input type="password" class="setting-input" placeholder="8자 이상">
+              <input type="password" class="setting-input" placeholder="8자 이상" id="newPw">
             </div>
           </div>
           <div class="setting-row">
@@ -548,9 +491,12 @@
               <div class="setting-row-label">비밀번호 확인</div>
             </div>
             <div class="setting-row-right">
-              <input type="password" class="setting-input" placeholder="••••••••">
+              <input type="password" class="setting-input" placeholder="••••••••" id="newPwConfirm">
             </div>
           </div>
+        </div>
+        <div style="padding:16px 28px; border-top:1px solid var(--border);">
+          <button class="btn-primary" onclick="changePassword()">비밀번호 변경</button>
         </div>
       </div>
 
@@ -561,20 +507,8 @@
         <div class="setting-section-body">
           <div class="setting-row">
             <div class="setting-row-left">
-              <div class="setting-row-label">전화번호 인증</div>
-              <div class="setting-row-sub">010-1234-5678 인증 완료</div>
-            </div>
-            <div class="setting-row-right">
-              <button class="btn-sm" onclick="showToast('인증 번호가 발송되었습니다.')">재인증</button>
-            </div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-row-left">
               <div class="setting-row-label">이메일 인증</div>
-              <div class="setting-row-sub">hong@example.com 인증 완료</div>
-            </div>
-            <div class="setting-row-right">
-              <button class="btn-sm" onclick="showToast('인증 메일이 발송되었습니다.')">재인증</button>
+              <div class="setting-row-sub" id="emailVerifyStatus">불러오는 중...</div>
             </div>
           </div>
         </div>
@@ -587,26 +521,15 @@
         <div class="setting-section-body">
           <div class="setting-row">
             <div class="setting-row-left">
-              <div class="setting-row-label">iPhone 15 Pro</div>
-              <div class="setting-row-sub" style="font-family:'DM Mono',monospace; font-size:11px;">서울 · 2025.05.31 14:22 · 현재 기기</div>
+              <div class="setting-row-label">현재 세션</div>
+              <div class="setting-row-sub" id="currentSession" style="font-family:'DM Mono',monospace; font-size:11px;">불러오는 중...</div>
             </div>
             <div class="setting-row-right">
               <span style="font-size:11px; color:var(--accent); letter-spacing:1px;">현재</span>
             </div>
           </div>
-          <div class="setting-row">
-            <div class="setting-row-left">
-              <div class="setting-row-label">MacBook Pro</div>
-              <div class="setting-row-sub" style="font-family:'DM Mono',monospace; font-size:11px;">서울 · 2025.05.30 09:11</div>
-            </div>
-            <div class="setting-row-right">
-              <button class="btn-sm danger" onclick="showToast('해당 기기에서 로그아웃되었습니다.')">로그아웃</button>
-            </div>
-          </div>
         </div>
       </div>
-
-      <button class="btn-primary" onclick="showToast('비밀번호가 변경되었습니다.')">비밀번호 변경</button>
 
       <!-- DANGER ZONE -->
       <div class="danger-zone setting-section" style="margin-top:32px;">
@@ -620,7 +543,7 @@
           <div class="setting-row">
             <div class="setting-row-left">
               <div class="setting-row-label">회원 탈퇴</div>
-              <div class="setting-row-sub">탈퇴 즉시 모든 태그가 비활성화됩니다. 등록된 자전거 데이터는 삭제됩니다.</div>
+              <div class="setting-row-sub">탈퇴 즉시 모든 태그가 비활성화됩니다.</div>
             </div>
             <div class="setting-row-right">
               <button class="btn-sm danger" onclick="openDeleteModal()">탈퇴하기</button>
@@ -741,8 +664,38 @@
       const initial = (profile.name || '?')[0]
       avatar.childNodes[0].textContent = initial
 
-      document.querySelectorAll('.setting-row-sub')[6].textContent = `${profile.phone} 등록됨`
-      document.querySelectorAll('.setting-row-sub')[7].textContent = `${profile.email} 등록됨`
+      // 이메일 인증 상태
+      document.getElementById('emailVerifyStatus').textContent = `${profile.email} 등록됨`
+
+      // 현재 세션
+      const now = new Date()
+      const pad = n => String(n).padStart(2,'0')
+      document.getElementById('currentSession').textContent =
+        `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())} · 현재 기기`
+
+      // 요금제 표시
+      const planCards = document.querySelectorAll('#planGrid .plan-card')
+      const planMap = { free: 0, monthly: 1, yearly: 2 }
+      const idx = planMap[profile.plan || 'free']
+      planCards.forEach((c, i) => {
+        c.classList.remove('current')
+        const badge = c.querySelector('.plan-current-badge')
+        if (badge) badge.remove()
+      })
+      if (planCards[idx]) {
+        planCards[idx].classList.add('current')
+        const badge = document.createElement('div')
+        badge.className = 'plan-current-badge'
+        badge.textContent = '현재'
+        planCards[idx].prepend(badge)
+      }
+
+      // 알림 설정 불러오기
+      const notifSettings = JSON.parse(localStorage.getItem('velo_notif') || '{"scan":true,"stolen":true,"transfer":true,"marketing":false}')
+      document.getElementById('notif-scan').classList.toggle('on', notifSettings.scan)
+      document.getElementById('notif-stolen').classList.toggle('on', notifSettings.stolen)
+      document.getElementById('notif-transfer').classList.toggle('on', notifSettings.transfer)
+      document.getElementById('notif-marketing').classList.toggle('on', notifSettings.marketing)
     }
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
@@ -760,13 +713,42 @@
   window.saveProfile = async function() {
     const name = document.getElementById('inputName').value.trim()
     const phone = document.getElementById('inputPhone').value.trim()
-    if (!name || !phone) { showToast('이름과 연락처를 입력해주세요.'); return; }
+    if (!name) { showToast('이름을 입력해주세요.'); return; }
     try {
       await updateProfile({ name, phone })
       showToast('프로필이 저장되었습니다.')
     } catch(e) {
       showToast('저장 실패: ' + e.message)
     }
+  }
+
+  // 비밀번호 변경
+  window.changePassword = async function() {
+    const pw = document.getElementById('newPw').value
+    const pwc = document.getElementById('newPwConfirm').value
+    if (!pw || pw.length < 8) { showToast('8자 이상 입력해주세요.'); return; }
+    if (pw !== pwc) { showToast('비밀번호가 일치하지 않습니다.'); return; }
+    try {
+      const { error } = await supabase.auth.updateUser({ password: pw })
+      if (error) throw error
+      document.getElementById('newPw').value = ''
+      document.getElementById('newPwConfirm').value = ''
+      showToast('비밀번호가 변경되었습니다.')
+    } catch(e) {
+      showToast('변경 실패: ' + e.message)
+    }
+  }
+
+  // 알림 설정 저장
+  window.saveNotifSettings = function() {
+    const settings = {
+      scan: document.getElementById('notif-scan').classList.contains('on'),
+      stolen: document.getElementById('notif-stolen').classList.contains('on'),
+      transfer: document.getElementById('notif-transfer').classList.contains('on'),
+      marketing: document.getElementById('notif-marketing').classList.contains('on'),
+    }
+    localStorage.setItem('velo_notif', JSON.stringify(settings))
+    showToast('알림 설정이 저장되었습니다.')
   }
 
   // 구독 해지
@@ -777,18 +759,6 @@
       showToast('구독이 해지되었습니다.')
     } catch(e) {
       showToast('해지 실패: ' + e.message)
-    }
-  }
-
-  // 비밀번호 변경
-  window.saveProfile = async function() {
-    const name = document.getElementById('inputName').value.trim()
-    const phone = document.getElementById('inputPhone').value.trim()
-    try {
-      await updateProfile({ name, phone })
-      showToast('프로필이 저장되었습니다.')
-    } catch(e) {
-      showToast('저장 실패: ' + e.message)
     }
   }
 
