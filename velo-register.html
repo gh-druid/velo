@@ -439,15 +439,18 @@
 
     <div class="form-grid">
       <div class="field span2">
-        <label>차대번호 (선택)</label>
-        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <select id="serialSelect" onchange="handleSerialSelect(this.value)" style="flex:0 0 auto; background:var(--gray); border:1px solid var(--border); color:var(--white); padding:13px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none;">
-            <option value="">내 자전거 선택 (기등록)</option>
-            <option value="__new__">직접 입력</option>
-          </select>
-          <input type="text" id="serial" placeholder="예: WTU123456789" style="flex:1; font-family:'Courier New',monospace; letter-spacing:2px; min-width:200px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+          <label>차대번호</label>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:12px; color:var(--muted);">없음</span>
+            <div id="serialToggle" onclick="toggleSerial()" style="width:44px; height:24px; background:var(--accent); border-radius:12px; position:relative; cursor:pointer; transition:background 0.2s;">
+              <div id="serialToggleDot" style="width:18px; height:18px; background:var(--black); border-radius:50%; position:absolute; top:3px; left:23px; transition:left 0.2s;"></div>
+            </div>
+            <span style="font-size:12px; color:var(--white);">있음</span>
+          </div>
         </div>
-        <div class="field-hint">프레임에 각인된 시리얼 넘버. 없으면 비워두세요.</div>
+        <input type="text" id="serial" placeholder="예: WTU123456789" style="font-family:'Courier New',monospace; letter-spacing:2px; width:100%;">
+        <div class="field-hint">프레임에 각인된 시리얼 넘버. 없으면 토글을 꺼주세요.</div>
         <div class="field-error" id="serialErr">차대번호를 입력해주세요.</div>
       </div>
 
@@ -843,6 +846,28 @@
     }
   }
 
+  // 차대번호 토글
+  let serialEnabled = true
+  window.toggleSerial = function() {
+    serialEnabled = !serialEnabled
+    const input = document.getElementById('serial')
+    const toggle = document.getElementById('serialToggle')
+    const dot = document.getElementById('serialToggleDot')
+    if (serialEnabled) {
+      input.disabled = false
+      input.style.opacity = '1'
+      toggle.style.background = 'var(--accent)'
+      dot.style.left = '23px'
+      input.focus()
+    } else {
+      input.disabled = true
+      input.value = ''
+      input.style.opacity = '0.3'
+      toggle.style.background = 'rgba(255,255,255,0.1)'
+      dot.style.left = '3px'
+    }
+  }
+
   // 브랜드 기타 선택
   window.handleBrandChange = function(val) {
     const custom = document.getElementById('brandCustom')
@@ -911,6 +936,5 @@
   })
 
   init()
-</script>
 </body>
 </html>
