@@ -153,6 +153,7 @@
     <button class="tab" onclick="switchTab('delivery')">📦 태그 발급</button>
     <button class="tab" onclick="switchTab('partners')">🤝 파트너십</button>
     <button class="tab" onclick="switchTab('discounts')">🎟️ 할인코드</button>
+    <button class="tab" onclick="switchTab('lifetime')">⭐ 평생무료</button>
   </div>
 
   <!-- 수익 탭 -->
@@ -193,7 +194,10 @@
     <div class="table-wrap">
       <div class="table-header">
         <div class="table-title">유저 목록</div>
-        <input type="text" class="search-input" placeholder="이름 또는 이메일 검색" oninput="filterUsers(this.value)">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button onclick="document.getElementById('lifetimeModal').classList.add('active')" style="background:var(--accent); color:var(--black); border:none; padding:7px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; font-weight:700; cursor:pointer;">🎁 평생 무료 부여</button>
+          <input type="text" class="search-input" placeholder="이름 또는 이메일 검색" oninput="filterUsers(this.value)">
+        </div>
       </div>
       <table>
         <thead>
@@ -418,6 +422,60 @@
 
 </div>
 
+  <!-- 평생 무료 모달 -->
+<div class="modal-overlay" id="lifetimeModal" onclick="closeModal('lifetimeModal',event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('lifetimeModal').classList.remove('active')">×</button>
+    <div class="modal-title">평생 무료 부여</div>
+    <div class="modal-sub">이메일을 입력하면 해당 계정에 평생 무료 이용권을 부여합니다.</div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">이메일</div>
+      <input type="email" id="lifetimeEmail" placeholder="example@email.com" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; width:100%;">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('lifetimeModal').classList.remove('active')">취소</button>
+      <button class="btn-confirm-danger" style="background:var(--accent); color:var(--black);" onclick="grantLifetime()">부여하기</button>
+    </div>
+  </div>  <!-- 평생무료 탭 -->
+  <div class="tab-content" id="tab-lifetime">
+
+    <!-- 이메일로 부여 -->
+    <div class="table-wrap" style="margin-bottom:16px;">
+      <div class="table-header">
+        <div class="table-title">평생무료 부여</div>
+      </div>
+      <div style="padding:24px; display:flex; gap:12px; align-items:flex-end;">
+        <div style="flex:1;">
+          <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">이메일</div>
+          <input type="email" id="lifetimeEmail" placeholder="user@example.com" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'DM Mono',monospace; font-size:13px; outline:none; width:100%;">
+        </div>
+        <button onclick="grantLifetime()" style="background:var(--accent); color:var(--black); border:none; padding:11px 24px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;">평생무료 부여</button>
+      </div>
+    </div>
+
+    <!-- 평생무료 목록 -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">평생무료 회원</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>이름</th>
+            <th>이메일</th>
+            <th>가입일</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="lifetimeTable">
+          <tr class="loading-row"><td colspan="4">불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
 <!-- 계정 정지 모달 -->
 <div class="modal-overlay" id="suspendModal" onclick="closeModal('suspendModal',event)">
   <div class="modal">
@@ -515,11 +573,17 @@
       <tr>
         <td>${u.name || '-'}</td>
         <td style="font-family:'DM Mono',monospace; font-size:12px;">${u.email}</td>
-        <td><span class="badge badge-${u.plan || 'free'}">${u.plan === 'monthly' ? '월' : u.plan === 'yearly' ? '연간' : '무료'}</span></td>
+        <td>
+          ${u.lifetime_free ? '<span class="badge badge-normal">평생무료</span>' : `<span class="badge badge-${u.plan || 'free'}">${u.plan === 'monthly' ? '월' : u.plan === 'yearly' ? '연간' : '무료'}</span>`}
+        </td>
         <td>-</td>
         <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${new Date(u.created_at).toLocaleDateString('ko-KR')}</td>
         <td>
           <button class="action-btn" onclick="viewUser('${u.id}')">상세</button>
+          ${u.lifetime_free 
+            ? `<button class="action-btn" onclick="revokeLifetimeById('${u.id}')">무료 취소</button>`
+            : `<button class="action-btn accent" onclick="grantLifetimeById('${u.id}')">평생무료</button>`
+          }
           <button class="action-btn danger" onclick="openSuspend('${u.id}','${u.name}')">정지</button>
           <button class="action-btn danger" onclick="openDeleteUser('${u.id}','${u.name}')">삭제</button>
         </td>
@@ -619,6 +683,36 @@
     await Promise.all([loadBikes(), loadStolen(), loadDelivery(), loadStats()])
   }
 
+  // 평생 무료 부여 (이메일로)
+  window.grantLifetime = async function() {
+    const email = document.getElementById('lifetimeEmail').value.trim()
+    if (!email) { showToast('이메일을 입력해주세요.'); return; }
+
+    const { data: user } = await supabase.from('users').select('id, name').eq('email', email).single()
+    if (!user) { showToast('해당 이메일의 유저가 없습니다.'); return; }
+
+    await supabase.from('users').update({ lifetime_free: true, plan: 'lifetime' }).eq('id', user.id)
+    document.getElementById('lifetimeModal').classList.remove('active')
+    document.getElementById('lifetimeEmail').value = ''
+    showToast(`✅ ${email} 평생 무료 부여 완료!`)
+    await loadUsers()
+  }
+
+  // 평생 무료 부여 (ID로)
+  window.grantLifetimeById = async function(id) {
+    await supabase.from('users').update({ lifetime_free: true, plan: 'lifetime' }).eq('id', id)
+    showToast('✅ 평생 무료 부여 완료!')
+    await loadUsers()
+  }
+
+  // 평생 무료 취소
+  window.revokeLifetimeById = async function(id) {
+    if (!confirm('평생 무료를 취소하시겠습니까?')) return
+    await supabase.from('users').update({ lifetime_free: false, plan: 'free' }).eq('id', id)
+    showToast('평생 무료 취소됨')
+    await loadUsers()
+  }
+
   // 계정 정지
   window.openSuspend = function(id, name) {
     currentUserId = id
@@ -707,6 +801,49 @@
     await loadPartners()
   }
 
+  // 평생무료
+  async function loadLifetime() {
+    const { data } = await supabase
+      .from('users')
+      .select('*')
+      .eq('lifetime_free', true)
+      .order('created_at', { ascending: false })
+
+    const tbody = document.getElementById('lifetimeTable')
+    if (!data?.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="4">평생무료 회원이 없습니다.</td></tr>'; return; }
+
+    tbody.innerHTML = data.map(u => `
+      <tr>
+        <td>${u.name || '-'}</td>
+        <td style="font-family:'DM Mono',monospace; font-size:12px;">${u.email}</td>
+        <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${new Date(u.created_at).toLocaleDateString('ko-KR')}</td>
+        <td>
+          <button class="action-btn danger" onclick="revokeLifetime('${u.id}','${u.email}')">해제</button>
+        </td>
+      </tr>
+    `).join('')
+  }
+
+  window.grantLifetime = async function() {
+    const email = document.getElementById('lifetimeEmail').value.trim()
+    if (!email) { showToast('이메일을 입력해주세요.'); return; }
+
+    const { data: user } = await supabase.from('users').select('id, name').eq('email', email).single()
+    if (!user) { showToast('존재하지 않는 이메일입니다.'); return; }
+
+    await supabase.from('users').update({ lifetime_free: true, plan: 'lifetime' }).eq('email', email)
+    document.getElementById('lifetimeEmail').value = ''
+    showToast(`✅ ${email} 평생무료 부여 완료!`)
+    await loadLifetime()
+  }
+
+  window.revokeLifetime = async function(id, email) {
+    if (!confirm(`${email} 의 평생무료를 해제하시겠습니까?`)) return
+    await supabase.from('users').update({ lifetime_free: false, plan: 'free' }).eq('id', id)
+    showToast('평생무료가 해제되었습니다.')
+    await loadLifetime()
+  }
+
   // 탭 전환
   window.switchTab = function(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
@@ -715,6 +852,7 @@
     document.getElementById('tab-' + name).classList.add('active')
     if (name === 'partners') loadPartners()
     if (name === 'discounts') loadDiscounts()
+    if (name === 'lifetime') loadLifetime()
   }
 
   // 랜덤 코드 생성
