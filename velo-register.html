@@ -441,7 +441,7 @@
       <div class="field span2">
         <label>차대번호</label>
         <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
-          <div id="serialToggle" onclick="toggleSerial()" style="width:44px; height:24px; background:var(--accent); border-radius:12px; position:relative; cursor:pointer; transition:background 0.3s; flex-shrink:0;">
+          <div id="serialToggle" style="width:44px; height:24px; background:var(--accent); border-radius:12px; position:relative; cursor:pointer; transition:background 0.3s; flex-shrink:0;">
             <div id="serialToggleDot" style="width:18px; height:18px; background:var(--black); border-radius:50%; position:absolute; top:3px; left:23px; transition:left 0.3s;"></div>
           </div>
           <input type="text" id="serial" placeholder="예: WTU123456789" style="font-family:'Courier New',monospace; letter-spacing:2px; flex:1;">
@@ -863,6 +863,7 @@
       dot.style.left = '3px'
     }
   }
+  document.getElementById('serialToggle').addEventListener('click', window.toggleSerial)
 
   // 브랜드 기타 선택
   window.handleBrandChange = function(val) {
