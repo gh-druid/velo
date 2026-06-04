@@ -412,6 +412,7 @@
             <button class="bike-btn danger" ${!hasSubscription ? 'onclick="alert(\'도난 신고는 구독자만 이용 가능합니다.\')" style="opacity:0.4;"' : `onclick="openStolen('${bike.id}','${bike.model}')"`}>
               ${bike.status === 'stolen' ? '신고 취소' : '도난 신고'}
             </button>
+            ${!hasSubscription ? `<button class="bike-btn accent" onclick="location.href='velo-payment.html'">구독 시작 →</button>` : ''}
             <button class="bike-btn accent" onclick="location.href='velo-bike.html?serial=${bike.serial}'">상세 →</button>
             <button class="bike-btn danger" onclick="openDelete('${bike.id}','${bike.model}')">삭제</button>
           </div>
