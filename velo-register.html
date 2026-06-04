@@ -403,7 +403,7 @@
 <body>
 
 <nav>
-  <a href="velo-landing.html" class="nav-logo">VÉLO</a>
+  <a href="/" class="nav-logo">VÉLO</a>
   <div class="nav-user">안녕하세요, <span id="navUserName">-</span>님</div>
 </nav>
 
@@ -439,7 +439,7 @@
 
     <div class="form-grid">
       <div class="field span2">
-        <label>차대번호 (필수)</label>
+        <label>차대번호 (선택)</label>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <select id="serialSelect" onchange="handleSerialSelect(this.value)" style="flex:0 0 auto; background:var(--gray); border:1px solid var(--border); color:var(--white); padding:13px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none;">
             <option value="">내 자전거 선택 (기등록)</option>
@@ -447,7 +447,7 @@
           </select>
           <input type="text" id="serial" placeholder="예: WTU123456789" style="flex:1; font-family:'Courier New',monospace; letter-spacing:2px; min-width:200px;">
         </div>
-        <div class="field-hint">프레임에 각인된 시리얼 넘버. 대소문자 구분 없이 입력 가능합니다.</div>
+        <div class="field-hint">프레임에 각인된 시리얼 넘버. 없으면 비워두세요.</div>
         <div class="field-error" id="serialErr">차대번호를 입력해주세요.</div>
       </div>
 
@@ -681,7 +681,7 @@
       const brandSelect = document.getElementById('brand').value;
       const brand = brandSelect === '기타' ? document.getElementById('brandCustom').value.trim() : brandSelect;
       const model = document.getElementById('model').value.trim();
-      if (!serial) { showErr('serialErr', true); ok = false; } else showErr('serialErr', false);
+      if (!serial) showErr('serialErr', false);
       if (!brand) { showErr('brandErr', true); ok = false; } else showErr('brandErr', false);
       if (!model) { showErr('modelErr', true); ok = false; } else showErr('modelErr', false);
       return ok;

@@ -161,9 +161,9 @@
 
 <!-- NAV -->
 <nav class="velo-nav">
-  <a href="velo-landing.html" class="velo-nav-logo">VÉLO</a>
+  <a href="/" class="velo-nav-logo">VÉLO</a>
   <div class="velo-nav-right">
-    <a href="velo-dashboard.html" style="font-size:13px; color:var(--muted); text-decoration:none;">← 대시보드</a>
+    <a href="/dashboard" style="font-size:13px; color:var(--muted); text-decoration:none;">← 대시보드</a>
   </div>
 </nav>
 
@@ -275,7 +275,7 @@
       NFC 태그는 영업일 기준 3~5일 내 배송됩니다.<br>
       배송 주소를 입력해주세요.
     </div>
-    <button class="pay-btn" style="max-width:300px; margin:0 auto;" onclick="location.href='velo-dashboard.html'">대시보드로 이동 →</button>
+    <button class="pay-btn" style="max-width:300px; margin:0 auto;" onclick="location.href='/dashboard'">대시보드로 이동 →</button>
   </div>
 
   <!-- 실패 -->
@@ -332,7 +332,7 @@
       if (bikes.length === 0) {
         wrap.innerHTML = `
           <div style="font-size:13px; color:var(--muted); padding:16px; background:var(--gray); border:1px solid var(--border);">
-            등록된 자전거가 없습니다. <a href="velo-register.html" style="color:var(--accent);">먼저 등록해주세요 →</a>
+            등록된 자전거가 없습니다. <a href="/register" style="color:var(--accent);">먼저 등록해주세요 →</a>
           </div>`
         return
       }

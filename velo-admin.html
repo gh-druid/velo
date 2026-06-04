@@ -109,11 +109,11 @@
 
 <nav>
   <div style="display:flex; align-items:center;">
-    <a href="velo-landing.html" class="nav-logo">VÉLO</a>
+    <a href="/" class="nav-logo">VÉLO</a>
     <span class="nav-badge">ADMIN</span>
   </div>
   <div style="display:flex; gap:16px; align-items:center;">
-    <a href="velo-dashboard.html" style="font-size:13px; color:var(--muted); text-decoration:none;">← 대시보드</a>
+    <a href="/dashboard" style="font-size:13px; color:var(--muted); text-decoration:none;">← 대시보드</a>
     <button onclick="handleLogout()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">로그아웃</button>
   </div>
 </nav>
@@ -619,7 +619,7 @@
         <td><span class="badge badge-${b.status}">${b.status === 'normal' ? '정상' : b.status === 'stolen' ? '도난' : '배송중'}</span></td>
         <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${new Date(b.created_at).toLocaleDateString('ko-KR')}</td>
         <td>
-          <button class="action-btn accent" onclick="location.href='velo-bike.html?serial=${b.serial}'">보기</button>
+          <button class="action-btn accent" onclick="location.href='/bike/${b.serial}'">보기</button>
           <button class="action-btn" onclick="updateStatus('${b.id}','normal')">정상화</button>
         </td>
       </tr>

@@ -164,22 +164,22 @@
 
 <!-- NAV -->
 <nav>
-  <a href="velo-landing.html" class="nav-logo">VÉLO</a>
+  <a href="/" class="nav-logo">VÉLO</a>
   <div class="nav-links">
     <button class="nav-link active">🚲 내 자전거</button>
-    <button class="nav-link" onclick="location.href='velo-history.html'">📋 등록 내역</button>
+    <button class="nav-link" onclick="location.href='/history'">📋 등록 내역</button>
     <button class="nav-link" onclick="toggleNotif()" style="position:relative;">
       🔔 알림
       <span id="notifBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--error); color:white; font-size:9px; font-weight:700; width:14px; height:14px; border-radius:50%; align-items:center; justify-content:center;"></span>
     </button>
-    <button class="nav-link" onclick="location.href='velo-settings.html'">⚙️ 설정</button>
+    <button class="nav-link" onclick="location.href='/settings'">⚙️ 설정</button>
   </div>
   <div class="nav-right">
-    <button class="btn-primary" onclick="location.href='velo-register.html'">+ 자전거 등록</button>
+    <button class="btn-primary" onclick="location.href='/register'">+ 자전거 등록</button>
     <div class="nav-avatar" id="navAvatar" onclick="toggleDropdown()">
       홍
       <div class="nav-dropdown" id="navDropdown">
-        <button class="nav-dropdown-item" onclick="location.href='velo-settings.html'">계정 설정</button>
+        <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
         <button class="nav-dropdown-item" onclick="alert('준비 중!')">구독 관리</button>
         <button class="nav-dropdown-item danger" onclick="handleLogout()">로그아웃</button>
       </div>
@@ -232,7 +232,7 @@
     <div class="empty-icon">🚲</div>
     <div class="empty-title">등록된 자전거가 없습니다</div>
     <div class="empty-desc">자전거를 등록하면 소유권 인증과<br>도난 방지 서비스를 이용할 수 있습니다.</div>
-    <button class="btn-primary" onclick="location.href='velo-register.html'">+ 첫 자전거 등록하기</button>
+    <button class="btn-primary" onclick="location.href='/register'">+ 첫 자전거 등록하기</button>
   </div>
 
 </div>
@@ -339,8 +339,8 @@
       dropdown.className = 'nav-dropdown'
       dropdown.id = 'navDropdown'
       dropdown.innerHTML = `
-        <button class="nav-dropdown-item" onclick="location.href='velo-settings.html'">계정 설정</button>
-        <button class="nav-dropdown-item" onclick="location.href='velo-payment.html'">구독 관리</button>
+        <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
+        <button class="nav-dropdown-item" onclick="location.href='/payment'">구독 관리</button>
         <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
       `
       document.getElementById('navAvatar').appendChild(dropdown)
@@ -412,8 +412,8 @@
             <button class="bike-btn danger" ${!hasSubscription ? 'onclick="alert(\'도난 신고는 구독자만 이용 가능합니다.\')" style="opacity:0.4;"' : `onclick="openStolen('${bike.id}','${bike.model}')"`}>
               ${bike.status === 'stolen' ? '신고 취소' : '도난 신고'}
             </button>
-            ${!hasSubscription ? `<button class="bike-btn accent" onclick="location.href='velo-payment.html'">구독 시작 →</button>` : ''}
-            <button class="bike-btn accent" onclick="location.href='velo-bike.html?serial=${bike.serial}'">상세 →</button>
+            ${!hasSubscription ? `<button class="bike-btn accent" onclick="location.href='/payment'">구독 시작 →</button>` : ''}
+            <button class="bike-btn accent" onclick="location.href='/bike/${bike.serial}'">상세 →</button>
             <button class="bike-btn danger" onclick="openDelete('${bike.id}','${bike.model}')">삭제</button>
           </div>
         </div>
