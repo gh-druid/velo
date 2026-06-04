@@ -803,6 +803,29 @@
     if (p1) p1.textContent = monthlyTotal.toLocaleString()
     if (p2) p2.textContent = yearlyTotal.toLocaleString()
   }
+
+  // 차대번호 토글
+  let serialEnabled = true
+  function toggleSerial() {
+    serialEnabled = !serialEnabled
+    const input = document.getElementById('serial')
+    const toggle = document.getElementById('serialToggle')
+    const dot = document.getElementById('serialToggleDot')
+    if (serialEnabled) {
+      input.disabled = false
+      input.style.opacity = '1'
+      toggle.style.background = 'var(--accent)'
+      dot.style.left = '23px'
+      input.focus()
+    } else {
+      input.disabled = true
+      input.value = ''
+      input.style.opacity = '0.3'
+      toggle.style.background = 'rgba(255,255,255,0.1)'
+      dot.style.left = '3px'
+    }
+  }
+  document.getElementById('serialToggle').addEventListener('click', toggleSerial)
 </script>
 
 <script type="module">
@@ -842,30 +865,6 @@
     }
   }
 
-  // 차대번호 토글
-  let serialEnabled = true
-  window.toggleSerial = function() {
-    serialEnabled = !serialEnabled
-    const input = document.getElementById('serial')
-    const toggle = document.getElementById('serialToggle')
-    const dot = document.getElementById('serialToggleDot')
-    if (serialEnabled) {
-      input.disabled = false
-      input.style.opacity = '1'
-      toggle.style.background = 'var(--accent)'
-      dot.style.left = '23px'
-      input.focus()
-    } else {
-      input.disabled = true
-      input.value = ''
-      input.style.opacity = '0.3'
-      toggle.style.background = 'rgba(255,255,255,0.1)'
-      dot.style.left = '3px'
-    }
-  }
-  document.getElementById('serialToggle').addEventListener('click', window.toggleSerial)
-
-  // 브랜드 기타 선택
   window.handleBrandChange = function(val) {
     const custom = document.getElementById('brandCustom')
     custom.style.display = val === '기타' ? 'block' : 'none'
