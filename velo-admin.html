@@ -222,7 +222,12 @@
     <div class="table-wrap">
       <div class="table-header">
         <div class="table-title">자전거 목록</div>
-        <input type="text" class="search-input" placeholder="차대번호 또는 모델 검색" oninput="filterBikes(this.value)">
+        <div style="display:flex; gap:8px;">
+          <input type="text" class="search-input" id="bikeSearchInput" placeholder="차대번호/모델/샵 검색" oninput="filterBikes(this.value)">
+          <select id="partnerFilter" onchange="filterByPartner(this.value)" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:8px 12px; font-family:'Noto Sans KR',sans-serif; font-size:12px; outline:none;">
+            <option value="">전체 샵</option>
+          </select>
+        </div>
       </div>
       <table>
         <thead>
@@ -230,13 +235,15 @@
             <th>브랜드/모델</th>
             <th>차대번호</th>
             <th>소유자</th>
+            <th>파트너 샵</th>
+            <th>태그 위치</th>
             <th>상태</th>
             <th>등록일</th>
             <th>관리</th>
           </tr>
         </thead>
         <tbody id="bikesTable">
-          <tr class="loading-row"><td colspan="6">불러오는 중...</td></tr>
+          <tr class="loading-row"><td colspan="8">불러오는 중...</td></tr>
         </tbody>
       </table>
     </div>
@@ -335,6 +342,7 @@
             <th>이메일</th>
             <th>지역</th>
             <th>월 판매량</th>
+            <th>파트너 코드</th>
             <th>신청일</th>
             <th>상태</th>
             <th>처리</th>
@@ -532,7 +540,7 @@
       return
     }
 
-    await Promise.all([loadStats(), loadUsers(), loadBikes(), loadStolen(), loadDelivery()])
+    await Promise.all([loadStats(), loadUsers(), loadPartnerMap().then(loadBikes), loadStolen(), loadDelivery()])
   }
 
   // 통계
@@ -605,29 +613,69 @@
       .select('*, users(name, email)')
       .order('created_at', { ascending: false })
     allBikes = data || []
+
+    // 파트너 샵 드롭다운 채우기
+    const { data: partners } = await supabase
+      .from('partnerships')
+      .select('shop_name, partner_code')
+      .eq('status', 'approved')
+      .not('partner_code', 'is', null)
+
+    const select = document.getElementById('partnerFilter')
+    select.innerHTML = '<option value="">전체 샵</option>'
+    if (partners) {
+      partners.forEach(p => {
+        select.innerHTML += `<option value="${p.partner_code}">${p.shop_name} (${p.partner_code})</option>`
+      })
+    }
+
     renderBikes(allBikes)
+  }
+
+  // 파트너 코드로 샵 이름 찾기
+  let partnerMap = {}
+  async function loadPartnerMap() {
+    const { data } = await supabase.from('partnerships').select('shop_name, partner_code').not('partner_code', 'is', null)
+    if (data) data.forEach(p => { partnerMap[p.partner_code] = p.shop_name })
   }
 
   function renderBikes(bikes) {
     const tbody = document.getElementById('bikesTable')
-    if (!bikes.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="6">자전거가 없습니다.</td></tr>'; return; }
-    tbody.innerHTML = bikes.map(b => `
-      <tr>
-        <td>${b.brand} ${b.model}</td>
-        <td style="font-family:'DM Mono',monospace; font-size:12px; letter-spacing:1px;">${b.serial}</td>
-        <td>${b.users?.name || '-'}</td>
-        <td><span class="badge badge-${b.status}">${b.status === 'normal' ? '정상' : b.status === 'stolen' ? '도난' : '배송중'}</span></td>
-        <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${new Date(b.created_at).toLocaleDateString('ko-KR')}</td>
-        <td>
-          <button class="action-btn accent" onclick="location.href='/bike/${b.serial}'">보기</button>
-          <button class="action-btn" onclick="updateStatus('${b.id}','normal')">정상화</button>
-        </td>
-      </tr>
-    `).join('')
+    if (!bikes.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">자전거가 없습니다.</td></tr>'; return; }
+    tbody.innerHTML = bikes.map(b => {
+      const shopName = b.partner_code ? (partnerMap[b.partner_code] || b.partner_code) : '-'
+      return `
+        <tr>
+          <td>${b.brand} ${b.model}</td>
+          <td style="font-family:'DM Mono',monospace; font-size:12px; letter-spacing:1px;">${b.serial || '-'}</td>
+          <td>${b.users?.name || '-'}<br><span style="font-size:11px;color:var(--muted);">${b.users?.email || ''}</span></td>
+          <td>${b.partner_code ? `<span style="color:var(--accent);">${shopName}</span><br><span style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">${b.partner_code}</span>` : '-'}</td>
+          <td style="font-size:12px; color:var(--muted);">${b.color || '-'}</td>
+          <td><span class="badge badge-${b.status}">${b.status === 'normal' ? '정상' : b.status === 'stolen' ? '도난' : '배송중'}</span></td>
+          <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${new Date(b.created_at).toLocaleDateString('ko-KR')}</td>
+          <td>
+            ${b.serial ? `<button class="action-btn accent" onclick="location.href='/bike/${b.serial}'">보기</button>` : ''}
+            <button class="action-btn" onclick="updateStatus('${b.id}','normal')">정상화</button>
+          </td>
+        </tr>
+      `
+    }).join('')
   }
 
   window.filterBikes = function(q) {
-    const filtered = allBikes.filter(b =>
+    const partnerVal = document.getElementById('partnerFilter').value
+    let filtered = allBikes.filter(b =>
+      b.serial?.includes(q.toUpperCase()) || b.model?.includes(q) || b.brand?.includes(q) ||
+      (b.partner_code && partnerMap[b.partner_code]?.includes(q))
+    )
+    if (partnerVal) filtered = filtered.filter(b => b.partner_code === partnerVal)
+    renderBikes(filtered)
+  }
+
+  window.filterByPartner = function(code) {
+    const q = document.getElementById('bikeSearchInput').value
+    let filtered = code ? allBikes.filter(b => b.partner_code === code) : allBikes
+    if (q) filtered = filtered.filter(b =>
       b.serial?.includes(q.toUpperCase()) || b.model?.includes(q) || b.brand?.includes(q)
     )
     renderBikes(filtered)
@@ -785,6 +833,7 @@
         <td style="font-family:'DM Mono',monospace; font-size:12px;">${p.email}</td>
         <td>${p.region || '-'}</td>
         <td>${p.monthly_sales || '-'}</td>
+        <td style="font-family:'DM Mono',monospace; font-size:12px; color:var(--accent);">${p.partner_code || '-'}</td>
         <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${new Date(p.created_at).toLocaleDateString('ko-KR')}</td>
         <td><span class="badge badge-${p.status === 'approved' ? 'normal' : p.status === 'rejected' ? 'stolen' : 'pending'}">${p.status === 'approved' ? '승인' : p.status === 'rejected' ? '거절' : '대기'}</span></td>
         <td>
@@ -796,8 +845,14 @@
   }
 
   window.updatePartner = async function(id, status) {
-    await supabase.from('partnerships').update({ status }).eq('id', id)
-    showToast(status === 'approved' ? '✅ 승인 완료!' : '❌ 거절 완료!')
+    let updateData = { status }
+    // 승인 시 파트너 코드 자동 발급
+    if (status === 'approved') {
+      const code = 'VELO' + Math.random().toString(36).slice(2,8).toUpperCase()
+      updateData.partner_code = code
+    }
+    await supabase.from('partnerships').update(updateData).eq('id', id)
+    showToast(status === 'approved' ? `✅ 승인 완료! 파트너 코드 발급됨` : '❌ 거절 완료!')
     await loadPartners()
   }
 
