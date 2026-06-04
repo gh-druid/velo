@@ -506,6 +506,12 @@
         </div>
         <div class="photo-previews" id="photoPreviews"></div>
       </div>
+
+      <div class="field span2">
+        <label>파트너 샵 코드 (선택)</label>
+        <input type="text" id="partnerCode" placeholder="파트너 샵에서 받은 코드 입력" style="letter-spacing:2px; font-family:'DM Mono',monospace;" oninput="this.value=this.value.toUpperCase()">
+        <div class="field-hint">파트너 샵을 통해 등록 시 코드를 입력해주세요.</div>
+      </div>
     </div>
 
     <div class="form-nav">
@@ -884,13 +890,14 @@
       const year = document.getElementById('year').value
       const color = document.getElementById('color').value.trim()
       const memo = document.getElementById('memo').value.trim()
+      const partnerCode = document.getElementById('partnerCode').value.trim() || null
 
       const btn = document.querySelector('#step3 .btn-next')
       btn.textContent = '저장 중...'; btn.disabled = true
 
       try {
         // 자전거 등록
-        const bike = await registerBike({ serial, brand, model, year, color, memo, photos: [] })
+        const bike = await registerBike({ serial, brand, model, year, color, memo, partnerCode, photos: [] })
 
         // 사진 업로드 (파일이 있으면)
         const photoInput = document.getElementById('photoInput')

@@ -6,7 +6,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
 const SUPABASE_URL = 'https://kfeksnbxucmkilxrbhth.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWtzbmJ4dWNta2lseHJiaHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjQ1NTksImV4cCI6MjA5NTgwMDU1OX0.lXBqhrM_xgrNqZ6WqEWYwgo4NTyodLx9rV3TS25nyjM' // 여기에 anon key 입력
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY' // 여기에 anon key 입력
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
@@ -137,7 +137,7 @@ export async function getBikeByNfcUid(nfcUid) {
 }
 
 // 자전거 등록
-export async function registerBike({ serial, brand, model, year, color, memo, photos }) {
+export async function registerBike({ serial, brand, model, year, color, memo, partnerCode, photos }) {
   const user = await getUser()
   if (!user) throw new Error('로그인이 필요합니다')
 
@@ -152,7 +152,8 @@ export async function registerBike({ serial, brand, model, year, color, memo, ph
       color,
       memo,
       photos,
-      status: 'normal'
+      status: 'normal',
+      partner_code: partnerCode || null
     })
     .select()
     .single()

@@ -195,6 +195,12 @@
         <div class="product-unit">원 / 1회</div>
         <div class="product-desc">NFC 방수 칩 2개<br>실물 NFC 카드 1장</div>
       </div>
+      <div class="product-card" id="prod2" onclick="selectProduct(2)">
+        <div class="product-name">양도 수수료</div>
+        <div class="product-price">490</div>
+        <div class="product-unit">원 / 건</div>
+        <div class="product-desc">소유권 양도 처리<br>1회 양도 기준</div>
+      </div>
     </div>
 
     <!-- 구독 -->
@@ -298,6 +304,7 @@
   const products = [
     { name: '칩 2개 (기본)', price: 7900 },
     { name: '칩 2개 + 카드', price: 9900 },
+    { name: '양도 수수료', price: 490 },
   ]
   const subs = [
     { name: '구독 없음', price: 0, plan: 'free' },
@@ -449,9 +456,20 @@
 
   window.selectProduct = function(n) {
     selectedProd = n
-    document.querySelectorAll('.product-card').forEach((c, i) => {
-      if (i < 2) c.classList.toggle('selected', i === n)
+    document.querySelectorAll('#prod0,#prod1,#prod2').forEach((c, i) => {
+      c.classList.toggle('selected', i === n)
     })
+    // 양도 수수료 선택 시 구독 섹션 숨기기
+    const subLabel = document.querySelector('.section-label[style*="margin-top"]')
+    const subGrid = document.querySelector('.sub-grid')
+    if (n === 2) {
+      if (subLabel) subLabel.style.display = 'none'
+      if (subGrid) subGrid.style.display = 'none'
+      selectedSub = 0
+    } else {
+      if (subLabel) subLabel.style.display = 'block'
+      if (subGrid) subGrid.style.display = 'grid'
+    }
     updateSummary()
   }
 

@@ -683,7 +683,7 @@
 </script>
 
 <script type="module">
-  import { getUser, verifyTransferCode, acceptTransfer } from './velo-supabase.js'
+  import { supabase, getUser, verifyTransferCode, acceptTransfer } from './velo-supabase.js'
 
   let currentTransfer = null
 
@@ -771,6 +771,26 @@
 
     try {
       await acceptTransfer(currentTransfer.id)
+
+      // 양수인 알림
+      const user = await getUser()
+      if (user) {
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          type: 'transfer',
+          message: `${currentTransfer.bikes.brand} ${currentTransfer.bikes.model} 양도가 완료되었습니다.`,
+          bike_id: currentTransfer.bikes.id,
+          is_read: false
+        })
+        // 양도인 알림
+        await supabase.from('notifications').insert({
+          user_id: currentTransfer.from_user_id,
+          type: 'transfer',
+          message: `${currentTransfer.bikes.brand} ${currentTransfer.bikes.model} 양도가 완료되었습니다.`,
+          bike_id: currentTransfer.bikes.id,
+          is_read: false
+        })
+      }
       const now = new Date()
       const pad = n => String(n).padStart(2,'0')
       document.getElementById('completeTime').textContent =

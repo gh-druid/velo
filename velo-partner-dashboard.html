@@ -333,15 +333,68 @@
   }
 
   async function loadPartnerData() {
-    // 파트너가 등록한 자전거 (partner_id 기반, 지금은 이메일로 연결)
-    // 실제로는 bikes 테이블에 partner_id 컬럼 추가 필요
-    // 지금은 더미로 표시
-    document.getElementById('monthRegistered').textContent = '0'
-    document.getElementById('totalRegistered').textContent = '0'
-    document.getElementById('monthRevenue').textContent = '0'
-    document.getElementById('totalRevenue').textContent = '0'
-    document.getElementById('overviewMonthRevenue').textContent = '0'
+    const code = partnerData.partner_code
+    if (!code) return
+
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
+    // 파트너 코드로 등록된 자전거
+    const { data: bikes } = await supabase
+      .from('bikes')
+      .select('*, users(name)')
+      .eq('partner_code', code)
+      .order('created_at', { ascending: false })
+
+    const total = bikes?.length || 0
+    const monthCount = bikes?.filter(b => b.created_at >= monthStart).length || 0
+    const tagPrice = 7900
+    const commission = 0.3
+    const totalRev = Math.floor(total * tagPrice * commission)
+    const monthRev = Math.floor(monthCount * tagPrice * commission)
+
+    document.getElementById('monthRegistered').textContent = monthCount
+    document.getElementById('totalRegistered').textContent = total
+    document.getElementById('monthRevenue').textContent = monthRev.toLocaleString()
+    document.getElementById('totalRevenue').textContent = totalRev.toLocaleString()
+    document.getElementById('overviewMonthRevenue').textContent = monthRev.toLocaleString()
     document.getElementById('stockCount').textContent = '20'
+
+    // 최근 등록 테이블
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+
+    if (bikes?.length) {
+      document.getElementById('recentBikesTable').innerHTML = bikes.slice(0,5).map(b => `
+        <tr>
+          <td>${b.brand} ${b.model}</td>
+          <td style="font-family:'DM Mono',monospace; font-size:12px;">${b.serial || '-'}</td>
+          <td>${b.users?.name || '-'}</td>
+          <td style="font-size:12px; color:var(--muted);">${fmtDate(b.created_at)}</td>
+          <td style="color:var(--accent);">+${Math.floor(7900*0.3).toLocaleString()}원</td>
+        </tr>
+      `).join('')
+
+      document.getElementById('allBikesTable').innerHTML = bikes.map(b => `
+        <tr>
+          <td>${b.brand} ${b.model}</td>
+          <td style="font-family:'DM Mono',monospace; font-size:12px;">${b.serial || '-'}</td>
+          <td>${b.users?.name || '-'}</td>
+          <td><span class="badge badge-${b.status === 'normal' ? 'normal' : 'stolen'}">${b.status === 'normal' ? '정상' : '도난'}</span></td>
+          <td style="font-size:12px; color:var(--muted);">${fmtDate(b.created_at)}</td>
+        </tr>
+      `).join('')
+
+      document.getElementById('revenueTable').innerHTML = bikes.map(b => `
+        <tr>
+          <td>태그 발급 — ${b.brand} ${b.model}</td>
+          <td>7,900원</td>
+          <td style="color:var(--accent);">+${Math.floor(7900*0.3).toLocaleString()}원</td>
+          <td style="font-size:12px; color:var(--muted);">${fmtDate(b.created_at)}</td>
+          <td><span class="badge badge-normal">정산 예정</span></td>
+        </tr>
+      `).join('')
+    }
   }
 
   window.switchTab = function(name, btn) {

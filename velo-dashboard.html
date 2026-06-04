@@ -586,6 +586,16 @@
       const transfer = await createTransferCode(id)
       document.getElementById('transferCodeValue').textContent = transfer.code
       document.getElementById('transferModal').classList.add('active')
+      // 알림 저장
+      const bike = currentBikes.find(b => b.id === id)
+      await supabase.from('notifications').insert({
+        user_id: currentUser.id,
+        type: 'transfer',
+        message: `${bike?.brand || ''} ${bike?.model || ''} 양도 코드가 생성되었습니다. 코드: ${transfer.code}`,
+        bike_id: id,
+        is_read: false
+      })
+      await loadNotifications()
     } catch(e) {
       alert(e.message)
     }
