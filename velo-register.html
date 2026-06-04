@@ -439,18 +439,14 @@
 
     <div class="form-grid">
       <div class="field span2">
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-          <label>차대번호</label>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:12px; color:var(--muted);">없음</span>
-            <div id="serialToggle" onclick="toggleSerial()" style="width:44px; height:24px; background:var(--accent); border-radius:12px; position:relative; cursor:pointer; transition:background 0.2s;">
-              <div id="serialToggleDot" style="width:18px; height:18px; background:var(--black); border-radius:50%; position:absolute; top:3px; left:23px; transition:left 0.2s;"></div>
-            </div>
-            <span style="font-size:12px; color:var(--white);">있음</span>
+        <label>차대번호</label>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+          <div id="serialToggle" onclick="toggleSerial()" style="width:44px; height:24px; background:var(--accent); border-radius:12px; position:relative; cursor:pointer; transition:background 0.3s; flex-shrink:0;">
+            <div id="serialToggleDot" style="width:18px; height:18px; background:var(--black); border-radius:50%; position:absolute; top:3px; left:23px; transition:left 0.3s;"></div>
           </div>
+          <input type="text" id="serial" placeholder="예: WTU123456789" style="font-family:'Courier New',monospace; letter-spacing:2px; flex:1;">
         </div>
-        <input type="text" id="serial" placeholder="예: WTU123456789" style="font-family:'Courier New',monospace; letter-spacing:2px; width:100%;">
-        <div class="field-hint">프레임에 각인된 시리얼 넘버. 없으면 토글을 꺼주세요.</div>
+        <div class="field-hint" style="margin-top:8px;">차대번호가 없으면 토글을 꺼주세요.</div>
         <div class="field-error" id="serialErr">차대번호를 입력해주세요.</div>
       </div>
 
