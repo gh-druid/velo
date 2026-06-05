@@ -184,7 +184,8 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
   </div>
   <div class="nav-right">
     <button class="btn-primary" onclick="location.href='/register'">+ 자전거 등록</button>
-    <div class="nav-avatar" id="navAvatar" onclick="toggleDropdown()">
+    <div style="position:relative;">
+      <div class="nav-avatar" id="navAvatar" onclick="toggleDropdown()"></div>
       <div class="nav-dropdown" id="navDropdown">
         <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
         <button class="nav-dropdown-item" onclick="location.href='/settings'">구독 관리</button>
@@ -329,31 +330,18 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
     // 유저 정보
     const { data: profile } = await supabase.from('users').select('*').eq('id', currentUser.id).single()
     if (profile) {
-      hasSubscription = profile.plan === 'monthly' || profile.plan === 'yearly'
+      hasSubscription = profile.plan === 'monthly' || profile.plan === 'yearly' || profile.plan === 'lifetime' || profile.lifetime_free
       const initial = profile.name ? profile.name[0] : '?'
       document.getElementById('navAvatar').textContent = initial
-      document.getElementById('navAvatar').style.fontSize = '14px'
       // 관리자면 버튼 추가
       if (profile.is_admin) {
         const adminBtn = document.createElement('a')
-        adminBtn.href = 'velo-admin.html'
+        adminBtn.href = '/admin'
         adminBtn.className = 'nav-link'
         adminBtn.style = 'font-size:12px; color:var(--accent); border:1px solid rgba(200,245,66,0.3); padding:4px 10px; text-decoration:none;'
         adminBtn.textContent = '⚙ 관리자'
         document.querySelector('.nav-right').prepend(adminBtn)
       }
-      // 드롭다운 다시 추가
-      const dropdown = document.createElement('div')
-      dropdown.className = 'nav-dropdown'
-      dropdown.id = 'navDropdown'
-      dropdown.innerHTML = `
-        <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
-        <button class="nav-dropdown-item" onclick="location.href='/payment'">구독 관리</button>
-        <button class="nav-dropdown-item" onclick="location.href='/referral'">🔗 레퍼럴</button>
-        <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
-      `
-      document.getElementById('navAvatar').appendChild(dropdown)
-      document.getElementById('logoutBtn').addEventListener('click', handleLogout)
     }
 
     // 자전거 목록
@@ -621,8 +609,10 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
     document.getElementById('navDropdown')?.classList.toggle('show')
   }
   document.addEventListener('click', e => {
-    if (!document.getElementById('navAvatar')?.contains(e.target))
-      document.getElementById('navDropdown')?.classList.remove('show')
+    const avatar = document.getElementById('navAvatar')
+    const dropdown = document.getElementById('navDropdown')
+    if (avatar && dropdown && !avatar.contains(e.target) && !dropdown.contains(e.target))
+      dropdown.classList.remove('show')
   })
 
   // 로그아웃
