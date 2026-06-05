@@ -51,6 +51,7 @@
   .btn-secondary:hover { border-color:var(--white); }
   .hero-scroll { position:absolute; right:48px; bottom:80px; writing-mode:vertical-rl; font-size:11px; letter-spacing:3px; color:var(--text-muted); opacity:0; animation:fadeUp 0.8s 1.2s forwards; }
   @media(max-width:768px) { .hero-scroll { display:none; } }
+  @media(max-width:768px) { .referral-grid { grid-template-columns:1fr !important; gap:32px !important; } }
 
   /* STATS */
   .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(255,255,255,0.08); border-bottom:1px solid rgba(255,255,255,0.08); }
@@ -259,6 +260,13 @@
     .registry-header { grid-template-columns:24px 1fr 1fr; }
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -268,8 +276,8 @@
     <li><a href="#how">이용방법</a></li>
     <li><a href="#features">기능</a></li>
     <li><a href="#pricing">요금제</a></li>
-    <li><a href="velo-partner.html">샵 파트너십</a></li>
-    <li><a href="velo-auth.html" id="navAuthBtn">로그인</a></li>
+    <li><a href="/partner">샵 파트너십</a></li>
+    <li><a href="/login" id="navAuthBtn">로그인</a></li>
     <li><a href="#" class="nav-cta" onclick="_goPayment();return false;">등록 신청</a></li>
   </ul>
   <button class="hamburger" onclick="toggleMobileMenu()" id="hamburgerBtn">
@@ -281,8 +289,8 @@
   <a href="#how" onclick="closeMobileMenu()">이용방법</a>
   <a href="#features" onclick="closeMobileMenu()">기능</a>
   <a href="#pricing" onclick="closeMobileMenu()">요금제</a>
-  <a href="velo-partner.html">샵 파트너십</a>
-  <a href="velo-auth.html" id="mobileAuthBtn">로그인</a>
+  <a href="/partner">샵 파트너십</a>
+  <a href="/login" id="mobileAuthBtn">로그인</a>
   <a href="#" onclick="_goPayment();return false;" style="color:var(--accent); font-weight:700;">등록 신청 →</a>
 </div>
 <script type="module">
@@ -303,10 +311,10 @@
   checkAuth()
 </script>
 <script>
-  function toggleMobileMenu() {
+  window.toggleMobileMenu = function() {
     document.getElementById('mobileMenu').classList.toggle('open')
   }
-  function closeMobileMenu() {
+  window.closeMobileMenu = function() {
     document.getElementById('mobileMenu').classList.remove('open')
   }
 </script>
@@ -430,6 +438,40 @@
   <p style="margin-top:24px;font-size:12px;color:var(--text-muted);">* 양도 시 건당 수수료 490원 별도 / 칩 재발급 시 50% 할인 적용</p>
 </section>
 
+<section class="cta-section" style="background:var(--gray); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div style="max-width:860px; margin:0 auto; padding:80px 40px; display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;" class="referral-grid">
+    <div>
+      <div class="section-tag">REFERRAL</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif; font-size:52px; letter-spacing:2px; line-height:1.1; margin-bottom:20px;">
+        홍보하고<br><span style="color:var(--accent);">수익 내세요</span>
+      </h2>
+      <p style="font-size:15px; color:var(--muted); line-height:1.8; margin-bottom:32px;">
+        내 레퍼럴 코드로 가입한 유저가 결제하면<br>
+        결제 금액의 <strong style="color:var(--white);">15%</strong>가 내 계좌로 들어옵니다.<br>
+        10,000원 쌓이면 바로 출금 가능.
+      </p>
+      <a href="/referral" style="display:inline-block; background:var(--accent); color:var(--black); padding:14px 36px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; text-decoration:none; letter-spacing:1px;">레퍼럴 시작하기 →</a>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div style="background:var(--black); border:1px solid var(--border); padding:24px;">
+        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:10px;">수익 구조</div>
+        <div style="font-size:22px; font-weight:700; color:var(--white);">결제 금액의 <span style="color:var(--accent);">15%</span></div>
+        <div style="font-size:13px; color:var(--muted); margin-top:6px;">태그 7,900원 → 내 수익 1,185원</div>
+      </div>
+      <div style="background:var(--black); border:1px solid var(--border); padding:24px;">
+        <div style="font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:10px;">출금 조건</div>
+        <div style="font-size:22px; font-weight:700; color:var(--white);">10,000원 <span style="color:var(--accent);">이상</span></div>
+        <div style="font-size:13px; color:var(--muted); margin-top:6px;">영업일 3일 내 계좌 입금</div>
+      </div>
+      <div style="background:var(--accent); padding:24px;">
+        <div style="font-size:11px; color:var(--black); letter-spacing:2px; margin-bottom:10px; font-weight:700;">예시 수익</div>
+        <div style="font-size:22px; font-weight:700; color:var(--black);">월 10명 추천 시</div>
+        <div style="font-size:13px; color:#333; margin-top:6px;">→ 약 11,850원 수익</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="cta-section">
   <h2 class="cta-title">지금<br>내 자전거를<br>등록하세요.</h2>
   <div class="cta-right">
@@ -442,8 +484,8 @@
   <div class="footer-logo">VÉLO</div>
   <div class="footer-text">
     © 2025 Vélo. 자전거 소유권 인증 플랫폼.<br>
-    <a href="velo-terms.html" style="color:var(--text-muted); text-decoration:none; margin-right:16px;">이용약관</a>
-    <a href="velo-privacy.html" style="color:var(--text-muted); text-decoration:none;">개인정보처리방침</a>
+    <a href="/terms" style="color:var(--text-muted); text-decoration:none; margin-right:16px;">이용약관</a>
+    <a href="/privacy" style="color:var(--text-muted); text-decoration:none;">개인정보처리방침</a>
   </div>
 </footer>
 
@@ -537,7 +579,7 @@
 
 <script>
 
-  function toggleRegistry() {
+  window.toggleRegistry = function() {
     const list = document.getElementById('registryList');
     const btn = document.getElementById('registryBtn');
     list.classList.toggle('show');
@@ -546,8 +588,8 @@
 
   // Modal
   function openModal() { document.getElementById('modal').classList.add('active'); document.body.style.overflow='hidden'; }
-  function closeModal() { document.getElementById('modal').classList.remove('active'); document.body.style.overflow=''; }
-  function closeModalOutside(e) { if(e.target===document.getElementById('modal')) closeModal(); }
+  window.closeModal = function() { document.getElementById('modal').classList.remove('active'); document.body.style.overflow=''; }
+  window.closeModalOutside = function(e) { if(e.target===document.getElementById('modal')) closeModal(); }
   document.getElementById('submitBtn').addEventListener('click', function() {
     this.textContent='✓ 신청 완료! 곧 연락드릴게요.';
     this.style.background='#333'; this.style.color='#c8f542';
@@ -559,6 +601,15 @@
     entries.forEach((entry,i) => { if(entry.isIntersecting) setTimeout(()=>entry.target.classList.add('visible'),i*80); });
   },{threshold:0.1});
   document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+
+<script>/* compat-bridge */
+function _goPayment(){ if(window._goPayment) window._goPayment.apply(this, arguments); }
+function toggleMobileMenu(){ if(window.toggleMobileMenu) window.toggleMobileMenu.apply(this, arguments); }
+function closeMobileMenu(){ if(window.closeMobileMenu) window.closeMobileMenu.apply(this, arguments); }
+function toggleRegistry(){ if(window.toggleRegistry) window.toggleRegistry.apply(this, arguments); }
+function closeModal(){ if(window.closeModal) window.closeModal.apply(this, arguments); }
+function closeModalOutside(){ if(window.closeModalOutside) window.closeModalOutside.apply(this, arguments); }
 </script>
 </body>
 </html>
