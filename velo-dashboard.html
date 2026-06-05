@@ -51,7 +51,7 @@
   .nav-dropdown {
     position:absolute; top:40px; right:0;
     background:var(--gray); border:1px solid var(--border);
-    min-width:160px; display:none; z-index:200;
+    min-width:160px; position:absolute; top:40px; right:0; display:none; z-index:200;
   }
   .nav-dropdown.show { display:block; }
   .nav-dropdown-item {
@@ -616,7 +616,7 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
   })
 
   // 로그아웃
-  async window.handleLogout = function() {
+  window.handleLogout = async function() {
     await signOut()
     location.href = 'velo-auth.html'
   }

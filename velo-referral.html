@@ -92,12 +92,26 @@
 <nav>
   <a href="/" class="nav-logo">VÉLO</a>
   <div class="nav-links">
-    <a href="/dashboard" class="nav-link">🚲 내 자전거</a>
-    <a href="/history" class="nav-link">📋 등록 내역</a>
-    <a href="/settings" class="nav-link">⚙️ 설정</a>
+    <a href="/dashboard" class="nav-link ">🚲 내 자전거</a>
+    <a href="/history" class="nav-link ">📋 등록 내역</a>
+    <button class="nav-link " id="notifBtn" style="position:relative;">
+      🔔 알림
+      <span id="notifBadge" style="display:none; position:absolute; top:4px; right:4px; width:7px; height:7px; background:#ff4f4f; border-radius:50%;"></span>
+    </button>
+    <a href="/referral" class="nav-link active">🔗 레퍼럴</a>
+    <a href="/settings" class="nav-link ">⚙️ 설정</a>
   </div>
   <div class="nav-right">
-    <div class="nav-avatar" id="navAvatar"></div>
+    <button class="btn-primary" onclick="location.href='/register'">+ 자전거 등록</button>
+    <div style="position:relative;">
+      <div class="nav-avatar" id="navAvatar" onclick="document.getElementById('navDropdown').classList.toggle('show')"></div>
+      <div class="nav-dropdown" id="navDropdown">
+        <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
+        <button class="nav-dropdown-item" onclick="location.href='/payment'">구독 관리</button>
+        <button class="nav-dropdown-item" onclick="location.href='/referral'">🔗 레퍼럴</button>
+        <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
   </div>
 </nav>
 

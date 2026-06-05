@@ -72,6 +72,12 @@
     .record-card { flex-direction:column; align-items:flex-start; gap:12px; }
     .record-right { text-align:left; }
   }
+
+  .nav-dropdown { position:absolute; top:40px; right:0; background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); min-width:160px; display:none; z-index:200; }
+  .nav-dropdown.show { display:block; }
+  .nav-dropdown-item { padding:12px 16px; font-size:13px; color:#888; cursor:pointer; display:block; background:none; border:none; font-family:'Noto Sans KR',sans-serif; width:100%; text-align:left; transition:all 0.2s; }
+  .nav-dropdown-item:hover { color:#f5f3ee; background:rgba(255,255,255,0.04); }
+  .nav-dropdown-item.danger:hover { color:#ff4f4f; }
 </style>
 
 <style>
@@ -86,28 +92,26 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
 <nav>
   <a href="/" class="nav-logo">VÉLO</a>
   <div class="nav-links">
-    <a href="/dashboard" class="nav-link">🚲 내 자전거</a>
+    <a href="/dashboard" class="nav-link ">🚲 내 자전거</a>
     <a href="/history" class="nav-link active">📋 등록 내역</a>
-    <button class="nav-link" id="notifBtn" style="position:relative;">
+    <button class="nav-link " id="notifBtn" style="position:relative;">
       🔔 알림
       <span id="notifBadge" style="display:none; position:absolute; top:4px; right:4px; width:7px; height:7px; background:#ff4f4f; border-radius:50%;"></span>
     </button>
-    <a href="/settings" class="nav-link">⚙️ 설정</a>
+    <a href="/referral" class="nav-link ">🔗 레퍼럴</a>
+    <a href="/settings" class="nav-link ">⚙️ 설정</a>
   </div>
-
-<!-- 알림 드롭다운 -->
-<div id="notifDropdown" style="display:none; position:fixed; top:60px; right:16px; width:320px; background:var(--gray); border:1px solid var(--border); z-index:200; max-height:400px; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-  <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-    <span style="font-size:13px; font-weight:500; letter-spacing:1px;">알림</span>
-    <button id="readAllBtn" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;letter-spacing:1px;font-family:'Noto Sans KR',sans-serif;">모두 읽음</button>
-  </div>
-  <div id="notifList">
-    <div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">알림이 없습니다.</div>
-  </div>
-</div>
   <div class="nav-right">
-    <a href="/register" class="btn-primary">+ 자전거 등록</a>
-    <div class="nav-avatar" id="navAvatar">?</div>
+    <button class="btn-primary" onclick="location.href='/register'">+ 자전거 등록</button>
+    <div style="position:relative;">
+      <div class="nav-avatar" id="navAvatar" onclick="document.getElementById('navDropdown').classList.toggle('show')"></div>
+      <div class="nav-dropdown" id="navDropdown">
+        <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
+        <button class="nav-dropdown-item" onclick="location.href='/payment'">구독 관리</button>
+        <button class="nav-dropdown-item" onclick="location.href='/referral'">🔗 레퍼럴</button>
+        <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
   </div>
 </nav>
 
