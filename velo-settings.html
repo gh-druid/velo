@@ -422,7 +422,7 @@ nav {
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 
@@ -930,8 +930,6 @@ body { -webkit-text-size-adjust: 100%; }
       showToast('변경 실패: ' + e.message)
     }
   })
-    }
-  }
 
   // 알림 설정 저장
   window.saveNotifSettings = function() {

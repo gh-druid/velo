@@ -111,7 +111,7 @@
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 </style>
@@ -1196,6 +1196,8 @@ body { -webkit-text-size-adjust: 100%; }
     handleCouponType('percent')
     await loadDiscounts()
   }
+
+  window.generateRandomCode = function() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     const code = 'VELO' + Array.from({length:6}, () => chars[Math.floor(Math.random()*chars.length)]).join('')
     document.getElementById('dcCode').value = code
