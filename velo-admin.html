@@ -207,7 +207,7 @@ body { -webkit-text-size-adjust: 100%; }
       <div class="table-header">
         <div class="table-title">유저 목록</div>
         <div style="display:flex; gap:8px; align-items:center;">
-          <button onclick="document.getElementById('lifetimeModal').classList.add('active')" style="background:var(--accent); color:var(--black); border:none; padding:7px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; font-weight:700; cursor:pointer;">🎁 평생 무료 부여</button>
+          <button onclick="document.querySelector('.tab[data-tab=\'lifetime\']').click()" style="background:var(--accent); color:var(--black); border:none; padding:7px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; font-weight:700; cursor:pointer;">🎁 평생 무료 부여</button>
           <input type="text" class="search-input" placeholder="이름 또는 이메일 검색" oninput="filterUsers(this.value)">
         </div>
       </div>
@@ -857,10 +857,9 @@ body { -webkit-text-size-adjust: 100%; }
     if (!user) { showToast('해당 이메일의 유저가 없습니다.'); return; }
 
     await supabase.from('users').update({ lifetime_free: true, plan: 'lifetime' }).eq('id', user.id)
-    document.getElementById('lifetimeModal').classList.remove('active')
     document.getElementById('lifetimeEmail').value = ''
     showToast(`✅ ${email} 평생 무료 부여 완료!`)
-    await loadUsers()
+    await loadLifetime()
   }
 
   // 평생 무료 부여 (ID로)
@@ -1059,19 +1058,6 @@ body { -webkit-text-size-adjust: 100%; }
         </td>
       </tr>
     `).join('')
-  }
-
-  window.grantLifetime = async function() {
-    const email = document.getElementById('lifetimeEmail').value.trim()
-    if (!email) { showToast('이메일을 입력해주세요.'); return; }
-
-    const { data: user } = await supabase.from('users').select('id, name').eq('email', email).single()
-    if (!user) { showToast('존재하지 않는 이메일입니다.'); return; }
-
-    await supabase.from('users').update({ lifetime_free: true, plan: 'lifetime' }).eq('email', email)
-    document.getElementById('lifetimeEmail').value = ''
-    showToast(`✅ ${email} 평생무료 부여 완료!`)
-    await loadLifetime()
   }
 
   window.revokeLifetime = async function(id, email) {
