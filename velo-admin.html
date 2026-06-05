@@ -1033,12 +1033,6 @@ body { -webkit-text-size-adjust: 100%; }
 
   // 평생무료
   async function loadLifetime() {
-    // 버튼 이벤트 연결
-    const grantBtn = document.getElementById('grantLifetimeBtn')
-    if (grantBtn && !grantBtn._bound) {
-      grantBtn.addEventListener('click', window.grantLifetime)
-      grantBtn._bound = true
-    }
     const { data } = await supabase
       .from('users')
       .select('*')
@@ -1077,7 +1071,14 @@ body { -webkit-text-size-adjust: 100%; }
       document.getElementById('tab-' + name).classList.add('active')
       if (name === 'partners') loadPartners()
       if (name === 'discounts') loadDiscounts()
-      if (name === 'lifetime') loadLifetime()
+      if (name === 'lifetime') {
+        await loadLifetime()
+        const btn = document.getElementById('grantLifetimeBtn')
+        if (btn && !btn._bound) {
+          btn.addEventListener('click', window.grantLifetime)
+          btn._bound = true
+        }
+      }
       if (name === 'referral') loadReferral()
     })
   })
