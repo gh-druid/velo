@@ -276,7 +276,7 @@ nav {
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 
@@ -310,7 +310,6 @@ body { -webkit-text-size-adjust: 100%; }
       <div class="nav-dropdown" id="navDropdown">
         <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
         <button class="nav-dropdown-item" onclick="location.href='/payment'">구독 관리</button>
-        <button class="nav-dropdown-item" onclick="location.href='/referral'">🔗 레퍼럴</button>
         <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
       </div>
     </div>
