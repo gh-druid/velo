@@ -559,9 +559,6 @@ body { -webkit-text-size-adjust: 100%; }
 
   // 관리자 이메일 (본인 이메일로 바꿔줘요)
   const ADMIN_EMAIL = 'velokr20@gmail.com'
-
-  let allUsers = []
-  let allBikes = []
   let currentUserId = null
 
   async function init() {
@@ -581,7 +578,164 @@ body { -webkit-text-size-adjust: 100%; }
     }
 
     await Promise.all([loadStats(), loadUsers(), loadPartnerMap().then(loadBikes), loadStolen(), loadDelivery()])
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.id === 'grantLifetimeBtn') window.grantLifetime()
+    })
+  }
 
+  // 통계
+  async function loadStats() {
+    const { data: users } = await supabase.from('users').select('plan')
+    const { data: bikes } = await supabase.from('bikes').select('id')
+    const { data: stolen } = await supabase.from('bikes').select('id').eq('status','stolen')
+    if (users) {
+      document.getElementById('totalUsers').textContent = users.length
+      const subs = users.filter(u => ['monthly','yearly','lifetime'].includes(u.plan))
+      document.getElementById('totalSubs').textContent = subs.length
+    }
+    if (bikes) document.getElementById('totalBikes').textContent = bikes.length
+    if (stolen) document.getElementById('totalStolen').textContent = stolen.length
+  }
+
+  // 유저
+  let allUsers = []
+  async function loadUsers() {
+    const { data } = await supabase.from('users').select('*').order('created_at', { ascending: false })
+    allUsers = data || []
+    renderUsers(allUsers)
+  }
+  function renderUsers(users) {
+    const tbody = document.getElementById('usersTable')
+    if (!users.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="6">유저가 없습니다.</td></tr>'; return; }
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+    tbody.innerHTML = users.map(u => `<tr>
+      <td>${u.name||'-'}</td>
+      <td style="font-size:12px;">${u.email||'-'}</td>
+      <td>${u.phone||'-'}</td>
+      <td><span class="badge badge-${u.plan==='free'?'normal':'pending'}">${u.plan||'free'}</span>${u.lifetime_free?' <span class="badge badge-normal">평생</span>':''}</td>
+      <td style="font-size:11px;color:var(--muted);">${fmtDate(u.created_at)}</td>
+      <td><button class="action-btn danger" onclick="suspendUser('${u.id}','${u.name||''}')">정지</button></td>
+    </tr>`).join('')
+  }
+  window.filterUsers = function(q) {
+    renderUsers(allUsers.filter(u => u.name?.includes(q) || u.email?.includes(q)))
+  }
+
+  // 파트너맵
+  let partnerMap = {}
+  async function loadPartnerMap() {
+    const { data } = await supabase.from('partnerships').select('user_id, partner_code').eq('status','approved')
+    if (data) data.forEach(p => { partnerMap[p.user_id] = p.partner_code })
+  }
+
+  // 자전거
+  let allBikes = []
+  async function loadBikes() {
+    const { data } = await supabase.from('bikes').select('*, users(name, email)').order('created_at', { ascending: false })
+    allBikes = data || []
+    renderBikes(allBikes)
+  }
+  function renderBikes(bikes) {
+    const tbody = document.getElementById('bikesTable')
+    if (!bikes.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="6">자전거가 없습니다.</td></tr>'; return; }
+    tbody.innerHTML = bikes.map(b => `<tr>
+      <td>${b.brand} ${b.model}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${b.serial}</td>
+      <td>${b.users?.name||'-'}</td>
+      <td><span class="badge badge-${b.status==='normal'?'normal':'stolen'}">${b.status==='normal'?'정상':b.status==='stolen'?'도난':'배송중'}</span></td>
+      <td style="font-size:11px;color:var(--muted);">${new Date(b.created_at).toLocaleDateString('ko-KR')}</td>
+      <td>
+        <button class="action-btn accent" onclick="location.href='/bike/${b.serial}'">보기</button>
+        <button class="action-btn" onclick="updateStatus('${b.id}','normal')">정상화</button>
+      </td>
+    </tr>`).join('')
+  }
+  window.filterBikes = function(q) {
+    renderBikes(allBikes.filter(b => b.serial?.includes(q.toUpperCase()) || b.model?.includes(q) || b.brand?.includes(q)))
+  }
+
+  // 도난
+  async function loadStolen() {
+    const { data } = await supabase.from('bikes').select('*, users(name, email)').eq('status','stolen').order('stolen_at', { ascending: false })
+    const tbody = document.getElementById('stolenTable')
+    if (!data?.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="5">도난 신고가 없습니다.</td></tr>'; return; }
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+    tbody.innerHTML = data.map(b => `<tr>
+      <td>${b.brand} ${b.model}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${b.serial}</td>
+      <td>${b.users?.name||'-'}</td>
+      <td style="font-size:11px;color:var(--muted);">${b.stolen_at?fmtDate(b.stolen_at):'-'}</td>
+      <td><button class="action-btn" onclick="updateStatus('${b.id}','normal')">해제</button></td>
+    </tr>`).join('')
+  }
+
+  // 파트너십
+  async function loadPartners() {
+    const { data } = await supabase.from('partnerships').select('*, users(name, email)').order('created_at', { ascending: false })
+    allPartners = data || []
+    window.filterPartners('all')
+  }
+
+  // 평생무료
+  window.grantLifetime = async function() {
+    const email = document.getElementById('lifetimeEmail')?.value.trim()
+    if (!email) { showToast('이메일을 입력해주세요.'); return; }
+    const { data: user } = await supabase.from('users').select('id').eq('email', email).single()
+    if (!user) { showToast('해당 이메일의 유저가 없습니다.'); return; }
+    const { error } = await supabase.from('users').update({ lifetime_free: true, plan: 'lifetime' }).eq('id', user.id)
+    if (error) { showToast('오류: ' + error.message); return; }
+    document.getElementById('lifetimeEmail').value = ''
+    showToast('✅ 평생 무료 부여 완료!')
+    await loadLifetime()
+  }
+
+  window.revokeLifetime = async function(id) {
+    if (!confirm('평생 무료를 해제하시겠습니까?')) return
+    await supabase.from('users').update({ lifetime_free: false, plan: 'free' }).eq('id', id)
+    showToast('평생 무료 해제됨')
+    await loadLifetime()
+  }
+
+  async function loadLifetime() {
+    const { data } = await supabase.from('users').select('*').eq('lifetime_free', true).order('created_at', { ascending: false })
+    const tbody = document.getElementById('lifetimeTable')
+    if (!data?.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="4">평생무료 회원이 없습니다.</td></tr>'; return; }
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+    tbody.innerHTML = data.map(u => `<tr>
+      <td>${u.name||'-'}</td>
+      <td style="font-size:12px;">${u.email||'-'}</td>
+      <td style="font-size:11px;color:var(--muted);">${fmtDate(u.created_at)}</td>
+      <td><button class="action-btn danger" onclick="revokeLifetime('${u.id}')">해제</button></td>
+    </tr>`).join('')
+  }
+
+  // 주문/배송
+  let allOrders = []
+  async function loadDelivery() {
+    const { data } = await supabase.from('orders').select('*, users:user_id(name, email)').order('created_at', { ascending: false })
+    allOrders = data || []
+    renderOrders(allOrders)
+    const filterEl = document.getElementById('deliveryFilter')
+    if (filterEl && !filterEl._bound) {
+      filterEl.addEventListener('change', function() {
+        const val = this.value
+        renderOrders(val === 'all' ? allOrders : allOrders.filter(o => o.delivery_status === val))
+      })
+      filterEl._bound = true
+    }
+  }
+
+  window.updatePartner = async function(id, status) {
+    let updateData = { status }
+    if (status === 'approved') {
+      updateData.partner_code = 'VELO' + Math.random().toString(36).slice(2,8).toUpperCase()
+    }
+    await supabase.from('partnerships').update(updateData).eq('id', id)
+    showToast(status === 'approved' ? '✅ 승인 완료!' : '❌ 거절 완료!')
+    await loadPartners()
   }
 
   function renderOrders(orders) {
@@ -798,6 +952,102 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   // 토스트
+  window.suspendUser = async function(id, name) {
+    if (!confirm(`${name} 계정을 정지하시겠습니까?`)) return
+    await supabase.from('users').update({ is_suspended: true }).eq('id', id)
+    showToast('계정이 정지되었습니다.')
+    await loadUsers()
+  }
+
+  window.confirmSuspend = async function() {
+    const id = document.getElementById('suspendUserId')?.value
+    if (!id) return
+    await supabase.from('users').update({ is_suspended: true }).eq('id', id)
+    document.getElementById('suspendModal')?.classList.remove('active')
+    showToast('계정이 정지되었습니다.')
+    await loadUsers()
+  }
+
+  window.confirmDeleteUser = async function() {
+    const id = document.getElementById('deleteUserId')?.value
+    if (!id) return
+    await supabase.from('users').delete().eq('id', id)
+    document.getElementById('deleteModal')?.classList.remove('active')
+    showToast('계정이 삭제되었습니다.')
+    await loadUsers()
+  }
+
+  let allPartners = []
+  window.filterPartners = function(status) {
+    document.querySelectorAll('[id^="pf-"]').forEach(btn => {
+      btn.style.background = 'none'
+      btn.style.color = 'var(--muted)'
+      btn.style.borderColor = 'var(--border)'
+    })
+    const activeBtn = document.getElementById('pf-' + status)
+    if (activeBtn) {
+      activeBtn.style.background = 'var(--accent)'
+      activeBtn.style.color = 'var(--black)'
+      activeBtn.style.borderColor = 'var(--accent)'
+    }
+    const tbody = document.getElementById('partnersTable')
+    if (!tbody) return
+    const filtered = status === 'all' ? allPartners : allPartners.filter(p => p.status === status)
+    if (!filtered.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="6">없습니다.</td></tr>'; return; }
+    tbody.innerHTML = filtered.map(p => `<tr>
+      <td>${p.users?.name||'-'}</td>
+      <td style="font-size:11px;">${p.users?.email||'-'}</td>
+      <td>${p.shop_name||'-'}</td>
+      <td>${p.shop_address||'-'}</td>
+      <td><span class="badge badge-${p.status==='approved'?'normal':p.status==='rejected'?'stolen':'pending'}">${p.status==='approved'?'승인':p.status==='rejected'?'거절':'대기'}</span></td>
+      <td>${p.status==='pending'?`
+        <button class="action-btn accent" onclick="updatePartner('${p.id}','approved')">승인</button>
+        <button class="action-btn danger" onclick="updatePartner('${p.id}','rejected')">거절</button>
+      `:p.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${p.partner_code}</span>`:'-'}</td>
+    </tr>`).join('')
+  }
+
+  // 레퍼럴
+  async function loadReferral() {
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+    const { data: withdrawals } = await supabase.from('referral_withdrawals').select('*, referrals(user_id, referral_code, users:user_id(name, email))').order('created_at', { ascending: false })
+    const wtbody = document.getElementById('referralWithdrawTable')
+    if (wtbody) {
+      wtbody.innerHTML = !withdrawals?.length ? '<tr class="loading-row"><td colspan="8">출금 신청이 없습니다.</td></tr>' :
+        withdrawals.map(w => `<tr>
+          <td>${w.referrals?.users?.name||'-'}</td>
+          <td>${w.bank_name||'-'}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;">${w.account_number||'-'}</td>
+          <td>${w.account_holder||'-'}</td>
+          <td style="color:var(--accent);">${w.amount?.toLocaleString()||0}원</td>
+          <td style="font-size:11px;color:var(--muted);">${fmtDate(w.created_at)}</td>
+          <td><span class="badge badge-${w.status==='completed'?'done':'pending'}">${w.status==='completed'?'입금완료':'처리중'}</span></td>
+          <td>${w.status!=='completed'?`<button class="action-btn accent" onclick="completeWithdrawal('${w.id}')">입금완료</button>`:'-'}</td>
+        </tr>`).join('')
+    }
+    const { data: referrals } = await supabase.from('referrals').select('*, users:user_id(name, email)').order('total_earned', { ascending: false })
+    const stbody = document.getElementById('referralStatsTable')
+    if (stbody) {
+      stbody.innerHTML = !referrals?.length ? '<tr class="loading-row"><td colspan="6">레퍼럴 유저가 없습니다.</td></tr>' :
+        referrals.map(r => `<tr>
+          <td>${r.users?.name||'-'}<br><span style="font-size:11px;color:var(--muted);">${r.users?.email||''}</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${r.referral_code}</td>
+          <td>${r.total_referred||0}명</td>
+          <td>${r.total_earned?.toLocaleString()||0}원</td>
+          <td>${r.total_withdrawn?.toLocaleString()||0}원</td>
+          <td style="color:var(--accent);">${((r.total_earned||0)-(r.total_withdrawn||0)).toLocaleString()}원</td>
+        </tr>`).join('')
+    }
+  }
+
+  window.completeWithdrawal = async function(id) {
+    if (!confirm('입금 완료 처리하시겠습니까?')) return
+    await supabase.from('referral_withdrawals').update({ status: 'completed' }).eq('id', id)
+    showToast('✅ 입금 완료 처리됐습니다.')
+    await loadReferral()
+  }
+
   function showToast(msg) {
     const t = document.getElementById('toast')
     t.textContent = msg; t.classList.add('show')
