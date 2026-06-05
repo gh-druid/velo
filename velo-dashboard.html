@@ -159,6 +159,13 @@
     .nav-links { display:none; }
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -177,7 +184,6 @@
   <div class="nav-right">
     <button class="btn-primary" onclick="location.href='/register'">+ 자전거 등록</button>
     <div class="nav-avatar" id="navAvatar" onclick="toggleDropdown()">
-      홍
       <div class="nav-dropdown" id="navDropdown">
         <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
         <button class="nav-dropdown-item" onclick="location.href='/settings'">구독 관리</button>
@@ -617,12 +623,27 @@
   })
 
   // 로그아웃
-  async function handleLogout() {
+  async window.handleLogout = function() {
     await signOut()
     location.href = 'velo-auth.html'
   }
 
   init()
+</script>
+
+<script>/* compat-bridge */
+function showTransferHistory(){ if(window.showTransferHistory) window.showTransferHistory.apply(this, arguments); }
+function filterBikes(){ if(window.filterBikes) window.filterBikes.apply(this, arguments); }
+function openDelete(){ if(window.openDelete) window.openDelete.apply(this, arguments); }
+function confirmDelete(){ if(window.confirmDelete) window.confirmDelete.apply(this, arguments); }
+function toggleNotif(){ if(window.toggleNotif) window.toggleNotif.apply(this, arguments); }
+function readAll(){ if(window.readAll) window.readAll.apply(this, arguments); }
+function openStolen(){ if(window.openStolen) window.openStolen.apply(this, arguments); }
+function confirmStolen(){ if(window.confirmStolen) window.confirmStolen.apply(this, arguments); }
+function openTransfer(){ if(window.openTransfer) window.openTransfer.apply(this, arguments); }
+function closeModal(){ if(window.closeModal) window.closeModal.apply(this, arguments); }
+function toggleDropdown(){ if(window.toggleDropdown) window.toggleDropdown.apply(this, arguments); }
+function handleLogout(){ if(window.handleLogout) window.handleLogout.apply(this, arguments); }
 </script>
 </body>
 </html>

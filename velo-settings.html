@@ -301,6 +301,13 @@
     .modal { margin: 16px; padding: 28px; }
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -310,9 +317,23 @@
   <div class="nav-links-inner">
     <a href="/dashboard" class="nav-link">🚲 내 자전거</a>
     <a href="/history" class="nav-link">📋 등록 내역</a>
-    <button class="nav-link" onclick="toggleNotif()">🔔 알림</button>
+    <button class="nav-link" id="notifBtn" style="position:relative;">
+      🔔 알림
+      <span id="notifBadge" style="display:none; position:absolute; top:4px; right:4px; width:7px; height:7px; background:#ff4f4f; border-radius:50%;"></span>
+    </button>
     <a href="/settings" class="nav-link active">⚙️ 설정</a>
   </div>
+
+<!-- 알림 드롭다운 -->
+<div id="notifDropdown" style="display:none; position:fixed; top:60px; right:16px; width:320px; background:var(--gray); border:1px solid var(--border); z-index:200; max-height:400px; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+  <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+    <span style="font-size:13px; font-weight:500; letter-spacing:1px;">알림</span>
+    <button id="readAllBtn" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">모두 읽음</button>
+  </div>
+  <div id="notifList">
+    <div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">알림이 없습니다.</div>
+  </div>
+</div>
   <div class="nav-right">
     <div class="nav-avatar" id="navAvatar" onclick="document.getElementById('navDropdown').classList.toggle('show')">
       ?
@@ -409,7 +430,7 @@
               <div class="setting-row-sub">내 자전거 태그가 스캔될 때 알림</div>
             </div>
             <div class="setting-row-right">
-              <button class="toggle on" id="notif-scan" onclick="this.classList.toggle('on')"></button>
+              <button class="toggle on" id="notif-scan"></button>
             </div>
           </div>
           <div class="setting-row">
@@ -418,7 +439,7 @@
               <div class="setting-row-sub">내 자전거가 도난 신고될 때 알림</div>
             </div>
             <div class="setting-row-right">
-              <button class="toggle on" id="notif-stolen" onclick="this.classList.toggle('on')"></button>
+              <button class="toggle on" id="notif-stolen"></button>
             </div>
           </div>
           <div class="setting-row">
@@ -427,7 +448,7 @@
               <div class="setting-row-sub">양도 코드가 사용될 때 알림</div>
             </div>
             <div class="setting-row-right">
-              <button class="toggle on" id="notif-transfer" onclick="this.classList.toggle('on')"></button>
+              <button class="toggle on" id="notif-transfer"></button>
             </div>
           </div>
           <div class="setting-row">
@@ -436,7 +457,7 @@
               <div class="setting-row-sub">이벤트, 업데이트 소식</div>
             </div>
             <div class="setting-row-right">
-              <button class="toggle" id="notif-marketing" onclick="this.classList.toggle('on')"></button>
+              <button class="toggle" id="notif-marketing"></button>
             </div>
           </div>
         </div>
@@ -455,6 +476,14 @@
         <div class="setting-section-body">
           <div class="setting-row">
             <div class="setting-row-left">
+              <div class="setting-row-label">현재 비밀번호</div>
+            </div>
+            <div class="setting-row-right">
+              <input type="password" class="setting-input" placeholder="현재 비밀번호 입력" id="currentPw">
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-row-left">
               <div class="setting-row-label">새 비밀번호</div>
             </div>
             <div class="setting-row-right">
@@ -471,7 +500,7 @@
           </div>
         </div>
         <div style="padding:16px 28px; border-top:1px solid var(--border);">
-          <button class="btn-primary" onclick="changePassword()">비밀번호 변경</button>
+          <button class="btn-primary" id="changePwBtn">비밀번호 변경</button>
         </div>
       </div>
 
@@ -539,7 +568,7 @@
     <div class="modal-title">구독 해지</div>
     <div class="modal-sub">구독을 해지하면 다음 결제일부터 도난 신고 기능을 사용할 수 없습니다.</div>
     <div class="modal-warn">
-      ⚠ 현재 구독 기간(~2025.06.12)까지는 이용 가능합니다.<br>
+      ⚠ 구독 해지 시 즉시 무료 플랜으로 전환됩니다.<br>
       해지 후에도 태그 조회 기능은 유지됩니다.
     </div>
     <div class="modal-actions">
@@ -572,7 +601,30 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  function switchTab(name) {
+  async function loadNotifications() {
+    try {
+      const user = await getUser()
+      if (!user) return
+      const notifs = await getNotifications(user.id)
+      const list = document.getElementById('notifList')
+      const badge = document.getElementById('notifBadge')
+      const unread = notifs.filter(n => !n.is_read)
+      if (badge) badge.style.display = unread.length > 0 ? 'block' : 'none'
+      if (!notifs.length) { list.innerHTML = '<div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">알림이 없습니다.</div>'; return; }
+      const pad = n => String(n).padStart(2,'0')
+      list.innerHTML = notifs.map(n => {
+        const dt = new Date(n.created_at)
+        const time = `${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`
+        const icons = { scan:'📡', stolen:'🚨', transfer:'🤝' }
+        return `<div style="padding:14px 20px; border-bottom:1px solid var(--border); opacity:${n.is_read?0.5:1};">
+          <div style="font-size:13px; margin-bottom:4px;">${icons[n.type]||'🔔'} ${n.message}</div>
+          <div style="font-size:11px; color:var(--muted);">${time}</div>
+        </div>`
+      }).join('')
+    } catch(e) {}
+  }
+
+  window.switchTab = function(name) {
     document.querySelectorAll('.setting-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
@@ -599,7 +651,7 @@
     showToast('구독이 해지되었습니다. 기간 만료 후 적용됩니다.');
   }
 
-  function openDeleteModal() {
+  window.openDeleteModal = function() {
     document.getElementById('deleteModal').classList.add('active');
   }
 
@@ -614,14 +666,14 @@
     setTimeout(() => location.href = 'velo-landing.html', 2000);
   }
 
-  function closeModal(id, e) {
+  window.closeModal = function(id, e) {
     if (e.target === document.getElementById(id))
       document.getElementById(id).classList.remove('active');
   }
 </script>
 
 <script type="module">
-  import { getUser, getUserProfile, updateProfile, signOut, supabase } from './velo-supabase.js'
+  import { getUser, getUserProfile, updateProfile, signOut, supabase, getNotifications, markAllRead } from './velo-supabase.js'
 
   // 로그인 체크 + 프로필 불러오기
   async function init() {
@@ -665,7 +717,27 @@
         planCards[idx].prepend(badge)
       }
 
-      // 알림 설정 불러오기
+      // 알림 토글 이벤트
+      ['notif-scan','notif-stolen','notif-transfer','notif-marketing'].forEach(id => {
+        const el = document.getElementById(id)
+        if (el) el.addEventListener('click', function() { this.classList.toggle('on') })
+      })
+
+      // 알림 드롭다운
+      document.getElementById('notifBtn')?.addEventListener('click', () => {
+        const dd = document.getElementById('notifDropdown')
+        dd.style.display = dd.style.display === 'none' ? 'block' : 'none'
+        if (dd.style.display === 'block') loadNotifications()
+      })
+      document.getElementById('readAllBtn')?.addEventListener('click', async () => {
+        const user = await getUser()
+        if (user) { await markAllRead(user.id); await loadNotifications() }
+      })
+      document.addEventListener('click', e => {
+        const dd = document.getElementById('notifDropdown')
+        const btn = document.getElementById('notifBtn')
+        if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) dd.style.display = 'none'
+      })
       const notifSettings = JSON.parse(localStorage.getItem('velo_notif') || '{"scan":true,"stolen":true,"transfer":true,"marketing":false}')
       document.getElementById('notif-scan').classList.toggle('on', notifSettings.scan)
       document.getElementById('notif-stolen').classList.toggle('on', notifSettings.stolen)
@@ -698,19 +770,31 @@
   }
 
   // 비밀번호 변경
-  window.changePassword = async function() {
+  document.getElementById('changePwBtn')?.addEventListener('click', async function() {
+    const currentPw = document.getElementById('currentPw').value
     const pw = document.getElementById('newPw').value
     const pwc = document.getElementById('newPwConfirm').value
-    if (!pw || pw.length < 8) { showToast('8자 이상 입력해주세요.'); return; }
-    if (pw !== pwc) { showToast('비밀번호가 일치하지 않습니다.'); return; }
+    if (!currentPw) { showToast('현재 비밀번호를 입력해주세요.'); return; }
+    if (!pw || pw.length < 8) { showToast('새 비밀번호는 8자 이상이어야 합니다.'); return; }
+    if (pw !== pwc) { showToast('새 비밀번호가 일치하지 않습니다.'); return; }
     try {
+      // 현재 비번 확인 (재로그인으로 검증)
+      const user = await getUser()
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPw
+      })
+      if (signInError) { showToast('현재 비밀번호가 올바르지 않습니다.'); return; }
       const { error } = await supabase.auth.updateUser({ password: pw })
       if (error) throw error
+      document.getElementById('currentPw').value = ''
       document.getElementById('newPw').value = ''
       document.getElementById('newPwConfirm').value = ''
-      showToast('비밀번호가 변경되었습니다.')
+      showToast('✅ 비밀번호가 변경되었습니다.')
     } catch(e) {
       showToast('변경 실패: ' + e.message)
+    }
+  })
     }
   }
 
@@ -764,6 +848,17 @@
   })
 
   init()
+</script>
+
+<script>/* compat-bridge */
+function switchTab(){ if(window.switchTab) window.switchTab.apply(this, arguments); }
+function openDeleteModal(){ if(window.openDeleteModal) window.openDeleteModal.apply(this, arguments); }
+function closeModal(){ if(window.closeModal) window.closeModal.apply(this, arguments); }
+function saveProfile(){ if(window.saveProfile) window.saveProfile.apply(this, arguments); }
+function changePassword(){ if(window.changePassword) window.changePassword.apply(this, arguments); }
+function saveNotifSettings(){ if(window.saveNotifSettings) window.saveNotifSettings.apply(this, arguments); }
+function confirmCancel(){ if(window.confirmCancel) window.confirmCancel.apply(this, arguments); }
+function confirmDelete(){ if(window.confirmDelete) window.confirmDelete.apply(this, arguments); }
 </script>
 </body>
 </html>

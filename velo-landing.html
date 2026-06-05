@@ -259,6 +259,13 @@
     .registry-header { grid-template-columns:24px 1fr 1fr; }
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -303,10 +310,10 @@
   checkAuth()
 </script>
 <script>
-  function toggleMobileMenu() {
+  window.toggleMobileMenu = function() {
     document.getElementById('mobileMenu').classList.toggle('open')
   }
-  function closeMobileMenu() {
+  window.closeMobileMenu = function() {
     document.getElementById('mobileMenu').classList.remove('open')
   }
 </script>
@@ -537,7 +544,7 @@
 
 <script>
 
-  function toggleRegistry() {
+  window.toggleRegistry = function() {
     const list = document.getElementById('registryList');
     const btn = document.getElementById('registryBtn');
     list.classList.toggle('show');
@@ -546,8 +553,8 @@
 
   // Modal
   function openModal() { document.getElementById('modal').classList.add('active'); document.body.style.overflow='hidden'; }
-  function closeModal() { document.getElementById('modal').classList.remove('active'); document.body.style.overflow=''; }
-  function closeModalOutside(e) { if(e.target===document.getElementById('modal')) closeModal(); }
+  window.closeModal = function() { document.getElementById('modal').classList.remove('active'); document.body.style.overflow=''; }
+  window.closeModalOutside = function(e) { if(e.target===document.getElementById('modal')) closeModal(); }
   document.getElementById('submitBtn').addEventListener('click', function() {
     this.textContent='✓ 신청 완료! 곧 연락드릴게요.';
     this.style.background='#333'; this.style.color='#c8f542';
@@ -559,6 +566,15 @@
     entries.forEach((entry,i) => { if(entry.isIntersecting) setTimeout(()=>entry.target.classList.add('visible'),i*80); });
   },{threshold:0.1});
   document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+
+<script>/* compat-bridge */
+function _goPayment(){ if(window._goPayment) window._goPayment.apply(this, arguments); }
+function toggleMobileMenu(){ if(window.toggleMobileMenu) window.toggleMobileMenu.apply(this, arguments); }
+function closeMobileMenu(){ if(window.closeMobileMenu) window.closeMobileMenu.apply(this, arguments); }
+function toggleRegistry(){ if(window.toggleRegistry) window.toggleRegistry.apply(this, arguments); }
+function closeModal(){ if(window.closeModal) window.closeModal.apply(this, arguments); }
+function closeModalOutside(){ if(window.closeModalOutside) window.closeModalOutside.apply(this, arguments); }
 </script>
 </body>
 </html>

@@ -156,6 +156,13 @@
     margin-bottom: 12px;
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -243,6 +250,18 @@
       </div>
     </div>
 
+    <!-- 배송 정보 -->
+    <div style="margin-bottom:24px;">
+      <div class="section-label">배송 정보</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <input type="text" id="shipName" placeholder="받는 사람 이름" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+        <input type="tel" id="shipPhone" placeholder="연락처 (010-0000-0000)" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+        <input type="text" id="shipAddr" placeholder="주소 (도로명)" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+        <input type="text" id="shipAddrDetail" placeholder="상세 주소 (동/호수)" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+      </div>
+      <div style="font-size:11px; color:var(--muted); margin-top:8px; letter-spacing:0.5px;">영업일 기준 3~5일 내 배송됩니다.</div>
+    </div>
+
     <!-- 할인코드 -->
     <div style="margin-bottom:24px;">
       <div class="section-label">할인코드</div>
@@ -256,11 +275,11 @@
     <!-- 약관 -->
     <label class="agree-row">
       <input type="checkbox" id="agreePayment">
-      <span>결제 및 환불 정책에 동의합니다. 태그 발급 후에는 환불이 불가합니다.</span>
+      <span><a href="/terms" target="_blank" style="color:var(--accent); text-decoration:none;">결제 및 환불 정책</a>에 동의합니다. 태그 발급 후에는 환불이 불가합니다.</span>
     </label>
     <label class="agree-row">
       <input type="checkbox" id="agreeInfo">
-      <span>개인정보 수집 및 이용에 동의합니다. (배송을 위한 주소 수집)</span>
+      <span><a href="/privacy" target="_blank" style="color:var(--accent); text-decoration:none;">개인정보 수집 및 이용</a>에 동의합니다. (배송을 위한 주소 수집)</span>
     </label>
 
     <button class="pay-btn" id="payBtn" onclick="startPayment()">
@@ -411,6 +430,10 @@
   window.startPayment = async function() {
     const agree1 = document.getElementById('agreePayment').checked
     const agree2 = document.getElementById('agreeInfo').checked
+    const shipName = document.getElementById('shipName')?.value.trim()
+    const shipPhone = document.getElementById('shipPhone')?.value.trim()
+    const shipAddr = document.getElementById('shipAddr')?.value.trim()
+    if (!shipName || !shipPhone || !shipAddr) { alert('배송 정보를 입력해주세요.'); return; }
     if (!agree1 || !agree2) { alert('약관에 동의해주세요.'); return; }
 
     const prod = products[selectedProd]
@@ -547,6 +570,14 @@
   }
 
   init()
+</script>
+
+<script>/* compat-bridge */
+function selectBike(){ if(window.selectBike) window.selectBike.apply(this, arguments); }
+function applyDiscount(){ if(window.applyDiscount) window.applyDiscount.apply(this, arguments); }
+function startPayment(){ if(window.startPayment) window.startPayment.apply(this, arguments); }
+function selectProduct(){ if(window.selectProduct) window.selectProduct.apply(this, arguments); }
+function selectSub(){ if(window.selectSub) window.selectSub.apply(this, arguments); }
 </script>
 </body>
 </html>

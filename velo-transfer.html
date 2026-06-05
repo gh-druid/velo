@@ -418,6 +418,13 @@
     .transfer-arrow-icon { transform: rotate(90deg); }
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -500,7 +507,7 @@
     <div class="transfer-arrow">
       <div class="transfer-person">
         <div class="transfer-person-label">판매자</div>
-        <div class="transfer-person-name">홍길동</div>
+        <div class="transfer-person-name" id="fromUserName">-</div>
         <div class="transfer-person-sub">현재 소유자</div>
       </div>
       <div class="transfer-mid">
@@ -550,7 +557,7 @@
         <div class="complete-card-label">양도 내역</div>
         <div class="complete-row">
           <span class="complete-row-key">이전 소유자</span>
-          <span class="complete-row-val">홍길동</span>
+          <span class="complete-row-val" id="completeFromName">-</span>
         </div>
         <div class="complete-row">
           <span class="complete-row-key">새 소유자</span>
@@ -809,6 +816,11 @@
   }
 
   init()
+</script>
+
+<script>/* compat-bridge */
+function verifyCode(){ if(window.verifyCode) window.verifyCode.apply(this, arguments); }
+function acceptTransfer(){ if(window.acceptTransfer) window.acceptTransfer.apply(this, arguments); }
 </script>
 </body>
 </html>

@@ -85,6 +85,13 @@
     .field-row { grid-template-columns:1fr; }
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -353,6 +360,13 @@
       else if (document.getElementById('screenSignup').classList.contains('active')) handleSignup()
     }
   })
+</script>
+
+<script>/* compat-bridge */
+function goScreen(){ if(window.goScreen) window.goScreen.apply(this, arguments); }
+function handleLogin(){ if(window.handleLogin) window.handleLogin.apply(this, arguments); }
+function handleSignup(){ if(window.handleSignup) window.handleSignup.apply(this, arguments); }
+function handleForgot(){ if(window.handleForgot) window.handleForgot.apply(this, arguments); }
 </script>
 </body>
 </html>

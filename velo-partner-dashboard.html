@@ -90,6 +90,13 @@
     .revenue-grid { grid-template-columns:1fr; }
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -416,6 +423,11 @@
   }
 
   init()
+</script>
+
+<script>/* compat-bridge */
+function switchTab(){ if(window.switchTab) window.switchTab.apply(this, arguments); }
+function handleLogout(){ if(window.handleLogout) window.handleLogout.apply(this, arguments); }
 </script>
 </body>
 </html>

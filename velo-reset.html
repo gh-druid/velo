@@ -47,6 +47,13 @@
 
   .success-icon { width:64px; height:64px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto; }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -196,6 +203,11 @@
   document.getElementById('resetEmail').addEventListener('keydown', e => {
     if (e.key === 'Enter') handleSend()
   })
+</script>
+
+<script>/* compat-bridge */
+function handleSend(){ if(window.handleSend) window.handleSend.apply(this, arguments); }
+function handleUpdate(){ if(window.handleUpdate) window.handleUpdate.apply(this, arguments); }
 </script>
 </body>
 </html>

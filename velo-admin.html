@@ -104,6 +104,13 @@
     .revenue-grid { grid-template-columns:1fr; }
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -146,14 +153,14 @@
 
   <!-- 탭 -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('revenue')">💰 수익</button>
-    <button class="tab" onclick="switchTab('users')">👥 유저</button>
-    <button class="tab" onclick="switchTab('bikes')">🚲 자전거</button>
-    <button class="tab" onclick="switchTab('stolen')">🚨 도난 신고</button>
-    <button class="tab" onclick="switchTab('delivery')">📦 태그 발급</button>
-    <button class="tab" onclick="switchTab('partners')">🤝 파트너십</button>
-    <button class="tab" onclick="switchTab('discounts')">🎟️ 할인코드</button>
-    <button class="tab" onclick="switchTab('lifetime')">⭐ 평생무료</button>
+    <button class="tab active" data-tab="revenue">💰 수익</button>
+    <button class="tab" data-tab="users">👥 유저</button>
+    <button class="tab" data-tab="bikes">🚲 자전거</button>
+    <button class="tab" data-tab="stolen">🚨 도난 신고</button>
+    <button class="tab" data-tab="delivery">📦 태그 발급</button>
+    <button class="tab" data-tab="partners">🤝 파트너십</button>
+    <button class="tab" data-tab="discounts">🎟️ 할인코드</button>
+    <button class="tab" data-tab="lifetime">⭐ 평생무료</button>
   </div>
 
   <!-- 수익 탭 -->
@@ -911,10 +918,25 @@
   }
 
   // 탭 전환
+  // 탭 이벤트 — 아이패드 호환
+  document.querySelectorAll('.tab[data-tab]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const name = this.getAttribute('data-tab')
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
+      this.classList.add('active')
+      document.getElementById('tab-' + name).classList.add('active')
+      if (name === 'partners') loadPartners()
+      if (name === 'discounts') loadDiscounts()
+      if (name === 'lifetime') loadLifetime()
+    })
+  })
+
   window.switchTab = function(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
-    event.target.classList.add('active')
+    const btn = document.querySelector(`.tab[data-tab="${name}"]`)
+    if (btn) btn.classList.add('active')
     document.getElementById('tab-' + name).classList.add('active')
     if (name === 'partners') loadPartners()
     if (name === 'discounts') loadDiscounts()
@@ -1057,6 +1079,28 @@
   }
 
   init()
+</script>
+
+<script>/* compat-bridge */
+function updateStatus(){ if(window.updateStatus) window.updateStatus.apply(this, arguments); }
+function grantLifetime(){ if(window.grantLifetime) window.grantLifetime.apply(this, arguments); }
+function grantLifetimeById(){ if(window.grantLifetimeById) window.grantLifetimeById.apply(this, arguments); }
+function revokeLifetimeById(){ if(window.revokeLifetimeById) window.revokeLifetimeById.apply(this, arguments); }
+function openSuspend(){ if(window.openSuspend) window.openSuspend.apply(this, arguments); }
+function confirmSuspend(){ if(window.confirmSuspend) window.confirmSuspend.apply(this, arguments); }
+function openDeleteUser(){ if(window.openDeleteUser) window.openDeleteUser.apply(this, arguments); }
+function confirmDeleteUser(){ if(window.confirmDeleteUser) window.confirmDeleteUser.apply(this, arguments); }
+function viewUser(){ if(window.viewUser) window.viewUser.apply(this, arguments); }
+function filterPartners(){ if(window.filterPartners) window.filterPartners.apply(this, arguments); }
+function updatePartner(){ if(window.updatePartner) window.updatePartner.apply(this, arguments); }
+function grantLifetime(){ if(window.grantLifetime) window.grantLifetime.apply(this, arguments); }
+function revokeLifetime(){ if(window.revokeLifetime) window.revokeLifetime.apply(this, arguments); }
+function quickCreate(){ if(window.quickCreate) window.quickCreate.apply(this, arguments); }
+function createDiscountCode(){ if(window.createDiscountCode) window.createDiscountCode.apply(this, arguments); }
+function toggleDiscount(){ if(window.toggleDiscount) window.toggleDiscount.apply(this, arguments); }
+function deleteDiscount(){ if(window.deleteDiscount) window.deleteDiscount.apply(this, arguments); }
+function closeModal(){ if(window.closeModal) window.closeModal.apply(this, arguments); }
+function handleLogout(){ if(window.handleLogout) window.handleLogout.apply(this, arguments); }
 </script>
 </body>
 </html>

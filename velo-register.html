@@ -399,6 +399,13 @@
     .complete-actions { flex-direction: column; align-items: center; }
   }
 </style>
+
+<style>
+/* 터치 디바이스 호환 */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+</style>
 </head>
 <body>
 
@@ -724,14 +731,14 @@
     `).join('');
   }
 
-  function removePhoto(i) { photos.splice(i, 1); renderPhotos(); }
+  window.removePhoto = function(i) { photos.splice(i, 1); renderPhotos(); }
 
   // PARTS
-  function togglePartForm() {
+  window.togglePartForm = function() {
     document.getElementById('partAddForm').classList.toggle('show');
   }
 
-  function addPart() {
+  window.addPart = function() {
     const type = document.getElementById('partType').value;
     const name = document.getElementById('partName').value.trim();
     const serial = document.getElementById('partSerial').value.trim();
@@ -745,7 +752,7 @@
     updatePricing();
   }
 
-  function removePart(i) { parts.splice(i, 1); renderParts(); updatePricing(); }
+  window.removePart = function(i) { parts.splice(i, 1); renderParts(); updatePricing(); }
 
   function renderParts() {
     const list = document.getElementById('partsList');
@@ -782,7 +789,7 @@
   }
 
   // PLAN
-  function selectPlan(n) {
+  window.selectPlan = function(n) {
     selectedPlan = n;
     [0,1,2].forEach(i => document.getElementById('plan'+i).classList.toggle('selected', i===n));
     updateSummary();
@@ -939,5 +946,14 @@
   })
 
   init()
+
+<script>/* compat-bridge */
+function removePhoto(){ if(window.removePhoto) window.removePhoto.apply(this, arguments); }
+function togglePartForm(){ if(window.togglePartForm) window.togglePartForm.apply(this, arguments); }
+function addPart(){ if(window.addPart) window.addPart.apply(this, arguments); }
+function removePart(){ if(window.removePart) window.removePart.apply(this, arguments); }
+function selectPlan(){ if(window.selectPlan) window.selectPlan.apply(this, arguments); }
+function goStep(){ if(window.goStep) window.goStep.apply(this, arguments); }
+</script>
 </body>
 </html>
