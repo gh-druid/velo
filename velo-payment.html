@@ -157,11 +157,15 @@
   }
 </style>
 
-<style>
-/* 터치 디바이스 호환 */
-* { -webkit-tap-highlight-color: transparent; }
+
+
+<style id="compat-css">
+/* ===== 크로스 플랫폼 호환 ===== */
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+body { -webkit-text-size-adjust: 100%; }
+/* ===== 끝 ===== */
 </style>
 </head>
 <body>
@@ -316,7 +320,7 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
 <script type="module">
   import { getUser, getUserProfile, startSubscription, getMyBikes, supabase, validateDiscountCode, useDiscountCode } from './velo-supabase.js'
 
-  const TOSS_CLIENT_KEY = 'test_ck_Ba5PzR0Arnx6zywGEDEB3vmYnNeD'
+  const TOSS_CLIENT_KEY = 'YOUR_TOSS_CLIENT_KEY'
 
   let appliedDiscount = null
 
@@ -456,6 +460,13 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
     const orderId = 'velo_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
     const orderName = sub.plan === 'free' ? prod.name : `${prod.name} + ${sub.name}`
 
+    // 배송 정보 sessionStorage 저장
+    sessionStorage.setItem('shipName', shipName)
+    sessionStorage.setItem('shipPhone', shipPhone)
+    sessionStorage.setItem('shipAddr', shipAddr)
+    sessionStorage.setItem('shipAddrDetail', document.getElementById('shipAddrDetail')?.value.trim() || '')
+    sessionStorage.setItem('productName', orderName)
+
     // 할인코드 사용 처리
     if (appliedDiscount) {
       try { await useDiscountCode(appliedDiscount.id) } catch(e) {}
@@ -551,14 +562,40 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
     document.getElementById('payForm').style.display = 'none'
     document.getElementById('successBox').classList.add('show')
 
-    // 구독 시작
     const plan = params.get('plan')
-    if (plan && plan !== 'free') {
-      try {
-        await startSubscription(plan)
-      } catch(e) {
-        console.error('구독 처리 오류:', e)
+    const paymentKey = params.get('paymentKey')
+    const amount = params.get('amount')
+
+    // 배송 정보 저장 (sessionStorage에서)
+    const shipName = sessionStorage.getItem('shipName') || ''
+    const shipPhone = sessionStorage.getItem('shipPhone') || ''
+    const shipAddr = sessionStorage.getItem('shipAddr') || ''
+    const shipAddrDetail = sessionStorage.getItem('shipAddrDetail') || ''
+    const productName = sessionStorage.getItem('productName') || '태그 발급'
+
+    try {
+      const user = await getUser()
+      if (user) {
+        // orders 테이블에 저장
+        await supabase.from('orders').insert({
+          user_id: user.id,
+          product_name: productName,
+          amount: parseInt(amount) || 0,
+          payment_key: paymentKey,
+          status: 'paid',
+          delivery_status: 'pending',
+          ship_name: shipName,
+          ship_phone: shipPhone,
+          ship_addr: shipAddr,
+          ship_addr_detail: shipAddrDetail,
+        })
+        sessionStorage.clear()
       }
+    } catch(e) { console.error('주문 저장 오류:', e) }
+
+    // 구독 시작
+    if (plan && plan !== 'free') {
+      try { await startSubscription(plan) } catch(e) { console.error(e) }
     }
   }
 
@@ -578,6 +615,26 @@ function applyDiscount(){ if(window.applyDiscount) window.applyDiscount.apply(th
 function startPayment(){ if(window.startPayment) window.startPayment.apply(this, arguments); }
 function selectProduct(){ if(window.selectProduct) window.selectProduct.apply(this, arguments); }
 function selectSub(){ if(window.selectSub) window.selectSub.apply(this, arguments); }
+</script>
+
+<script id="compat-js">
+// 크로스 플랫폼 호환 브리지
+(function() {
+  // onclick 속성 함수 window 등록 확인
+  document.addEventListener('DOMContentLoaded', function() {
+    var fns = ['toggleNotif','switchTab','openDelete','confirmDelete',
+               'openStolen','confirmStolen','openTransfer','closeModal',
+               'filterBikes','showTransferHistory','selectProduct','selectSub',
+               'applyDiscount','handleBrandChange','toggleSerial','openStolen',
+               'updateStatus','toggleDiscount','deleteDiscount','completeWithdrawal',
+               'grantLifetime','revokeLifetime','updatePartner','approveDelivery'];
+    fns.forEach(function(fn) {
+      if (!window[fn]) window[fn] = function() {
+        console.warn('Function not ready:', fn);
+      };
+    });
+  });
+})();
 </script>
 </body>
 </html>

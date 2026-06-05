@@ -86,6 +86,127 @@
     .code-value { font-size:22px; }
   }
 </style>
+
+<style id="nav-common-css">
+/* ===== 공통 네비 ===== */
+nav {
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  padding:0 40px;
+  height:60px;
+  background:#1a1a1a;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.nav-logo {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;
+  letter-spacing:4px;
+  color:#c8f542;
+  text-decoration:none;
+}
+.nav-links {
+  display:flex;
+  gap:4px;
+  justify-content:center;
+  align-items:center;
+}
+.nav-link {
+  padding:8px 14px;
+  font-size:13px;
+  color:#888;
+  background:none;
+  border:none;
+  font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;
+  transition:color 0.2s;
+  text-decoration:none;
+  letter-spacing:0.5px;
+  white-space:nowrap;
+}
+.nav-link:hover { color:#f5f3ee; }
+.nav-link.active { color:#f5f3ee; background:rgba(200,245,66,0.08); }
+.nav-right {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  justify-content:flex-end;
+}
+.nav-avatar {
+  width:32px;
+  height:32px;
+  background:#c8f542;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  font-weight:700;
+  color:#0a0a0a;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.nav-dropdown-wrap {
+  position:relative;
+}
+.nav-dropdown {
+  position:absolute;
+  top:44px;
+  right:0;
+  background:#1a1a1a;
+  border:1px solid rgba(255,255,255,0.08);
+  min-width:180px;
+  display:none;
+  z-index:9999;
+  box-shadow:0 8px 24px rgba(0,0,0,0.6);
+}
+.nav-dropdown.show { display:block; }
+.nav-dropdown-item {
+  padding:12px 16px;
+  font-size:13px;
+  color:#888;
+  cursor:pointer;
+  display:block;
+  background:none;
+  border:none;
+  font-family:'Noto Sans KR',sans-serif;
+  width:100%;
+  text-align:left;
+  transition:all 0.2s;
+  white-space:nowrap;
+}
+.nav-dropdown-item:hover { color:#f5f3ee; background:rgba(255,255,255,0.04); }
+.nav-dropdown-item.danger:hover { color:#ff4f4f; }
+.btn-nav-primary {
+  background:#c8f542;
+  color:#0a0a0a;
+  border:none;
+  padding:8px 20px;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  text-decoration:none;
+  white-space:nowrap;
+}
+@media(max-width:768px) {
+  nav { padding:0 16px; grid-template-columns:auto auto; }
+  .nav-links { display:none; }
+}
+/* ===== 공통 네비 끝 ===== */
+</style>
+
+<style id="compat-css">
+/* ===== 크로스 플랫폼 호환 ===== */
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+body { -webkit-text-size-adjust: 100%; }
+/* ===== 끝 ===== */
+</style>
 </head>
 <body>
 
@@ -101,16 +222,16 @@
 <nav>
   <a href="/" class="nav-logo">VÉLO</a>
   <div class="nav-links">
-    <a href="/dashboard" class="nav-link ">🚲 내 자전거</a>
-    <a href="/history" class="nav-link ">📋 등록 내역</a>
+    <a href="/dashboard" class="nav-link">🚲 내 자전거</a>
+    <a href="/history" class="nav-link">📋 등록 내역</a>
     <a href="/notifications" class="nav-link">🔔 알림</a>
     <a href="/referral" class="nav-link active">🔗 레퍼럴</a>
-    <a href="/settings" class="nav-link ">⚙️ 설정</a>
+    <a href="/settings" class="nav-link">⚙️ 설정</a>
   </div>
   <div class="nav-right">
-    <button class="btn-primary" onclick="location.href='/register'">+ 자전거 등록</button>
-    <div style="position:relative;">
-      <div class="nav-avatar" id="navAvatar" onclick="document.getElementById('navDropdown').classList.toggle('show')"></div>
+    <a href="/register" class="btn-nav-primary">+ 자전거 등록</a>
+    <div class="nav-dropdown-wrap">
+      <div class="nav-avatar" id="navAvatar"></div>
       <div class="nav-dropdown" id="navDropdown">
         <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
         <button class="nav-dropdown-item" onclick="location.href='/payment'">구독 관리</button>
@@ -431,5 +552,55 @@
 })();
 </script>
 
+
+<script id="nav-common-js">
+(function() {
+  var avatar = document.getElementById('navAvatar');
+  var dd = document.getElementById('navDropdown');
+  if (avatar && dd) {
+    avatar.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dd.classList.toggle('show');
+    });
+    document.addEventListener('click', function(e) {
+      if (dd && !dd.contains(e.target) && avatar && !avatar.contains(e.target)) {
+        dd.classList.remove('show');
+      }
+    });
+  }
+  var logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+      if (window.handleLogout) {
+        window.handleLogout();
+      } else {
+        import('./velo-supabase.js').then(function(m) {
+          m.signOut().then(function() { location.href = '/login'; });
+        });
+      }
+    });
+  }
+})();
+</script>
+
+<script id="compat-js">
+// 크로스 플랫폼 호환 브리지
+(function() {
+  // onclick 속성 함수 window 등록 확인
+  document.addEventListener('DOMContentLoaded', function() {
+    var fns = ['toggleNotif','switchTab','openDelete','confirmDelete',
+               'openStolen','confirmStolen','openTransfer','closeModal',
+               'filterBikes','showTransferHistory','selectProduct','selectSub',
+               'applyDiscount','handleBrandChange','toggleSerial','openStolen',
+               'updateStatus','toggleDiscount','deleteDiscount','completeWithdrawal',
+               'grantLifetime','revokeLifetime','updatePartner','approveDelivery'];
+    fns.forEach(function(fn) {
+      if (!window[fn]) window[fn] = function() {
+        console.warn('Function not ready:', fn);
+      };
+    });
+  });
+})();
+</script>
 </body>
 </html>

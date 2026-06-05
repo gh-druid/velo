@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 알림</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+  button, a { cursor:pointer; touch-action:manipulation; }
+  input, select { font-size:16px !important; }
+
+  nav { display:grid; grid-template-columns:auto 1fr auto; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
+  .nav-links { display:flex; gap:4px; justify-content:center; }
+  .nav-link { padding:8px 14px; font-size:13px; color:var(--muted); background:none; border:none; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:color 0.2s; text-decoration:none; letter-spacing:0.5px; }
+  .nav-link:hover { color:var(--white); }
+  .nav-link.active { color:var(--white); background:rgba(200,245,66,0.08); }
+  .nav-right { display:flex; align-items:center; gap:16px; }
+  .nav-avatar { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--black); cursor:pointer; }
+  .nav-dropdown { position:absolute; top:44px; right:0; background:var(--gray); border:1px solid var(--border); min-width:180px; display:none; z-index:300; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+  .nav-dropdown.show { display:block; }
+  .nav-dropdown-item { padding:12px 16px; font-size:13px; color:var(--muted); cursor:pointer; display:block; background:none; border:none; font-family:'Noto Sans KR',sans-serif; width:100%; text-align:left; transition:all 0.2s; }
+  .nav-dropdown-item:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+  .nav-dropdown-item.danger:hover { color:var(--error); }
+  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:8px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; }
+  @media(max-width:768px) { .nav-links { display:none; } nav { padding:0 16px; } }
+
+  .content { max-width:720px; margin:0 auto; padding:40px; }
+  .page-title { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:2px; margin-bottom:6px; }
+  .page-sub { font-size:13px; color:var(--muted); margin-bottom:32px; }
+
+  .notif-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .btn-read-all { background:none; border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer; transition:all 0.2s; }
+  .btn-read-all:hover { border-color:var(--accent); color:var(--accent); }
+
+  .notif-item { background:var(--gray); border:1px solid var(--border); padding:20px 24px; margin-bottom:8px; display:flex; gap:16px; align-items:flex-start; transition:opacity 0.3s; }
+  .notif-item.read { opacity:0.4; }
+  .notif-icon { font-size:22px; flex-shrink:0; margin-top:2px; }
+  .notif-body { flex:1; }
+  .notif-msg { font-size:14px; color:var(--white); margin-bottom:6px; line-height:1.5; }
+  .notif-time { font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; }
+  .notif-unread-dot { width:8px; height:8px; background:var(--accent); border-radius:50%; flex-shrink:0; margin-top:6px; }
+
+  .empty { text-align:center; padding:80px 0; color:var(--muted); }
+  .empty-icon { font-size:40px; margin-bottom:16px; }
+  .empty-text { font-size:14px; }
+
+  .filter-tabs { display:flex; gap:4px; margin-bottom:24px; }
+  .filter-tab { padding:8px 16px; font-size:12px; color:var(--muted); background:var(--gray); border:1px solid var(--border); font-family:'Noto Sans KR',sans-serif; cursor:pointer; letter-spacing:1px; transition:all 0.2s; }
+  .filter-tab.active { background:var(--accent); color:var(--black); border-color:var(--accent); font-weight:700; }
+</style>
+
+<style id="nav-common-css">
+/* ===== 공통 네비 ===== */
+nav {
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  padding:0 40px;
+  height:60px;
+  background:#1a1a1a;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.nav-logo {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;
+  letter-spacing:4px;
+  color:#c8f542;
+  text-decoration:none;
+}
+.nav-links {
+  display:flex;
+  gap:4px;
+  justify-content:center;
+  align-items:center;
+}
+.nav-link {
+  padding:8px 14px;
+  font-size:13px;
+  color:#888;
+  background:none;
+  border:none;
+  font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;
+  transition:color 0.2s;
+  text-decoration:none;
+  letter-spacing:0.5px;
+  white-space:nowrap;
+}
+.nav-link:hover { color:#f5f3ee; }
+.nav-link.active { color:#f5f3ee; background:rgba(200,245,66,0.08); }
+.nav-right {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  justify-content:flex-end;
+}
+.nav-avatar {
+  width:32px;
+  height:32px;
+  background:#c8f542;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  font-weight:700;
+  color:#0a0a0a;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.nav-dropdown-wrap {
+  position:relative;
+}
+.nav-dropdown {
+  position:absolute;
+  top:44px;
+  right:0;
+  background:#1a1a1a;
+  border:1px solid rgba(255,255,255,0.08);
+  min-width:180px;
+  display:none;
+  z-index:9999;
+  box-shadow:0 8px 24px rgba(0,0,0,0.6);
+}
+.nav-dropdown.show { display:block; }
+.nav-dropdown-item {
+  padding:12px 16px;
+  font-size:13px;
+  color:#888;
+  cursor:pointer;
+  display:block;
+  background:none;
+  border:none;
+  font-family:'Noto Sans KR',sans-serif;
+  width:100%;
+  text-align:left;
+  transition:all 0.2s;
+  white-space:nowrap;
+}
+.nav-dropdown-item:hover { color:#f5f3ee; background:rgba(255,255,255,0.04); }
+.nav-dropdown-item.danger:hover { color:#ff4f4f; }
+.btn-nav-primary {
+  background:#c8f542;
+  color:#0a0a0a;
+  border:none;
+  padding:8px 20px;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  text-decoration:none;
+  white-space:nowrap;
+}
+@media(max-width:768px) {
+  nav { padding:0 16px; grid-template-columns:auto auto; }
+  .nav-links { display:none; }
+}
+/* ===== 공통 네비 끝 ===== */
+</style>
+
+<style id="compat-css">
+/* ===== 크로스 플랫폼 호환 ===== */
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+body { -webkit-text-size-adjust: 100%; }
+/* ===== 끝 ===== */
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">VÉLO</a>
+  <div class="nav-links">
+    <a href="/dashboard" class="nav-link">🚲 내 자전거</a>
+    <a href="/history" class="nav-link">📋 등록 내역</a>
+    <a href="/notifications" class="nav-link active">🔔 알림</a>
+    <a href="/referral" class="nav-link">🔗 레퍼럴</a>
+    <a href="/settings" class="nav-link">⚙️ 설정</a>
+  </div>
+  <div class="nav-right">
+    <a href="/register" class="btn-nav-primary">+ 자전거 등록</a>
+    <div class="nav-dropdown-wrap">
+      <div class="nav-avatar" id="navAvatar"></div>
+      <div class="nav-dropdown" id="navDropdown">
+        <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
+        <button class="nav-dropdown-item" onclick="location.href='/payment'">구독 관리</button>
+        <button class="nav-dropdown-item" onclick="location.href='/referral'">🔗 레퍼럴</button>
+        <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-title">알림</div>
+  <div class="page-sub">내 자전거 관련 알림을 확인하세요.</div>
+
+  <div class="notif-header">
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all">전체</button>
+      <button class="filter-tab" data-filter="scan">스캔</button>
+      <button class="filter-tab" data-filter="stolen">도난</button>
+      <button class="filter-tab" data-filter="transfer">양도</button>
+    </div>
+    <button class="btn-read-all" id="readAllBtn">모두 읽음</button>
+  </div>
+
+  <div id="notifList">
+    <div class="empty"><div class="empty-icon">🔔</div><div class="empty-text">알림이 없습니다.</div></div>
+  </div>
+</div>
+
+<script type="module">
+  import { supabase, getUser, getNotifications, markAllRead, signOut } from './velo-supabase.js'
+
+  let currentUser = null
+  let allNotifs = []
+  let currentFilter = 'all'
+
+  async function init() {
+    currentUser = await getUser()
+    if (!currentUser) { location.href = '/login'; return; }
+
+    const { data: profile } = await supabase.from('users').select('name').eq('id', currentUser.id).single()
+    if (profile?.name) document.getElementById('navAvatar').textContent = profile.name[0]
+
+    await loadNotifications()
+
+    // 필터 탭
+    document.querySelectorAll('.filter-tab').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'))
+        this.classList.add('active')
+        currentFilter = this.dataset.filter
+        renderNotifs()
+      })
+    })
+
+    // 모두 읽음
+    document.getElementById('readAllBtn').addEventListener('click', async () => {
+      await markAllRead(currentUser.id)
+      await loadNotifications()
+    })
+
+    // 드롭다운 로그아웃
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut()
+      location.href = '/login'
+    })
+
+    // 드롭다운 외부 클릭
+    document.addEventListener('click', e => {
+      const avatar = document.getElementById('navAvatar')
+      const dd = document.getElementById('navDropdown')
+      if (avatar && dd && !avatar.contains(e.target) && !dd.contains(e.target)) {
+        dd.classList.remove('show')
+      }
+    })
+  }
+
+  async function loadNotifications() {
+    allNotifs = await getNotifications(currentUser.id)
+    renderNotifs()
+  }
+
+  function renderNotifs() {
+    const list = document.getElementById('notifList')
+    const filtered = currentFilter === 'all' ? allNotifs : allNotifs.filter(n => n.type === currentFilter)
+
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">🔔</div><div class="empty-text">알림이 없습니다.</div></div>'
+      return
+    }
+
+    const pad = n => String(n).padStart(2,'0')
+    const icons = { scan:'📡', stolen:'🚨', transfer:'🤝' }
+
+    list.innerHTML = filtered.map(n => {
+      const dt = new Date(n.created_at)
+      const time = `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`
+      return `
+        <div class="notif-item ${n.is_read ? 'read' : ''}">
+          <div class="notif-icon">${icons[n.type] || '🔔'}</div>
+          <div class="notif-body">
+            <div class="notif-msg">${n.message}</div>
+            <div class="notif-time">${time}</div>
+          </div>
+          ${!n.is_read ? '<div class="notif-unread-dot"></div>' : ''}
+        </div>
+      `
+    }).join('')
+  }
+
+  init()
+</script>
+
+<script id="nav-common-js">
+(function() {
+  var avatar = document.getElementById('navAvatar');
+  var dd = document.getElementById('navDropdown');
+  if (avatar && dd) {
+    avatar.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dd.classList.toggle('show');
+    });
+    document.addEventListener('click', function(e) {
+      if (dd && !dd.contains(e.target) && avatar && !avatar.contains(e.target)) {
+        dd.classList.remove('show');
+      }
+    });
+  }
+  var logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+      if (window.handleLogout) {
+        window.handleLogout();
+      } else {
+        import('./velo-supabase.js').then(function(m) {
+          m.signOut().then(function() { location.href = '/login'; });
+        });
+      }
+    });
+  }
+})();
+</script>
+
+<script id="compat-js">
+// 크로스 플랫폼 호환 브리지
+(function() {
+  // onclick 속성 함수 window 등록 확인
+  document.addEventListener('DOMContentLoaded', function() {
+    var fns = ['toggleNotif','switchTab','openDelete','confirmDelete',
+               'openStolen','confirmStolen','openTransfer','closeModal',
+               'filterBikes','showTransferHistory','selectProduct','selectSub',
+               'applyDiscount','handleBrandChange','toggleSerial','openStolen',
+               'updateStatus','toggleDiscount','deleteDiscount','completeWithdrawal',
+               'grantLifetime','revokeLifetime','updatePartner','approveDelivery'];
+    fns.forEach(function(fn) {
+      if (!window[fn]) window[fn] = function() {
+        console.warn('Function not ready:', fn);
+      };
+    });
+  });
+})();
+</script>
+</body>
+</html>

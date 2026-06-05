@@ -400,11 +400,15 @@
   }
 </style>
 
-<style>
-/* 터치 디바이스 호환 */
-* { -webkit-tap-highlight-color: transparent; }
+
+
+<style id="compat-css">
+/* ===== 크로스 플랫폼 호환 ===== */
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+body { -webkit-text-size-adjust: 100%; }
+/* ===== 끝 ===== */
 </style>
 </head>
 <body>
@@ -954,6 +958,26 @@ function addPart(){ if(window.addPart) window.addPart.apply(this, arguments); }
 function removePart(){ if(window.removePart) window.removePart.apply(this, arguments); }
 function selectPlan(){ if(window.selectPlan) window.selectPlan.apply(this, arguments); }
 function goStep(){ if(window.goStep) window.goStep.apply(this, arguments); }
+</script>
+
+<script id="compat-js">
+// 크로스 플랫폼 호환 브리지
+(function() {
+  // onclick 속성 함수 window 등록 확인
+  document.addEventListener('DOMContentLoaded', function() {
+    var fns = ['toggleNotif','switchTab','openDelete','confirmDelete',
+               'openStolen','confirmStolen','openTransfer','closeModal',
+               'filterBikes','showTransferHistory','selectProduct','selectSub',
+               'applyDiscount','handleBrandChange','toggleSerial','openStolen',
+               'updateStatus','toggleDiscount','deleteDiscount','completeWithdrawal',
+               'grantLifetime','revokeLifetime','updatePartner','approveDelivery'];
+    fns.forEach(function(fn) {
+      if (!window[fn]) window[fn] = function() {
+        console.warn('Function not ready:', fn);
+      };
+    });
+  });
+})();
 </script>
 </body>
 </html>

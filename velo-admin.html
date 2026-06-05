@@ -105,11 +105,15 @@
   }
 </style>
 
-<style>
-/* 터치 디바이스 호환 */
-* { -webkit-tap-highlight-color: transparent; }
+
+
+<style id="compat-css">
+/* ===== 크로스 플랫폼 호환 ===== */
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
+input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+body { -webkit-text-size-adjust: 100%; }
+/* ===== 끝 ===== */
 </style>
 </head>
 <body>
@@ -281,22 +285,46 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
 
   <!-- 태그 발급 탭 -->
   <div class="tab-content" id="tab-delivery">
+
+    <!-- 모달: 구매자 상세 -->
+    <div id="orderModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:500; align-items:center; justify-content:center;">
+      <div style="background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); padding:32px; width:100%; max-width:480px; position:relative;">
+        <div style="font-size:16px; font-weight:700; margin-bottom:24px; letter-spacing:1px;">주문 상세</div>
+        <div id="orderModalContent"></div>
+        <div style="display:flex; gap:8px; margin-top:24px;">
+          <button id="modalCompleteBtn" class="action-btn accent" style="padding:10px 24px; font-size:13px;">배송 완료</button>
+          <button onclick="document.getElementById('orderModal').style.display='none'" style="background:none; border:1px solid rgba(255,255,255,0.08); color:#888; padding:10px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer;">닫기</button>
+        </div>
+      </div>
+    </div>
+
     <div class="table-wrap">
       <div class="table-header">
-        <div class="table-title">태그 발급 신청</div>
+        <div class="table-title">결제 주문 목록</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="deliveryFilter" style="background:#0a0a0a; border:1px solid rgba(255,255,255,0.08); color:#f5f3ee; padding:8px 12px; font-family:'Noto Sans KR',sans-serif; font-size:12px; outline:none;">
+            <option value="all">전체</option>
+            <option value="pending">배송 대기</option>
+            <option value="shipped">배송 중</option>
+            <option value="delivered">배송 완료</option>
+          </select>
+        </div>
       </div>
       <table>
         <thead>
           <tr>
-            <th>자전거</th>
-            <th>소유자</th>
-            <th>신청일</th>
-            <th>상태</th>
+            <th>주문일</th>
+            <th>구매자</th>
+            <th>상품</th>
+            <th>금액</th>
+            <th>받는 사람</th>
+            <th>연락처</th>
+            <th>배송 상태</th>
             <th>처리</th>
           </tr>
         </thead>
         <tbody id="deliveryTable">
-          <tr class="loading-row"><td colspan="5">불러오는 중...</td></tr>
+          <tr class="loading-row"><td colspan="8">불러오는 중...</td></tr>
         </tbody>
       </table>
     </div>
@@ -767,26 +795,80 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
     `).join('')
   }
 
-  // 태그 발급 (pending 상태 자전거)
+  // 주문 목록 (orders 테이블 기반)
+  let allOrders = []
   async function loadDelivery() {
     const { data } = await supabase
-      .from('bikes')
-      .select('*, users(name, email)')
-      .eq('status', 'pending')
+      .from('orders')
+      .select('*, users:user_id(name, email)')
       .order('created_at', { ascending: false })
+    allOrders = data || []
+    renderOrders(allOrders)
+
+    // 필터 이벤트
+    const filterEl = document.getElementById('deliveryFilter')
+    if (filterEl) {
+      filterEl.onchange = function() {
+        const val = this.value
+        const filtered = val === 'all' ? allOrders : allOrders.filter(o => o.delivery_status === val)
+        renderOrders(filtered)
+      }
+    }
+  }
+
+  function renderOrders(orders) {
     const tbody = document.getElementById('deliveryTable')
-    if (!data?.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="5">신청 내역이 없습니다.</td></tr>'; return; }
-    tbody.innerHTML = data.map(b => `
-      <tr>
-        <td>${b.brand} ${b.model}</td>
-        <td>${b.users?.name || '-'} <span style="font-size:11px;color:var(--muted);">${b.users?.email || ''}</span></td>
-        <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${new Date(b.created_at).toLocaleDateString('ko-KR')}</td>
-        <td><span class="badge badge-pending">배송 중</span></td>
-        <td>
-          <button class="action-btn accent" onclick="updateStatus('${b.id}','normal')">발급 완료</button>
+    if (!orders.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">주문 내역이 없습니다.</td></tr>'; return; }
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+    const statusLabel = { pending:'배송 대기', shipped:'배송 중', delivered:'배송 완료' }
+    const statusClass = { pending:'badge-pending', shipped:'badge-pending', delivered:'badge-done' }
+
+    tbody.innerHTML = orders.map(o => `
+      <tr style="cursor:pointer;" onclick="openOrderModal('${o.id}')">
+        <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${fmtDate(o.created_at)}</td>
+        <td>${o.users?.name || '-'}<br><span style="font-size:11px;color:var(--muted);">${o.users?.email || ''}</span></td>
+        <td>${o.product_name || '-'}</td>
+        <td style="color:var(--accent);">${o.amount?.toLocaleString() || 0}원</td>
+        <td>${o.ship_name || '-'}</td>
+        <td style="font-family:'DM Mono',monospace; font-size:12px;">${o.ship_phone || '-'}</td>
+        <td><span class="badge ${statusClass[o.delivery_status] || 'badge-pending'}">${statusLabel[o.delivery_status] || '대기'}</span></td>
+        <td onclick="event.stopPropagation()">
+          <button class="action-btn" onclick="updateDelivery('${o.id}','shipped')">발송</button>
+          <button class="action-btn accent" onclick="updateDelivery('${o.id}','delivered')">완료</button>
         </td>
       </tr>
     `).join('')
+  }
+
+  window.openOrderModal = function(id) {
+    const o = allOrders.find(x => x.id === id)
+    if (!o) return
+    const statusLabel = { pending:'배송 대기', shipped:'배송 중', delivered:'배송 완료' }
+    document.getElementById('orderModalContent').innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13px;">
+        <div style="display:grid; grid-template-columns:120px 1fr; gap:8px;">
+          <span style="color:#888;">주문일</span><span>${new Date(o.created_at).toLocaleString('ko-KR')}</span>
+          <span style="color:#888;">상품</span><span>${o.product_name || '-'}</span>
+          <span style="color:#888;">결제 금액</span><span style="color:#c8f542;">${o.amount?.toLocaleString() || 0}원</span>
+          <span style="color:#888;">결제 키</span><span style="font-family:'DM Mono',monospace; font-size:11px; word-break:break-all;">${o.payment_key || '-'}</span>
+          <span style="color:#888;">받는 사람</span><span>${o.ship_name || '-'}</span>
+          <span style="color:#888;">연락처</span><span>${o.ship_phone || '-'}</span>
+          <span style="color:#888;">주소</span><span>${o.ship_addr || '-'} ${o.ship_addr_detail || ''}</span>
+          <span style="color:#888;">배송 상태</span><span>${statusLabel[o.delivery_status] || '대기'}</span>
+          <span style="color:#888;">구매자</span><span>${o.users?.name || '-'} (${o.users?.email || '-'})</span>
+        </div>
+      </div>
+    `
+    document.getElementById('modalCompleteBtn').onclick = () => updateDelivery(id, 'delivered')
+    document.getElementById('orderModal').style.display = 'flex'
+  }
+
+  window.updateDelivery = async function(id, status) {
+    await supabase.from('orders').update({ delivery_status: status }).eq('id', id)
+    showToast(status === 'delivered' ? '✅ 배송 완료 처리됐습니다!' : '📦 발송 처리됐습니다!')
+    document.getElementById('orderModal').style.display = 'none'
+    await loadDelivery()
   }
 
   // 상태 변경
@@ -1208,6 +1290,26 @@ function toggleDiscount(){ if(window.toggleDiscount) window.toggleDiscount.apply
 function deleteDiscount(){ if(window.deleteDiscount) window.deleteDiscount.apply(this, arguments); }
 function closeModal(){ if(window.closeModal) window.closeModal.apply(this, arguments); }
 function handleLogout(){ if(window.handleLogout) window.handleLogout.apply(this, arguments); }
+</script>
+
+<script id="compat-js">
+// 크로스 플랫폼 호환 브리지
+(function() {
+  // onclick 속성 함수 window 등록 확인
+  document.addEventListener('DOMContentLoaded', function() {
+    var fns = ['toggleNotif','switchTab','openDelete','confirmDelete',
+               'openStolen','confirmStolen','openTransfer','closeModal',
+               'filterBikes','showTransferHistory','selectProduct','selectSub',
+               'applyDiscount','handleBrandChange','toggleSerial','openStolen',
+               'updateStatus','toggleDiscount','deleteDiscount','completeWithdrawal',
+               'grantLifetime','revokeLifetime','updatePartner','approveDelivery'];
+    fns.forEach(function(fn) {
+      if (!window[fn]) window[fn] = function() {
+        console.warn('Function not ready:', fn);
+      };
+    });
+  });
+})();
 </script>
 </body>
 </html>
