@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 레퍼럴</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+  button, a, [onclick] { cursor:pointer; touch-action:manipulation; }
+  input, select, textarea { font-size:16px !important; }
+
+  nav { display:flex; justify-content:space-between; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
+  .nav-links { display:flex; gap:4px; }
+  .nav-link { padding:8px 14px; font-size:13px; color:var(--muted); background:none; border:none; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:color 0.2s; text-decoration:none; letter-spacing:0.5px; }
+  .nav-link:hover { color:var(--white); }
+  .nav-link.active { color:var(--white); background:rgba(200,245,66,0.08); }
+  .nav-right { display:flex; align-items:center; gap:12px; }
+  .nav-avatar { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--black); cursor:pointer; }
+
+  .content { max-width:860px; margin:0 auto; padding:40px; }
+  .page-title { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:2px; margin-bottom:6px; }
+  .page-sub { font-size:13px; color:var(--muted); margin-bottom:40px; }
+
+  /* 수익 요약 */
+  .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:32px; }
+  .summary-card { background:var(--gray); border:1px solid var(--border); padding:24px; }
+  .summary-label { font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:12px; }
+  .summary-value { font-family:'Bebas Neue',sans-serif; font-size:42px; color:var(--accent); letter-spacing:1px; }
+  .summary-unit { font-size:13px; color:var(--muted); margin-top:4px; }
+
+  /* 코드 박스 */
+  .code-box { background:var(--gray); border:1px solid var(--border); padding:28px; margin-bottom:24px; }
+  .code-box-title { font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:16px; }
+  .code-display { display:flex; align-items:center; gap:12px; }
+  .code-value { font-family:'DM Mono',monospace; font-size:28px; letter-spacing:6px; color:var(--accent); }
+  .btn-copy { background:none; border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer; transition:all 0.2s; }
+  .btn-copy:hover { border-color:var(--accent); color:var(--accent); }
+  .code-link { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); margin-top:10px; }
+
+  /* 섹션 */
+  .section { background:var(--gray); border:1px solid var(--border); margin-bottom:16px; }
+  .section-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .section-title { font-size:14px; font-weight:500; letter-spacing:1px; }
+  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:10px 24px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+  .btn-sm { background:none; border:1px solid var(--border); color:var(--muted); padding:7px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer; }
+
+  table { width:100%; border-collapse:collapse; }
+  th { padding:12px 20px; text-align:left; font-size:11px; color:var(--muted); letter-spacing:2px; font-weight:400; border-bottom:1px solid var(--border); }
+  td { padding:14px 20px; font-size:13px; border-bottom:1px solid var(--border); }
+  .empty { padding:40px; text-align:center; color:var(--muted); font-size:13px; }
+
+  .badge { font-size:10px; letter-spacing:1px; padding:3px 8px; border:1px solid; }
+  .badge-pending { color:#f5a623; border-color:rgba(245,166,35,0.3); }
+  .badge-done { color:var(--muted); border-color:var(--border); }
+  .badge-normal { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+
+  /* 출금 모달 */
+  .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:200; align-items:center; justify-content:center; }
+  .modal.active { display:flex; }
+  .modal-box { background:var(--gray); border:1px solid var(--border); padding:32px; width:100%; max-width:440px; }
+  .modal-title { font-size:18px; font-weight:700; margin-bottom:24px; }
+  .field { margin-bottom:16px; }
+  .field label { font-size:11px; color:var(--muted); letter-spacing:2px; display:block; margin-bottom:8px; }
+  .field input { background:var(--black); border:1px solid var(--border); color:var(--white); padding:12px 14px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; width:100%; }
+  .modal-btns { display:flex; gap:8px; margin-top:24px; }
+
+  /* 진행 바 */
+  .progress-wrap { margin-bottom:24px; }
+  .progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .progress-bar { height:4px; background:var(--border); }
+  .progress-fill { height:4px; background:var(--accent); transition:width 0.5s; }
+
+  /* 안내 박스 */
+  .info-box { background:rgba(200,245,66,0.05); border:1px solid rgba(200,245,66,0.15); padding:16px 20px; margin-bottom:24px; font-size:13px; color:var(--muted); line-height:1.8; }
+  .info-box strong { color:var(--accent); }
+
+  @media(max-width:768px) {
+    .content { padding:24px 16px; }
+    nav { padding:0 16px; }
+    .nav-links { display:none; }
+    .summary-grid { grid-template-columns:1fr 1fr; }
+    .code-value { font-size:22px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">VÉLO</a>
+  <div class="nav-links">
+    <a href="/dashboard" class="nav-link">🚲 내 자전거</a>
+    <a href="/history" class="nav-link">📋 등록 내역</a>
+    <a href="/settings" class="nav-link">⚙️ 설정</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-avatar" id="navAvatar"></div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-title">레퍼럴</div>
+  <div class="page-sub">내 코드로 가입한 유저의 결제 금액 중 15%를 받아요.</div>
+
+  <div class="info-box">
+    <strong>수익 구조</strong><br>
+    내 레퍼럴 코드로 가입 → 결제 시 결제 금액의 <strong>15%</strong> 적립<br>
+    <strong>10,000원</strong> 이상 쌓이면 출금 신청 가능 · 영업일 3일 내 입금
+  </div>
+
+  <!-- 신청 전 화면 -->
+  <div id="applySection">
+    <div style="background:var(--gray); border:1px solid var(--border); padding:32px; margin-bottom:24px;">
+      <div style="font-size:14px; font-weight:500; letter-spacing:1px; margin-bottom:20px;">레퍼럴 파트너 계약 내용</div>
+      <div style="font-size:13px; color:var(--muted); line-height:2; border:1px solid var(--border); padding:20px; background:var(--black); margin-bottom:20px;">
+        <strong style="color:var(--white);">제1조 (수익 공유)</strong><br>
+        레퍼럴 파트너는 본인의 추천 코드를 통해 가입한 유저의 결제 금액 중 <strong style="color:var(--accent);">15%</strong>를 수익으로 지급받습니다.<br><br>
+        <strong style="color:var(--white);">제2조 (출금 조건)</strong><br>
+        출금 신청은 적립금이 <strong style="color:var(--accent);">10,000원 이상</strong>일 때 가능하며, 영업일 기준 3일 내 입금됩니다.<br><br>
+        <strong style="color:var(--white);">제3조 (코드 사용)</strong><br>
+        레퍼럴 코드는 본인 계정에만 사용 가능하며, 코드를 이용한 부정한 방법으로 수익을 취득할 경우 즉시 파트너 자격이 박탈됩니다.<br><br>
+        <strong style="color:var(--white);">제4조 (정산 기준)</strong><br>
+        수익은 추천받은 유저의 결제 완료 시점을 기준으로 적립됩니다. 환불 발생 시 해당 수익은 차감됩니다.<br><br>
+        <strong style="color:var(--white);">제5조 (계약 해지)</strong><br>
+        벨로 또는 파트너 본인이 언제든 계약을 해지할 수 있으며, 해지 시 잔여 적립금은 정산 후 지급됩니다.
+      </div>
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px; color:var(--muted); margin-bottom:20px;">
+        <input type="checkbox" id="agreeReferral" style="width:16px; height:16px;">
+        위 계약 내용을 모두 읽었으며 동의합니다.
+      </label>
+      <button class="btn-primary" id="applyReferralBtn">레퍼럴 파트너 신청</button>
+    </div>
+  </div>
+
+  <!-- 신청 후 화면 -->
+  <div id="referralMain" style="display:none;">
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>출금까지</span>
+      <span id="progressText">0 / 10,000원</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- 수익 요약 -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-label">총 추천 인원</div>
+      <div class="summary-value" id="totalReferred">0</div>
+      <div class="summary-unit">명</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">누적 수익</div>
+      <div class="summary-value" id="totalEarned">0</div>
+      <div class="summary-unit">원</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">출금 가능 금액</div>
+      <div class="summary-value" id="availableAmount">0</div>
+      <div class="summary-unit">원</div>
+    </div>
+  </div>
+
+  <!-- 내 코드 -->
+  <div class="code-box">
+    <div class="code-box-title">내 레퍼럴 코드</div>
+    <div class="code-display">
+      <div class="code-value" id="myCode">—</div>
+      <button class="btn-copy" id="copyCodeBtn">복사</button>
+      <button class="btn-copy" id="generateCodeBtn" style="display:none;">코드 발급</button>
+    </div>
+    <div class="code-link" id="myLink"></div>
+  </div>
+
+  <!-- 출금 신청 -->
+  <div class="section" style="margin-bottom:24px;">
+    <div class="section-header">
+      <div class="section-title">출금 신청</div>
+      <button class="btn-primary" id="withdrawBtn">출금 신청</button>
+    </div>
+    <div style="padding:16px 24px;">
+      <div id="withdrawList"><div class="empty">출금 내역이 없습니다.</div></div>
+    </div>
+  </div>
+
+  <!-- 추천 내역 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">추천 내역</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>가입일</th>
+          <th>결제 금액</th>
+          <th>내 수익 (15%)</th>
+          <th>상태</th>
+        </tr>
+      </thead>
+      <tbody id="referralLogs">
+        <tr><td colspan="4" class="empty">추천 내역이 없습니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 출금 모달 -->
+<div class="modal" id="withdrawModal">
+  <div class="modal-box">
+    <div class="modal-title">출금 신청</div>
+    <div class="field">
+      <label>은행명</label>
+      <input type="text" id="bankName" placeholder="예: 카카오뱅크">
+    </div>
+    <div class="field">
+      <label>계좌번호</label>
+      <input type="text" id="accountNumber" placeholder="- 없이 입력" style="font-family:'DM Mono',monospace;">
+    </div>
+    <div class="field">
+      <label>예금주</label>
+      <input type="text" id="accountHolder" placeholder="예금주명">
+    </div>
+    <div style="font-size:12px; color:var(--muted); margin-top:8px;">출금 금액: <span id="withdrawAmount" style="color:var(--accent); font-weight:700;"></span>원</div>
+    <div class="modal-btns">
+      <button class="btn-primary" id="confirmWithdrawBtn">신청하기</button>
+      <button class="btn-sm" id="cancelWithdrawBtn">취소</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { supabase, getUser } from './velo-supabase.js'
+
+  let currentUser = null
+  let referralData = null
+
+  async function init() {
+    currentUser = await getUser()
+    if (!currentUser) { location.href = '/login'; return; }
+
+    const { data: profile } = await supabase.from('users').select('name').eq('id', currentUser.id).single()
+    if (profile?.name) document.getElementById('navAvatar').textContent = profile.name[0]
+
+    await loadReferral()
+    setupEvents()
+  }
+
+  async function loadReferral() {
+    const { data } = await supabase
+      .from('referrals')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .single()
+
+    referralData = data
+
+    if (!data) {
+      // 신청 전 화면
+      document.getElementById('applySection').style.display = 'block'
+      document.getElementById('referralMain').style.display = 'none'
+      return
+    }
+
+    // 신청 후 화면
+    document.getElementById('applySection').style.display = 'none'
+    document.getElementById('referralMain').style.display = 'block'
+
+    document.getElementById('myCode').textContent = data.referral_code
+    document.getElementById('myLink').textContent = `velokr.com/register?ref=${data.referral_code}`
+
+    const available = data.total_earned - data.total_withdrawn
+    document.getElementById('totalEarned').textContent = data.total_earned.toLocaleString()
+    document.getElementById('availableAmount').textContent = available.toLocaleString()
+
+    const progress = Math.min((available / 10000) * 100, 100)
+    document.getElementById('progressFill').style.width = progress + '%'
+    document.getElementById('progressText').textContent = `${available.toLocaleString()} / 10,000원`
+
+    const { data: logs } = await supabase
+      .from('referral_logs')
+      .select('*')
+      .eq('referral_id', data.id)
+      .order('created_at', { ascending: false })
+
+    const { data: withdrawals } = await supabase
+      .from('referral_withdrawals')
+      .select('*')
+      .eq('referral_id', data.id)
+      .order('created_at', { ascending: false })
+
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+
+    document.getElementById('totalReferred').textContent = logs?.length || 0
+
+    if (logs?.length) {
+      document.getElementById('referralLogs').innerHTML = logs.map(l => `
+        <tr>
+          <td style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted);">${fmtDate(l.created_at)}</td>
+          <td>${l.amount.toLocaleString()}원</td>
+          <td style="color:var(--accent);">+${Math.floor(l.amount * 0.15).toLocaleString()}원</td>
+          <td><span class="badge badge-${l.status === 'paid' ? 'done' : 'pending'}">${l.status === 'paid' ? '정산완료' : '정산예정'}</span></td>
+        </tr>
+      `).join('')
+    }
+
+    if (withdrawals?.length) {
+      document.getElementById('withdrawList').innerHTML = withdrawals.map(w => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size:13px;">${w.bank_name} ${w.account_number}</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">${fmtDate(w.created_at)}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-family:'DM Mono',monospace; font-size:14px; color:var(--accent);">${w.amount.toLocaleString()}원</span>
+            <span class="badge badge-${w.status === 'completed' ? 'done' : 'pending'}">${w.status === 'completed' ? '입금완료' : '처리중'}</span>
+          </div>
+        </div>
+      `).join('')
+    }
+  }
+
+  function setupEvents() {
+    // 레퍼럴 신청
+    document.getElementById('applyReferralBtn').addEventListener('click', async () => {
+      if (!document.getElementById('agreeReferral').checked) {
+        alert('계약 내용에 동의해주세요.'); return;
+      }
+      const code = 'VLO' + Math.random().toString(36).slice(2,8).toUpperCase()
+      await supabase.from('referrals').insert({ user_id: currentUser.id, referral_code: code })
+      await supabase.from('users').update({ referral_code: code }).eq('id', currentUser.id)
+      await loadReferral()
+    })
+
+    // 코드 복사
+    document.getElementById('copyCodeBtn').addEventListener('click', () => {
+      const code = document.getElementById('myCode').textContent
+      navigator.clipboard?.writeText(`velokr.com/register?ref=${code}`)
+        .then(() => alert('링크가 복사됐어요!'))
+        .catch(() => alert(`velokr.com/register?ref=${code}`))
+    })
+
+    // 출금 신청 버튼
+    document.getElementById('withdrawBtn').addEventListener('click', () => {
+      const available = referralData ? referralData.total_earned - referralData.total_withdrawn : 0
+      if (available < 10000) { alert(`출금은 10,000원 이상부터 가능합니다.\n현재: ${available.toLocaleString()}원`); return; }
+      document.getElementById('withdrawAmount').textContent = available.toLocaleString()
+      document.getElementById('withdrawModal').classList.add('active')
+    })
+
+    // 출금 확인
+    document.getElementById('confirmWithdrawBtn').addEventListener('click', async () => {
+      const bankName = document.getElementById('bankName').value.trim()
+      const accountNumber = document.getElementById('accountNumber').value.trim()
+      const accountHolder = document.getElementById('accountHolder').value.trim()
+      if (!bankName || !accountNumber || !accountHolder) { alert('모든 항목을 입력해주세요.'); return; }
+
+      const available = referralData.total_earned - referralData.total_withdrawn
+      await supabase.from('referral_withdrawals').insert({
+        referral_id: referralData.id,
+        amount: available,
+        bank_name: bankName,
+        account_number: accountNumber,
+        account_holder: accountHolder,
+        status: 'pending'
+      })
+      await supabase.from('referrals').update({ total_withdrawn: referralData.total_earned }).eq('id', referralData.id)
+      document.getElementById('withdrawModal').classList.remove('active')
+      alert('출금 신청이 완료됐습니다. 영업일 3일 내 입금됩니다.')
+      await loadReferral()
+    })
+
+    // 취소
+    document.getElementById('cancelWithdrawBtn').addEventListener('click', () => {
+      document.getElementById('withdrawModal').classList.remove('active')
+    })
+  }
+
+  init()
+</script>
+</body>
+</html>
