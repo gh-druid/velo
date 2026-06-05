@@ -491,7 +491,10 @@ body { -webkit-text-size-adjust: 100%; }
       <button class="btn-cancel" onclick="document.getElementById('lifetimeModal').classList.remove('active')">취소</button>
       <button class="btn-confirm-danger" style="background:var(--accent); color:var(--black);" onclick="grantLifetime()">부여하기</button>
     </div>
-  </div>  <!-- 평생무료 탭 -->
+  </div>
+
+
+  <!-- 평생무료 탭 -->
   <div class="tab-content" id="tab-lifetime">
 
     <!-- 이메일로 부여 -->
@@ -573,9 +576,9 @@ body { -webkit-text-size-adjust: 100%; }
         </tbody>
       </table>
     </div>
-  </div>
+  </div><!-- /tab-referral -->
 
-</div>
+</div><!-- /content -->
 
 <!-- 계정 정지 모달 -->
 <div class="modal-overlay" id="suspendModal" onclick="closeModal('suspendModal',event)">
