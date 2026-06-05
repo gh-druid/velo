@@ -218,6 +218,16 @@ button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
 input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
+
+  /* 햄버거 메뉴 */
+  .hamburger-btn { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
+  .hamburger-btn span { width:22px; height:2px; background:#f5f3ee; display:block; }
+  .mobile-nav { display:none; position:fixed; top:60px; left:0; right:0; background:#1a1a1a; border-bottom:1px solid rgba(255,255,255,0.08); z-index:99; padding:8px 0; flex-direction:column; }
+  .mobile-nav.open { display:flex; }
+  .mobile-nav a { color:#888; text-decoration:none; font-size:14px; padding:14px 24px; border-bottom:1px solid rgba(255,255,255,0.05); font-family:'Noto Sans KR',sans-serif; display:block; }
+  .mobile-nav a:last-child { border-bottom:none; }
+  .mobile-nav a.active { color:#c8f542; }
+  @media(max-width:768px) { .hamburger-btn { display:flex; } }
 </style>
 </head>
 <body>
@@ -250,9 +260,17 @@ body { -webkit-text-size-adjust: 100%; }
         <button class="nav-dropdown-item" onclick="location.href='/referral'">🔗 레퍼럴</button>
         <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
       </div>
+    <button class="hamburger-btn" id="hamburgerBtn"><span></span><span></span><span></span></button>
     </div>
-  </div>
 </nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="/dashboard">🚲 내 자전거</a>
+  <a href="/history">📋 등록 내역</a>
+  <a href="/notifications">🔔 알림</a>
+  <a href="/referral">🔗 레퍼럴</a>
+  <a href="/settings">⚙️ 설정</a>
+  <a href="/register" style="color:#c8f542;font-weight:700;">+ 자전거 등록</a>
+</div>
 
 <div class="content">
 
@@ -649,6 +667,26 @@ function handleLogout(){ if(window.handleLogout) window.handleLogout.apply(this,
     });
   });
 })();
+</script>
+
+<script id="hamburger-js">
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('hamburgerBtn')
+    var nav = document.getElementById('mobileNav')
+    if (btn && nav) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation()
+        nav.classList.toggle('open')
+      })
+      document.addEventListener('click', function(e) {
+        if (!nav.contains(e.target) && !btn.contains(e.target)) {
+          nav.classList.remove('open')
+        }
+      })
+    }
+  })
+})()
 </script>
 </body>
 </html>

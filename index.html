@@ -290,10 +290,14 @@ body { -webkit-text-size-adjust: 100%; }
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#how" onclick="closeMobileMenu()">이용방법</a>
-  <a href="#features" onclick="closeMobileMenu()">기능</a>
-  <a href="#pricing" onclick="closeMobileMenu()">요금제</a>
+  <a href="#how">이용방법</a>
+  <a href="#features">기능</a>
+  <a href="#pricing">요금제</a>
   <a href="/partner">샵 파트너십</a>
+  <a href="/dashboard" id="mobileDashBtn" style="display:none;">🚲 내 자전거</a>
+  <a href="/history" id="mobileHistoryBtn" style="display:none;">📋 등록 내역</a>
+  <a href="/notifications" id="mobileNotifBtn" style="display:none;">🔔 알림</a>
+  <a href="/referral" id="mobileReferralBtn" style="display:none;">🔗 레퍼럴</a>
   <a href="/login" id="mobileAuthBtn">로그인</a>
   <a href="#" onclick="_goPayment();return false;" style="color:var(--accent); font-weight:700;">등록 신청 →</a>
 </div>
@@ -304,8 +308,12 @@ body { -webkit-text-size-adjust: 100%; }
     const btn = document.getElementById('navAuthBtn')
     const mobileBtn = document.getElementById('mobileAuthBtn')
     if (user) {
-      if (btn) { btn.textContent = '대시보드'; btn.href = 'velo-dashboard.html'; }
-      if (mobileBtn) { mobileBtn.textContent = '대시보드'; mobileBtn.href = 'velo-dashboard.html'; }
+      if (btn) { btn.textContent = '대시보드'; btn.href = '/dashboard'; }
+      if (mobileBtn) { mobileBtn.textContent = '대시보드'; mobileBtn.href = '/dashboard'; }
+      ;['mobileDashBtn','mobileHistoryBtn','mobileNotifBtn','mobileReferralBtn'].forEach(function(id) {
+        var el = document.getElementById(id)
+        if (el) el.style.display = 'block'
+      })
     }
     window._goPayment = async function() {
       const u = await getUser()
@@ -321,6 +329,17 @@ body { -webkit-text-size-adjust: 100%; }
   window.closeMobileMenu = function() {
     document.getElementById('mobileMenu').classList.remove('open')
   }
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('hamburgerBtn')
+    if (btn) btn.addEventListener('click', function() {
+      document.getElementById('mobileMenu').classList.toggle('open')
+    })
+    document.querySelectorAll('.mobile-menu a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        document.getElementById('mobileMenu').classList.remove('open')
+      })
+    })
+  })
 </script>
 
 <section class="hero">
