@@ -428,7 +428,7 @@ body { -webkit-text-size-adjust: 100%; }
           </select>
         </div>
         <div>
-          <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">최대 사용 횟수 (빈칸=무제한)</div>
+          <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">이용 가능 인원수 (빈칸=무제한)</div>
           <input type="number" id="dcMaxUses" placeholder="예: 100" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
         </div>
         <div>
@@ -1231,7 +1231,7 @@ body { -webkit-text-size-adjust: 100%; }
         <td style="font-family:'DM Mono',monospace; font-size:13px; letter-spacing:2px; color:var(--accent);">${d.code}</td>
         <td><strong>${typeLabel(d)}</strong></td>
         <td>${targetLabel[d.target] || '전체'}</td>
-        <td>${d.used_count} / ${d.max_uses ?? '무제한'}</td>
+        <td>${(d.max_uses === null || d.max_uses === -1) ? '무제한' : `${d.used_count} / ${d.max_uses}명`}</td>
         <td style="font-size:11px; color:var(--muted);">${d.expires_at ? new Date(d.expires_at).toLocaleDateString('ko-KR') : '무기한'}</td>
         <td>${d.description ? `<span style="font-size:11px;color:var(--muted);">${d.description}</span>` : '-'}</td>
         <td><span class="badge ${d.is_active ? 'badge-normal' : 'badge-stolen'}">${d.is_active ? '활성' : '비활성'}</span></td>
