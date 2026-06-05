@@ -473,31 +473,10 @@ body { -webkit-text-size-adjust: 100%; }
         </tbody>
       </table>
     </div>
-  </div>
-
-</div>
-
-  <!-- 평생 무료 모달 -->
-<div class="modal-overlay" id="lifetimeModal" onclick="closeModal('lifetimeModal',event)">
-  <div class="modal">
-    <button class="modal-close" onclick="document.getElementById('lifetimeModal').classList.remove('active')">×</button>
-    <div class="modal-title">평생 무료 부여</div>
-    <div class="modal-sub">이메일을 입력하면 해당 계정에 평생 무료 이용권을 부여합니다.</div>
-    <div style="margin-bottom:16px;">
-      <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">이메일</div>
-      <input type="email" id="lifetimeEmail" placeholder="example@email.com" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; width:100%;">
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="document.getElementById('lifetimeModal').classList.remove('active')">취소</button>
-      <button class="btn-confirm-danger" style="background:var(--accent); color:var(--black);" onclick="grantLifetime()">부여하기</button>
-    </div>
-  </div>
-
+  </div><!-- /tab-discounts -->
 
   <!-- 평생무료 탭 -->
   <div class="tab-content" id="tab-lifetime">
-
-    <!-- 이메일로 부여 -->
     <div class="table-wrap" style="margin-bottom:16px;">
       <div class="table-header">
         <div class="table-title">평생무료 부여</div>
@@ -510,27 +489,15 @@ body { -webkit-text-size-adjust: 100%; }
         <button id="grantLifetimeBtn" style="background:var(--accent); color:var(--black); border:none; padding:11px 24px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;">평생무료 부여</button>
       </div>
     </div>
-
-    <!-- 평생무료 목록 -->
     <div class="table-wrap">
-      <div class="table-header">
-        <div class="table-title">평생무료 회원</div>
-      </div>
+      <div class="table-header"><div class="table-title">평생무료 회원</div></div>
       <table>
-        <thead>
-          <tr>
-            <th>이름</th>
-            <th>이메일</th>
-            <th>가입일</th>
-            <th>관리</th>
-          </tr>
-        </thead>
-        <tbody id="lifetimeTable">
-          <tr class="loading-row"><td colspan="4">불러오는 중...</td></tr>
-        </tbody>
+        <thead><tr><th>이름</th><th>이메일</th><th>가입일</th><th>관리</th></tr></thead>
+        <tbody id="lifetimeTable"><tr class="loading-row"><td colspan="4">불러오는 중...</td></tr></tbody>
       </table>
     </div>
-  </div>
+  </div><!-- /tab-lifetime -->
+
   <!-- 레퍼럴 탭 -->
   <div class="tab-content" id="tab-referral">
     <div class="table-wrap">
