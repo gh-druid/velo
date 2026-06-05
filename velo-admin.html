@@ -604,6 +604,13 @@ body { -webkit-text-size-adjust: 100%; }
     }
 
     await Promise.all([loadStats(), loadUsers(), loadPartnerMap().then(loadBikes), loadStolen(), loadDelivery()])
+
+    // 평생무료 버튼 이벤트 (사파리 호환)
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.id === 'grantLifetimeBtn') {
+        window.grantLifetime()
+      }
+    })
   }
 
   // 통계
