@@ -28,15 +28,15 @@
   }
 
   /* NAV */
-  nav { display:flex; justify-content:space-between; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+  nav { display:grid; grid-template-columns:auto 1fr auto; align-items:center; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
   .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
-  .nav-links-inner { display:flex; gap:4px; }
+  .nav-links-inner { display:flex; gap:4px; justify-content:center; }
   .nav-link { padding:8px 14px; font-size:13px; color:var(--muted); background:none; border:none; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:color 0.2s,background 0.2s; letter-spacing:0.5px; text-decoration:none; }
   .nav-link:hover { color:var(--white); background:rgba(255,255,255,0.04); }
   .nav-link.active { color:var(--white); background:rgba(200,245,66,0.08); }
   .nav-right { display:flex; align-items:center; gap:12px; }
   .nav-avatar { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--black); cursor:pointer; position:relative; }
-  .nav-dropdown { position:absolute; top:40px; right:0; background:var(--gray); border:1px solid var(--border); min-width:160px; position:absolute; top:40px; right:0; display:none; z-index:200; }
+  .nav-dropdown { position:absolute; top:44px; right:0; background:var(--gray); border:1px solid var(--border); min-width:180px; display:none; z-index:300; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
   .nav-dropdown.show { display:block; }
   .nav-dropdown-item { padding:12px 16px; font-size:13px; color:var(--muted); cursor:pointer; display:block; background:none; border:none; font-family:'Noto Sans KR',sans-serif; width:100%; text-align:left; transition:all 0.2s; }
   .nav-dropdown-item:hover { color:var(--white); background:rgba(255,255,255,0.04); }
@@ -317,10 +317,7 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
   <div class="nav-links">
     <a href="/dashboard" class="nav-link ">🚲 내 자전거</a>
     <a href="/history" class="nav-link ">📋 등록 내역</a>
-    <button class="nav-link " id="notifBtn" style="position:relative;">
-      🔔 알림
-      <span id="notifBadge" style="display:none; position:absolute; top:4px; right:4px; width:7px; height:7px; background:#ff4f4f; border-radius:50%;"></span>
-    </button>
+    <a href="/notifications" class="nav-link">🔔 알림</a>
     <a href="/referral" class="nav-link ">🔗 레퍼럴</a>
     <a href="/settings" class="nav-link active">⚙️ 설정</a>
   </div>
@@ -854,5 +851,33 @@ function saveNotifSettings(){ if(window.saveNotifSettings) window.saveNotifSetti
 function confirmCancel(){ if(window.confirmCancel) window.confirmCancel.apply(this, arguments); }
 function confirmDelete(){ if(window.confirmDelete) window.confirmDelete.apply(this, arguments); }
 </script>
+
+<script>
+// 알림 드롭다운
+(function() {
+  var btn = document.getElementById('notifBtn');
+  var dd = document.getElementById('notifDropdown');
+  if (btn && dd) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    });
+    document.addEventListener('click', function(e) {
+      if (!btn.contains(e.target) && !dd.contains(e.target)) dd.style.display = 'none';
+    });
+  }
+  // 드롭다운 로그아웃
+  var logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+      if (window.handleLogout) window.handleLogout();
+      else { 
+        import('./velo-supabase.js').then(m => m.signOut().then(() => location.href = '/login'));
+      }
+    });
+  }
+})();
+</script>
+
 </body>
 </html>

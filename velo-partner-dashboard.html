@@ -11,7 +11,7 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
 
-  nav { display:flex; justify-content:space-between; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+  nav { display:grid; grid-template-columns:auto 1fr auto; align-items:center; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
   .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
   .nav-badge { font-size:10px; letter-spacing:2px; color:var(--black); background:var(--accent); padding:3px 8px; margin-left:8px; }
   .nav-right { display:flex; gap:16px; align-items:center; }
@@ -90,7 +90,7 @@
     .revenue-grid { grid-template-columns:1fr; }
   }
 
-  .nav-dropdown { position:absolute; top:40px; right:0; background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); min-width:160px; display:none; z-index:200; }
+  .nav-dropdown { position:absolute; top:44px; right:0; background:var(--gray); border:1px solid var(--border); min-width:180px; display:none; z-index:300; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
   .nav-dropdown.show { display:block; }
   .nav-dropdown-item { padding:12px 16px; font-size:13px; color:#888; cursor:pointer; display:block; background:none; border:none; font-family:'Noto Sans KR',sans-serif; width:100%; text-align:left; transition:all 0.2s; }
   .nav-dropdown-item:hover { color:#f5f3ee; background:rgba(255,255,255,0.04); }
@@ -106,15 +106,21 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
 </head>
 <body>
 
+
+<!-- 알림 드롭다운 -->
+<div id="notifDropdown" style="display:none; position:fixed; top:60px; right:200px; width:300px; background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); z-index:300; max-height:400px; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+  <div style="padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
+    <span style="font-size:13px; font-weight:500;">알림</span>
+    <button id="readAllBtn" style="background:none;border:none;color:#888;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">모두 읽음</button>
+  </div>
+  <div id="notifList"><div style="padding:24px; text-align:center; color:#888; font-size:13px;">알림이 없습니다.</div></div>
+</div>
 <nav>
   <a href="/" class="nav-logo">VÉLO</a>
   <div class="nav-links">
     <a href="/dashboard" class="nav-link ">🚲 내 자전거</a>
     <a href="/history" class="nav-link ">📋 등록 내역</a>
-    <button class="nav-link " id="notifBtn" style="position:relative;">
-      🔔 알림
-      <span id="notifBadge" style="display:none; position:absolute; top:4px; right:4px; width:7px; height:7px; background:#ff4f4f; border-radius:50%;"></span>
-    </button>
+    <a href="/notifications" class="nav-link">🔔 알림</a>
     <a href="/referral" class="nav-link ">🔗 레퍼럴</a>
     <a href="/settings" class="nav-link ">⚙️ 설정</a>
   </div>
@@ -450,5 +456,33 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
 function switchTab(){ if(window.switchTab) window.switchTab.apply(this, arguments); }
 function handleLogout(){ if(window.handleLogout) window.handleLogout.apply(this, arguments); }
 </script>
+
+<script>
+// 알림 드롭다운
+(function() {
+  var btn = document.getElementById('notifBtn');
+  var dd = document.getElementById('notifDropdown');
+  if (btn && dd) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    });
+    document.addEventListener('click', function(e) {
+      if (!btn.contains(e.target) && !dd.contains(e.target)) dd.style.display = 'none';
+    });
+  }
+  // 드롭다운 로그아웃
+  var logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+      if (window.handleLogout) window.handleLogout();
+      else { 
+        import('./velo-supabase.js').then(m => m.signOut().then(() => location.href = '/login'));
+      }
+    });
+  }
+})();
+</script>
+
 </body>
 </html>

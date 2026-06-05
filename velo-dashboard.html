@@ -30,7 +30,7 @@
     position:sticky; top:0; z-index:100;
   }
   .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
-  .nav-links { display:flex; gap:4px; }
+  .nav-links { display:flex; gap:4px; justify-content:center; }
   .nav-link {
     padding:8px 16px; font-size:13px; color:var(--muted);
     background:none; border:none; font-family:'Noto Sans KR',sans-serif;
@@ -48,11 +48,7 @@
     font-size:13px; font-weight:700; color:var(--black); cursor:pointer;
     position:relative;
   }
-  .nav-dropdown {
-    position:absolute; top:40px; right:0;
-    background:var(--gray); border:1px solid var(--border);
-    min-width:160px; position:absolute; top:40px; right:0; display:none; z-index:200;
-  }
+  .nav-dropdown { position:absolute; top:44px; right:0; background:var(--gray); border:1px solid var(--border); min-width:180px; display:none; z-index:300; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
   .nav-dropdown.show { display:block; }
   .nav-dropdown-item {
     padding:12px 16px; font-size:13px; color:var(--muted);
@@ -175,10 +171,7 @@ input, select, textarea { font-size: 16px !important; } /* iOS 줌 방지 */
   <div class="nav-links">
     <button class="nav-link active">🚲 내 자전거</button>
     <button class="nav-link" onclick="location.href='/history'">📋 등록 내역</button>
-    <button class="nav-link" onclick="toggleNotif()" style="position:relative;">
-      🔔 알림
-      <span id="notifBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--error); color:white; font-size:9px; font-weight:700; width:14px; height:14px; border-radius:50%; align-items:center; justify-content:center;"></span>
-    </button>
+    <a href="/notifications" class="nav-link">🔔 알림</a>
     <button class="nav-link" onclick="location.href='/referral'">🔗 레퍼럴</button>
     <button class="nav-link" onclick="location.href='/settings'">⚙️ 설정</button>
   </div>
