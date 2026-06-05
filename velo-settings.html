@@ -409,9 +409,11 @@ nav {
   text-decoration:none;
   white-space:nowrap;
 }
+@media(min-width:769px) { .hamburger-btn { display:none !important; } }
 @media(max-width:768px) {
   nav { padding:0 16px; grid-template-columns:auto auto; }
   .nav-links { display:none; }
+  .hamburger-btn { display:flex !important; }
 }
 /* ===== 공통 네비 끝 ===== */
 </style>
