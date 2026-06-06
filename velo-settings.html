@@ -983,14 +983,14 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function switchTab(){ if(window.switchTab) window.switchTab.apply(this, arguments); }
-function openDeleteModal(){ if(window.openDeleteModal) window.openDeleteModal.apply(this, arguments); }
-function closeModal(){ if(window.closeModal) window.closeModal.apply(this, arguments); }
-function saveProfile(){ if(window.saveProfile) window.saveProfile.apply(this, arguments); }
-function changePassword(){ if(window.changePassword) window.changePassword.apply(this, arguments); }
-function saveNotifSettings(){ if(window.saveNotifSettings) window.saveNotifSettings.apply(this, arguments); }
-function confirmCancel(){ if(window.confirmCancel) window.confirmCancel.apply(this, arguments); }
-function confirmDelete(){ if(window.confirmDelete) window.confirmDelete.apply(this, arguments); }
+function switchTab(){ if(window.switchTab && window.switchTab !== switchTab) window.switchTab.apply(this, arguments); }
+function openDeleteModal(){ if(window.openDeleteModal && window.openDeleteModal !== openDeleteModal) window.openDeleteModal.apply(this, arguments); }
+function closeModal(){ if(window.closeModal && window.closeModal !== closeModal) window.closeModal.apply(this, arguments); }
+function saveProfile(){ if(window.saveProfile && window.saveProfile !== saveProfile) window.saveProfile.apply(this, arguments); }
+function changePassword(){ if(window.changePassword && window.changePassword !== changePassword) window.changePassword.apply(this, arguments); }
+function saveNotifSettings(){ if(window.saveNotifSettings && window.saveNotifSettings !== saveNotifSettings) window.saveNotifSettings.apply(this, arguments); }
+function confirmCancel(){ if(window.confirmCancel && window.confirmCancel !== confirmCancel) window.confirmCancel.apply(this, arguments); }
+function confirmDelete(){ if(window.confirmDelete && window.confirmDelete !== confirmDelete) window.confirmDelete.apply(this, arguments); }
 </script>
 
 <script>

@@ -613,7 +613,7 @@ body { -webkit-text-size-adjust: 100%; }
   const pad = n => String(n).padStart(2, '0')
 
   async function init() {
-    // URL에서 차대번호 읽기 (?serial=WTU123)
+    // URL에서 차대번호 읽기 (/bike/WTU123 또는 ?serial=WTU123)
     const params = new URLSearchParams(location.search)
     const serial = params.get('serial') || location.pathname.split('/').filter(Boolean).pop()
 
@@ -835,8 +835,8 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function switchTab(){ if(window.switchTab) window.switchTab.apply(this, arguments); }
-function reportPartLost(){ if(window.reportPartLost) window.reportPartLost.apply(this, arguments); }
+function switchTab(){ if(window.switchTab && window.switchTab !== switchTab) window.switchTab.apply(this, arguments); }
+function reportPartLost(){ if(window.reportPartLost && window.reportPartLost !== reportPartLost) window.reportPartLost.apply(this, arguments); }
 </script>
 
 <script id="compat-js">

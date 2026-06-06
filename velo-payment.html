@@ -610,11 +610,11 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function selectBike(){ if(window.selectBike) window.selectBike.apply(this, arguments); }
-function applyDiscount(){ if(window.applyDiscount) window.applyDiscount.apply(this, arguments); }
-function startPayment(){ if(window.startPayment) window.startPayment.apply(this, arguments); }
-function selectProduct(){ if(window.selectProduct) window.selectProduct.apply(this, arguments); }
-function selectSub(){ if(window.selectSub) window.selectSub.apply(this, arguments); }
+function selectBike(){ if(window.selectBike && window.selectBike !== selectBike) window.selectBike.apply(this, arguments); }
+function applyDiscount(){ if(window.applyDiscount && window.applyDiscount !== applyDiscount) window.applyDiscount.apply(this, arguments); }
+function startPayment(){ if(window.startPayment && window.startPayment !== startPayment) window.startPayment.apply(this, arguments); }
+function selectProduct(){ if(window.selectProduct && window.selectProduct !== selectProduct) window.selectProduct.apply(this, arguments); }
+function selectSub(){ if(window.selectSub && window.selectSub !== selectSub) window.selectSub.apply(this, arguments); }
 </script>
 
 <script id="compat-js">

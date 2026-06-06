@@ -461,7 +461,7 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function switchTab(){ if(window.switchTab) window.switchTab.apply(this, arguments); }
+function switchTab(){ if(window.switchTab && window.switchTab !== switchTab) window.switchTab.apply(this, arguments); }
 </script>
 
 <script id="nav-common-js">

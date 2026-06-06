@@ -609,8 +609,8 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function handleSubmit(){ if(window.handleSubmit) window.handleSubmit.apply(this, arguments); }
-function toggleFaq(){ if(window.toggleFaq) window.toggleFaq.apply(this, arguments); }
+function handleSubmit(){ if(window.handleSubmit && window.handleSubmit !== handleSubmit) window.handleSubmit.apply(this, arguments); }
+function toggleFaq(){ if(window.toggleFaq && window.toggleFaq !== toggleFaq) window.toggleFaq.apply(this, arguments); }
 </script>
 
 <script>

@@ -367,10 +367,10 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function goScreen(){ if(window.goScreen) window.goScreen.apply(this, arguments); }
-function handleLogin(){ if(window.handleLogin) window.handleLogin.apply(this, arguments); }
-function handleSignup(){ if(window.handleSignup) window.handleSignup.apply(this, arguments); }
-function handleForgot(){ if(window.handleForgot) window.handleForgot.apply(this, arguments); }
+function goScreen(){ if(window.goScreen && window.goScreen !== goScreen) window.goScreen.apply(this, arguments); }
+function handleLogin(){ if(window.handleLogin && window.handleLogin !== handleLogin) window.handleLogin.apply(this, arguments); }
+function handleSignup(){ if(window.handleSignup && window.handleSignup !== handleSignup) window.handleSignup.apply(this, arguments); }
+function handleForgot(){ if(window.handleForgot && window.handleForgot !== handleForgot) window.handleForgot.apply(this, arguments); }
 </script>
 
 <script id="compat-js">

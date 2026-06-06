@@ -754,18 +754,18 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function showTransferHistory(){ if(window.showTransferHistory) window.showTransferHistory.apply(this, arguments); }
-function filterBikes(){ if(window.filterBikes) window.filterBikes.apply(this, arguments); }
-function openDelete(){ if(window.openDelete) window.openDelete.apply(this, arguments); }
-function confirmDelete(){ if(window.confirmDelete) window.confirmDelete.apply(this, arguments); }
-function toggleNotif(){ if(window.toggleNotif) window.toggleNotif.apply(this, arguments); }
-function readAll(){ if(window.readAll) window.readAll.apply(this, arguments); }
-function openStolen(){ if(window.openStolen) window.openStolen.apply(this, arguments); }
-function confirmStolen(){ if(window.confirmStolen) window.confirmStolen.apply(this, arguments); }
-function openTransfer(){ if(window.openTransfer) window.openTransfer.apply(this, arguments); }
-function closeModal(){ if(window.closeModal) window.closeModal.apply(this, arguments); }
-function toggleDropdown(){ if(window.toggleDropdown) window.toggleDropdown.apply(this, arguments); }
-function handleLogout(){ if(window.handleLogout) window.handleLogout.apply(this, arguments); }
+function showTransferHistory(){ if(window.showTransferHistory && window.showTransferHistory !== showTransferHistory) window.showTransferHistory.apply(this, arguments); }
+function filterBikes(){ if(window.filterBikes && window.filterBikes !== filterBikes) window.filterBikes.apply(this, arguments); }
+function openDelete(){ if(window.openDelete && window.openDelete !== openDelete) window.openDelete.apply(this, arguments); }
+function confirmDelete(){ if(window.confirmDelete && window.confirmDelete !== confirmDelete) window.confirmDelete.apply(this, arguments); }
+function toggleNotif(){ if(window.toggleNotif && window.toggleNotif !== toggleNotif) window.toggleNotif.apply(this, arguments); }
+function readAll(){ if(window.readAll && window.readAll !== readAll) window.readAll.apply(this, arguments); }
+function openStolen(){ if(window.openStolen && window.openStolen !== openStolen) window.openStolen.apply(this, arguments); }
+function confirmStolen(){ if(window.confirmStolen && window.confirmStolen !== confirmStolen) window.confirmStolen.apply(this, arguments); }
+function openTransfer(){ if(window.openTransfer && window.openTransfer !== openTransfer) window.openTransfer.apply(this, arguments); }
+function closeModal(){ if(window.closeModal && window.closeModal !== closeModal) window.closeModal.apply(this, arguments); }
+function toggleDropdown(){ if(window.toggleDropdown && window.toggleDropdown !== toggleDropdown) window.toggleDropdown.apply(this, arguments); }
+function handleLogout(){ if(window.handleLogout && window.handleLogout !== handleLogout) window.handleLogout.apply(this, arguments); }
 </script>
 
 <script id="nav-common-js">

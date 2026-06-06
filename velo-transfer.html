@@ -823,8 +823,8 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function verifyCode(){ if(window.verifyCode) window.verifyCode.apply(this, arguments); }
-function acceptTransfer(){ if(window.acceptTransfer) window.acceptTransfer.apply(this, arguments); }
+function verifyCode(){ if(window.verifyCode && window.verifyCode !== verifyCode) window.verifyCode.apply(this, arguments); }
+function acceptTransfer(){ if(window.acceptTransfer && window.acceptTransfer !== acceptTransfer) window.acceptTransfer.apply(this, arguments); }
 </script>
 
 <script id="compat-js">

@@ -210,8 +210,8 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function handleSend(){ if(window.handleSend) window.handleSend.apply(this, arguments); }
-function handleUpdate(){ if(window.handleUpdate) window.handleUpdate.apply(this, arguments); }
+function handleSend(){ if(window.handleSend && window.handleSend !== handleSend) window.handleSend.apply(this, arguments); }
+function handleUpdate(){ if(window.handleUpdate && window.handleUpdate !== handleUpdate) window.handleUpdate.apply(this, arguments); }
 </script>
 
 <script id="compat-js">

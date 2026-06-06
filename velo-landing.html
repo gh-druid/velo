@@ -627,12 +627,12 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script>/* compat-bridge */
-function _goPayment(){ if(window._goPayment) window._goPayment.apply(this, arguments); }
-function toggleMobileMenu(){ if(window.toggleMobileMenu) window.toggleMobileMenu.apply(this, arguments); }
-function closeMobileMenu(){ if(window.closeMobileMenu) window.closeMobileMenu.apply(this, arguments); }
-function toggleRegistry(){ if(window.toggleRegistry) window.toggleRegistry.apply(this, arguments); }
-function closeModal(){ if(window.closeModal) window.closeModal.apply(this, arguments); }
-function closeModalOutside(){ if(window.closeModalOutside) window.closeModalOutside.apply(this, arguments); }
+function _goPayment(){ if(window._goPayment && window._goPayment !== _goPayment) window._goPayment.apply(this, arguments); }
+function toggleMobileMenu(){ if(window.toggleMobileMenu && window.toggleMobileMenu !== toggleMobileMenu) window.toggleMobileMenu.apply(this, arguments); }
+function closeMobileMenu(){ if(window.closeMobileMenu && window.closeMobileMenu !== closeMobileMenu) window.closeMobileMenu.apply(this, arguments); }
+function toggleRegistry(){ if(window.toggleRegistry && window.toggleRegistry !== toggleRegistry) window.toggleRegistry.apply(this, arguments); }
+function closeModal(){ if(window.closeModal && window.closeModal !== closeModal) window.closeModal.apply(this, arguments); }
+function closeModalOutside(){ if(window.closeModalOutside && window.closeModalOutside !== closeModalOutside) window.closeModalOutside.apply(this, arguments); }
 </script>
 
 <script id="compat-js">
