@@ -1132,7 +1132,7 @@ body { -webkit-text-size-adjust: 100%; }
     }
 
     // NFC 스캔 로그
-    const { data: scans } = await supabase.from('scan_logs').select('*').order('created_at', { ascending: false }).limit(100)
+    const { data: scans } = await supabase.from('scan_logs').select('*').order('scanned_at', { ascending: false }).limit(100)
     const scanTbody = document.getElementById('logScanTable')
     if (!scans?.length) { scanTbody.innerHTML = '<tr class="loading-row"><td colspan="4">없습니다.</td></tr>' }
     else {
