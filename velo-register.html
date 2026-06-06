@@ -666,154 +666,151 @@ body { -webkit-text-size-adjust: 100%; }
 </div>
 
 <script>
-  window.currentStep = 1;
-  let currentStep = window.currentStep;
-  let parts = [];
-  let selectedPlan = 1;
-  let photos = [];
+  // 전역 상태
+  window.currentStep = 1
+  window.parts = []
+  window.selectedPlan = 1
+  window.photos = []
 
-  // STEP NAVIGATION
-  window.goStep = function(n) {
-    if (n > window.currentStep && !window.validateStep(window.currentStep)) return;
-    document.getElementById('step' + window.currentStep).classList.remove('active');
-    const sc = document.getElementById('sc' + window.currentStep);
-    const sl = document.getElementById('sl' + window.currentStep);
-    if (n > window.currentStep) { sc.classList.remove('active'); sc.classList.add('done'); sc.textContent = '✓'; }
-    else { sc.classList.remove('done'); sc.classList.add('active'); sc.textContent = window.currentStep; }
-    window.currentStep = n;
-    document.getElementById('step' + window.currentStep).classList.add('active');
-    document.getElementById('sc' + window.currentStep).classList.add('active');
-    document.getElementById('sc' + window.currentStep).classList.remove('done');
-    document.querySelectorAll('.step-label').forEach((el,i) => el.classList.toggle('active', i+1===window.currentStep));
-    window.scrollTo({top:0, behavior:'smooth'});
-  }
-
-  // VALIDATION
-  window.validateStep = function validateStep(n) {
-    if (n === 1) {
-      let ok = true;
-      const serial = document.getElementById('serial').value.trim();
-      const brandSelect = document.getElementById('brand').value;
-      const brand = brandSelect === '기타' ? document.getElementById('brandCustom').value.trim() : brandSelect;
-      const model = document.getElementById('model').value.trim();
-      if (!serial) showErr('serialErr', false);
-      if (!brand) { showErr('brandErr', true); ok = false; } else showErr('brandErr', false);
-      if (!model) { showErr('modelErr', true); ok = false; } else showErr('modelErr', false);
-      return ok;
-    }
-    return true;
-  }
-
+  // 에러 표시
   function showErr(id, show) {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('show', show);
-    return show;
+    const el = document.getElementById(id)
+    if (el) el.classList.toggle('show', show)
+    return show
   }
 
-  // PHOTOS
-  function handlePhotos(e) {
-    const files = Array.from(e.target.files).slice(0, 4 - photos.length);
-    files.forEach(file => {
-      if (photos.length >= 4) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        photos.push(ev.target.result);
-        renderPhotos();
-      };
-      reader.readAsDataURL(file);
-    });
+  // 유효성 검사
+  window.validateStep = function(n) {
+    if (n === 1) {
+      let ok = true
+      const serial = document.getElementById('serial').value.trim()
+      const brandSelect = document.getElementById('brand').value
+      const brand = brandSelect === '기타' ? document.getElementById('brandCustom').value.trim() : brandSelect
+      const model = document.getElementById('model').value.trim()
+      if (!serial) { showErr('serialErr', true); ok = false; } else showErr('serialErr', false)
+      if (!brand) { showErr('brandErr', true); ok = false; } else showErr('brandErr', false)
+      if (!model) { showErr('modelErr', true); ok = false; } else showErr('modelErr', false)
+      return ok
+    }
+    return true
   }
 
+  // 단계 이동
+  window.goStep = function(n) {
+    const cur = window.currentStep
+    if (n > cur && !window.validateStep(cur)) return
+    const curEl = document.getElementById('step' + cur)
+    const nextEl = document.getElementById('step' + n)
+    if (!curEl || !nextEl) return
+    curEl.classList.remove('active')
+    const sc = document.getElementById('sc' + cur)
+    if (sc) {
+      if (n > cur) { sc.classList.remove('active'); sc.classList.add('done'); sc.textContent = '✓' }
+      else { sc.classList.remove('done'); sc.classList.add('active'); sc.textContent = cur }
+    }
+    window.currentStep = n
+    nextEl.classList.add('active')
+    const scNext = document.getElementById('sc' + n)
+    if (scNext) { scNext.classList.add('active'); scNext.classList.remove('done') }
+    document.querySelectorAll('.step-label').forEach((el,i) => el.classList.toggle('active', i+1===n))
+    window.scrollTo({top:0, behavior:'smooth'})
+  }
+
+  // 사진
+  window.removePhoto = function(i) { window.photos.splice(i,1); renderPhotos() }
   function renderPhotos() {
-    const container = document.getElementById('photoPreviews');
-    container.innerHTML = photos.map((src, i) => `
+    const container = document.getElementById('photoPreviews')
+    if (!container) return
+    container.innerHTML = window.photos.map((src,i) => `
       <div class="photo-preview">
-        <img src="${src}" alt="자전거 사진 ${i+1}">
-        <button class="photo-preview-remove" onclick="removePhoto(${i})">×</button>
+        <img src="${src}" alt="사진 ${i+1}">
+        <button class="photo-preview-remove" onclick="window.removePhoto(${i})">×</button>
       </div>
-    `).join('');
+    `).join('')
+  }
+  function handlePhotos(e) {
+    const files = Array.from(e.target.files).slice(0, 4 - window.photos.length)
+    files.forEach(file => {
+      if (window.photos.length >= 4) return
+      const reader = new FileReader()
+      reader.onload = ev => { window.photos.push(ev.target.result); renderPhotos() }
+      reader.readAsDataURL(file)
+    })
   }
 
-  window.removePhoto = function(i) { photos.splice(i, 1); renderPhotos(); }
-
-  // PARTS
+  // 부품
   window.togglePartForm = function() {
-    document.getElementById('partAddForm').classList.toggle('show');
+    document.getElementById('partAddForm').classList.toggle('show')
   }
-
   window.addPart = function() {
-    const type = document.getElementById('partType').value;
-    const name = document.getElementById('partName').value.trim();
-    const serial = document.getElementById('partSerial').value.trim();
-    if (!type || !name) { alert('부품 종류와 브랜드/모델을 입력해주세요.'); return; }
-    parts.push({ type, name, serial });
-    document.getElementById('partType').value = '';
-    document.getElementById('partName').value = '';
-    document.getElementById('partSerial').value = '';
-    document.getElementById('partAddForm').classList.remove('show');
-    renderParts();
-    updatePricing();
+    const type = document.getElementById('partType').value
+    const name = document.getElementById('partName').value.trim()
+    const serial = document.getElementById('partSerial').value.trim()
+    if (!type || !name) { alert('부품 종류와 브랜드/모델을 입력해주세요.'); return }
+    window.parts.push({ type, name, serial })
+    document.getElementById('partType').value = ''
+    document.getElementById('partName').value = ''
+    document.getElementById('partSerial').value = ''
+    document.getElementById('partAddForm').classList.remove('show')
+    renderParts()
+    updatePricing()
   }
-
-  window.removePart = function(i) { parts.splice(i, 1); renderParts(); updatePricing(); }
-
+  window.removePart = function(i) { window.parts.splice(i,1); renderParts(); updatePricing() }
   function renderParts() {
-    const list = document.getElementById('partsList');
-    list.innerHTML = parts.map((p, i) => `
+    const list = document.getElementById('partsList')
+    if (!list) return
+    list.innerHTML = window.parts.map((p,i) => `
       <div class="part-item">
         <div class="part-item-name">${p.type} — ${p.name}</div>
         <div class="part-item-serial">${p.serial || '시리얼 없음'}</div>
-        <button class="part-remove" onclick="removePart(${i})">×</button>
+        <button class="part-remove" onclick="window.removePart(${i})">×</button>
       </div>
-    `).join('');
+    `).join('')
   }
 
+  // 요금
   function updatePricing() {
-    const base = 7900;
-    const perPart = 2900;
-    let discount = 0;
-    if (parts.length >= 2) discount = parts.length * 1000;
-    else if (parts.length === 1) discount = 500;
-    const total = base + (parts.length * perPart) - discount;
-
-    const rows = document.getElementById('partPricingRows');
-    rows.innerHTML = parts.map(p => `
-      <div class="pricing-row">
-        <span>${p.type} (${p.name})</span>
-      <span class="price">2,900원</span>
-      </div>
-    `).join('');
-
-    document.getElementById('discountRow').style.display = parts.length ? 'flex' : 'none';
-    document.getElementById('discountAmount').textContent = `-${discount.toLocaleString()}원`;
-    document.getElementById('totalPrice').textContent = total.toLocaleString() + '원';
-    document.getElementById('summaryTag').textContent = total.toLocaleString() + '원';
-    updateSummary();
+    const base = 7900, perPart = 2900
+    let discount = 0
+    if (window.parts.length >= 2) discount = window.parts.length * 1000
+    else if (window.parts.length === 1) discount = 500
+    const total = base + (window.parts.length * perPart) - discount
+    const rows = document.getElementById('partPricingRows')
+    if (rows) rows.innerHTML = window.parts.map(p => `<div class="pricing-row"><span>${p.type} (${p.name})</span><span class="price">2,900원</span></div>`).join('')
+    const discountRow = document.getElementById('discountRow')
+    if (discountRow) discountRow.style.display = window.parts.length ? 'flex' : 'none'
+    const discountAmount = document.getElementById('discountAmount')
+    if (discountAmount) discountAmount.textContent = `-${discount.toLocaleString()}원`
+    const totalPrice = document.getElementById('totalPrice')
+    if (totalPrice) totalPrice.textContent = total.toLocaleString() + '원'
+    const summaryTag = document.getElementById('summaryTag')
+    if (summaryTag) summaryTag.textContent = total.toLocaleString() + '원'
+    updateSummary()
   }
 
-  // PLAN
+  // 요금제
   window.selectPlan = function(n) {
-    selectedPlan = n;
-    [0,1,2].forEach(i => document.getElementById('plan'+i).classList.toggle('selected', i===n));
-    updateSummary();
+    window.selectedPlan = n
+    ;[0,1,2].forEach(i => document.getElementById('plan'+i)?.classList.toggle('selected', i===n))
+    updateSummary()
   }
-
   function updateSummary() {
-    const tagPrice = parseInt(document.getElementById('totalPrice').textContent.replace(/[^0-9]/g,''));
-    const partCount = parts.length;
+    const tagPrice = parseInt((document.getElementById('totalPrice')?.textContent || '7900').replace(/[^0-9]/g,'')) || 7900
+    const partCount = window.parts.length
     const monthlyTotal = 490 + (partCount * 100)
     const yearlyTotal = 4900 + (partCount * 1000)
     const plans = [
       { label: '구독 없음', price: '0원', monthly: 0 },
       { label: '월 구독료', price: `${monthlyTotal.toLocaleString()}원/월`, monthly: monthlyTotal },
       { label: '연간 구독료', price: `${yearlyTotal.toLocaleString()}원/년`, monthly: yearlyTotal },
-    ];
-    const plan = plans[selectedPlan];
-    document.getElementById('summaryPlanLabel').textContent = plan.label;
-    document.getElementById('summaryPlan').textContent = plan.price;
-    document.getElementById('summaryTotal').textContent = (tagPrice + plan.monthly).toLocaleString() + '원';
-
-    // 요금제 카드 가격 업데이트
+    ]
+    const plan = plans[window.selectedPlan]
+    const sl = document.getElementById('summaryPlanLabel')
+    const sp = document.getElementById('summaryPlan')
+    const st = document.getElementById('summaryTotal')
+    if (sl) sl.textContent = plan.label
+    if (sp) sp.textContent = plan.price
+    if (st) st.textContent = (tagPrice + plan.monthly).toLocaleString() + '원'
     const p1 = document.getElementById('plan1Price')
     const p2 = document.getElementById('plan2Price')
     if (p1) p1.textContent = monthlyTotal.toLocaleString()
@@ -822,26 +819,24 @@ body { -webkit-text-size-adjust: 100%; }
 
   // 차대번호 토글
   let serialEnabled = true
-  function toggleSerial() {
-    serialEnabled = !serialEnabled
-    const input = document.getElementById('serial')
+  document.addEventListener('DOMContentLoaded', function() {
     const toggle = document.getElementById('serialToggle')
-    const dot = document.getElementById('serialToggleDot')
-    if (serialEnabled) {
-      input.disabled = false
-      input.style.opacity = '1'
-      toggle.style.background = 'var(--accent)'
-      dot.style.left = '23px'
-      input.focus()
-    } else {
-      input.disabled = true
-      input.value = ''
-      input.style.opacity = '0.3'
-      toggle.style.background = 'rgba(255,255,255,0.1)'
-      dot.style.left = '3px'
-    }
-  }
-  document.getElementById('serialToggle').addEventListener('click', toggleSerial)
+    if (toggle) toggle.addEventListener('click', function() {
+      serialEnabled = !serialEnabled
+      const input = document.getElementById('serial')
+      const dot = document.getElementById('serialToggleDot')
+      if (serialEnabled) {
+        input.disabled = false; input.style.opacity = '1'
+        toggle.style.background = 'var(--accent)'
+        if (dot) dot.style.left = '23px'
+        input.focus()
+      } else {
+        input.disabled = true; input.value = ''; input.style.opacity = '0.3'
+        toggle.style.background = 'rgba(255,255,255,0.1)'
+        if (dot) dot.style.left = '3px'
+      }
+    })
+  })
 </script>
 
 <script type="module">
@@ -889,13 +884,10 @@ body { -webkit-text-size-adjust: 100%; }
 
   init()
 
-  // 4단계 완료 버튼 실제 저장
-  window.origGoStep = window.goStep
+  // 4단계 완료 처리
+  const _baseGoStep = window.goStep
   window.goStep = async function(n) {
-    if (n !== 4) {
-      window.origGoStep(n)
-      return
-    }
+    if (n !== 4) { _baseGoStep(n); return }
     if (n === 4) {
       const serial = document.getElementById('serial').value.trim()
       const brandSelect = document.getElementById('brand').value
@@ -933,7 +925,7 @@ body { -webkit-text-size-adjust: 100%; }
         if (plan !== 'free') await startSubscription(plan)
 
         // 스텝 이동
-        window.origGoStep(4)
+        _baseGoStep(4)
       } catch(e) {
         btn.textContent = '결제 및 신청 완료 →'; btn.disabled = false
         alert('오류: ' + e.message)
