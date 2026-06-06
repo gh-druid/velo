@@ -24,7 +24,7 @@
   .tab:hover:not(.active) { color:var(--white); }
 
   .tab-content { display:none; }
-  .tab-content.active { display:block; }
+  .tab-content.active { display:block; padding-bottom:60px; }
 
   /* 요약 카드 */
   .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-bottom:32px; border:1px solid var(--border); }
@@ -38,7 +38,7 @@
   .summary-sub { font-size:11px; color:var(--muted); margin-top:4px; }
 
   /* 테이블 */
-  .table-wrap { background:var(--gray); border:1px solid var(--border); overflow:hidden; }
+  .table-wrap { background:var(--gray); border:1px solid var(--border); overflow:hidden; margin-bottom:24px; }
   .table-header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
   .table-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; }
 
@@ -527,7 +527,7 @@ body { -webkit-text-size-adjust: 100%; }
   <!-- 접속 로그 탭 -->
   <div class="tab-content" id="tab-logs">
     <!-- 필터 -->
-    <div style="display:flex; gap:8px; margin-bottom:16px;">
+    <div style="display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;">
       <button class="log-filter-btn active" data-log="signup">👤 회원가입</button>
       <button class="log-filter-btn" data-log="scan">📡 NFC 스캔</button>
       <button class="log-filter-btn" data-log="partner">🤝 파트너 신청</button>
