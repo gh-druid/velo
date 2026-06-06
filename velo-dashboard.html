@@ -627,11 +627,13 @@ body { -webkit-text-size-adjust: 100%; }
   async function loadNotifications() {
     const count = await getUnreadCount()
     const badge = document.getElementById('notifBadge')
-    if (count > 0) {
-      badge.style.display = 'flex'
-      badge.textContent = count > 9 ? '9+' : count
-    } else {
-      badge.style.display = 'none'
+    if (badge) {
+      if (count > 0) {
+        badge.style.display = 'flex'
+        badge.textContent = count > 9 ? '9+' : count
+      } else {
+        badge.style.display = 'none'
+      }
     }
   }
 
