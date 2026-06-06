@@ -890,10 +890,10 @@ body { -webkit-text-size-adjust: 100%; }
   init()
 
   // 4단계 완료 버튼 실제 저장
-  const origGoStep = window.goStep
+  window.origGoStep = window.goStep
   window.goStep = async function(n) {
     if (n !== 4) {
-      origGoStep(n)
+      window.origGoStep(n)
       return
     }
     if (n === 4) {
@@ -933,7 +933,7 @@ body { -webkit-text-size-adjust: 100%; }
         if (plan !== 'free') await startSubscription(plan)
 
         // 스텝 이동
-        origGoStep(4)
+        window.origGoStep(4)
       } catch(e) {
         btn.textContent = '결제 및 신청 완료 →'; btn.disabled = false
         alert('오류: ' + e.message)
