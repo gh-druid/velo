@@ -892,6 +892,10 @@ body { -webkit-text-size-adjust: 100%; }
   // 4단계 완료 버튼 실제 저장
   const origGoStep = window.goStep
   window.goStep = async function(n) {
+    if (n !== 4) {
+      origGoStep(n)
+      return
+    }
     if (n === 4) {
       const serial = document.getElementById('serial').value.trim()
       const brandSelect = document.getElementById('brand').value
