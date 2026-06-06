@@ -845,7 +845,7 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script type="module">
-  import { getUser, registerBike, addPart, startSubscription, uploadBikePhotos, saveBikePhotos, getUserProfile, getMyBikes } from '/velo-supabase.js'
+  import { getUser, registerBike, addPart as addPartDB, startSubscription, uploadBikePhotos, saveBikePhotos, getUserProfile, getMyBikes } from '/velo-supabase.js'
 
   // 로그인 체크 + 이름/기존 자전거 불러오기
   async function init() {
@@ -920,7 +920,7 @@ body { -webkit-text-size-adjust: 100%; }
 
         // 부품 등록
         for (const part of window._parts || []) {
-          await addPart(bike.id, part)
+          await addPartDB(bike.id, part)
         }
 
         // 구독 선택했으면 구독 시작
