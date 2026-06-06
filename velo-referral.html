@@ -496,7 +496,7 @@ body { -webkit-text-size-adjust: 100%; }
           alert('계약 내용에 동의해주세요.'); return;
         }
         const code = 'VLO' + Math.random().toString(36).slice(2,8).toUpperCase()
-        await supabase.from('referrals').insert({ user_id: currentUser.id, referral_code: code })
+        await supabase.from('referrals').insert({ user_id: currentUser.id, referral_code: code, user_agent: navigator.userAgent })
         await supabase.from('users').update({ referral_code: code }).eq('id', currentUser.id)
         await loadReferral()
       })
@@ -648,3 +648,4 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 </body>
 </html>
+

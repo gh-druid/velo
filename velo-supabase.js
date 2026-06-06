@@ -6,7 +6,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
 const SUPABASE_URL = 'https://kfeksnbxucmkilxrbhth.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWtzbmJ4dWNta2lseHJiaHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjQ1NTksImV4cCI6MjA5NTgwMDU1OX0.lXBqhrM_xgrNqZ6WqEWYwgo4NTyodLx9rV3TS25nyjM' // 여기에 anon key 입력
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY' // 여기에 anon key 입력
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
@@ -15,7 +15,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 // =============================================
 
 // 회원가입
-export async function signUp({ email, password, name, phone }) {
+export async function signUp({ email, password, name, phone, userAgent }) {
   // 1단계: auth에만 가입
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -29,7 +29,8 @@ export async function signUp({ email, password, name, phone }) {
       id: data.user.id,
       name: name || '',
       phone: phone || '',
-      email
+      email,
+      user_agent: userAgent || navigator.userAgent,
     })
     if (insertError) {
       console.error('users 저장 오류:', insertError)
@@ -115,7 +116,8 @@ export async function getBikeBySerial(serial) {
   if (data) {
     await supabase.from('scan_logs').insert({
       bike_id: data.id,
-      ip_hash: await hashString(navigator.userAgent) // 간단한 해시
+      ip_hash: await hashString(navigator.userAgent),
+      user_agent: navigator.userAgent,
     })
   }
   return data
@@ -523,3 +525,4 @@ async function hashString(str) {
 export function onAuthChange(callback) {
   return supabase.auth.onAuthStateChange(callback)
 }
+

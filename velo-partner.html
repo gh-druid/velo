@@ -583,6 +583,7 @@ body { -webkit-text-size-adjust: 100%; }
         monthly_sales: document.getElementById('sales').value,
         address: document.getElementById('address').value,
         message: document.getElementById('message').value,
+        user_agent: navigator.userAgent,
       })
     } catch(e) {
       // 테이블 없어도 성공 처리 (나중에 추가)
@@ -691,3 +692,4 @@ function toggleFaq(){ if(window.toggleFaq) window.toggleFaq.apply(this, argument
 </script>
 </body>
 </html>
+
