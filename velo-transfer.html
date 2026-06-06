@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>벨로 (Vélo) — 소유권 양도</title>
-<link rel="stylesheet" href="./velo-common.css">
+<link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -425,7 +425,7 @@
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 </style>
@@ -694,7 +694,7 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script type="module">
-  import { supabase, getUser, verifyTransferCode, acceptTransfer } from './velo-supabase.js'
+  import { supabase, getUser, verifyTransferCode, acceptTransfer } from '/velo-supabase.js'
 
   let currentTransfer = null
 

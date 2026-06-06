@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>벨로 (Vélo) — 대시보드</title>
-<link rel="stylesheet" href="./velo-common.css">
+<link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -444,7 +444,7 @@ body { -webkit-text-size-adjust: 100%; }
 <script>
 </script>
 <script type="module">
-  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getNotifications, getUnreadCount, markAllRead } from './velo-supabase.js'
+  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getNotifications, getUnreadCount, markAllRead } from '/velo-supabase.js'
 
   let currentBikes = []
   let currentBikeId = null
@@ -694,7 +694,7 @@ body { -webkit-text-size-adjust: 100%; }
       // 알림 생성
       const bike = currentBikes.find(b => b.id === currentBikeId)
       if (bike) {
-        const { createNotification } = await import('./velo-supabase.js')
+        const { createNotification } = await import('/velo-supabase.js')
         await createNotification(currentUser.id, 'stolen', `${bike.brand} ${bike.model} 도난 신고가 완료됐습니다.`, currentBikeId)
       }
       document.getElementById('stolenModal').classList.remove('active')
@@ -789,7 +789,7 @@ function handleLogout(){ if(window.handleLogout) window.handleLogout.apply(this,
       if (window.handleLogout) {
         window.handleLogout();
       } else {
-        import('./velo-supabase.js').then(function(m) {
+        import('/velo-supabase.js').then(function(m) {
           m.signOut().then(function() { location.href = '/login'; });
         });
       }

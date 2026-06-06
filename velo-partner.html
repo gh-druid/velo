@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>벨로 (Vélo) — 샵 파트너십</title>
-<link rel="stylesheet" href="./velo-common.css">
+<link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --mid:#2e2e2e; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; }
@@ -76,7 +76,7 @@
   .field { display:flex; flex-direction:column; gap:8px; }
   .field.full { grid-column:span 2; }
   .field label { font-size:11px; letter-spacing:2px; color:var(--muted); }
-  .field input, .field select, .field textarea { background:var(--black); border:1px solid var(--border); color:var(--white); padding:13px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; -webkit-appearance:none; }
+  .field input, .field select, .field textarea { background:var(--black); border:1px solid var(--border); color:var(--white); padding:13px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
   .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--accent); }
   .field input::placeholder, .field textarea::placeholder { color:rgba(255,255,255,0.2); }
   .field select option { background:var(--gray); }
@@ -261,7 +261,7 @@ nav {
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 </style>
@@ -543,7 +543,7 @@ body { -webkit-text-size-adjust: 100%; }
 </footer>
 
 <script type="module">
-  import { supabase, getUser } from './velo-supabase.js'
+  import { supabase, getUser } from '/velo-supabase.js'
 
   // 로그인 상태면 버튼 변경
   getUser().then(user => {
@@ -632,7 +632,7 @@ function toggleFaq(){ if(window.toggleFaq) window.toggleFaq.apply(this, argument
     logoutBtn.addEventListener('click', function() {
       if (window.handleLogout) window.handleLogout();
       else { 
-        import('./velo-supabase.js').then(m => m.signOut().then(() => location.href = '/login'));
+        import('/velo-supabase.js').then(m => m.signOut().then(() => location.href = '/login'));
       }
     });
   }
@@ -661,7 +661,7 @@ function toggleFaq(){ if(window.toggleFaq) window.toggleFaq.apply(this, argument
       if (window.handleLogout) {
         window.handleLogout();
       } else {
-        import('./velo-supabase.js').then(function(m) {
+        import('/velo-supabase.js').then(function(m) {
           m.signOut().then(function() { location.href = '/login'; });
         });
       }

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>벨로 (Vélo) — 자전거 소유자 확인</title>
-<link rel="stylesheet" href="./velo-common.css">
+<link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -445,7 +445,7 @@
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 </style>
@@ -608,7 +608,7 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script type="module">
-  import { getBikeBySerial, maskPhone, supabase } from './velo-supabase.js'
+  import { getBikeBySerial, maskPhone, supabase } from '/velo-supabase.js'
 
   const pad = n => String(n).padStart(2, '0')
 
@@ -628,7 +628,7 @@ body { -webkit-text-size-adjust: 100%; }
       // 소유자에게 스캔 알림
       if (bike && bike.user_id) {
         try {
-          const { createNotification } = await import('./velo-supabase.js')
+          const { createNotification } = await import('/velo-supabase.js')
           await createNotification(bike.user_id, 'scan', `누군가 ${bike.brand} ${bike.model} 태그를 스캔했습니다.`, bike.id)
         } catch(e) {}
       }

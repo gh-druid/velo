@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>벨로 (Vélo) — 자전거 등록</title>
-<link rel="stylesheet" href="./velo-common.css">
+<link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -133,7 +133,6 @@
     font-size: 14px;
     outline: none;
     transition: border-color 0.2s;
-    -webkit-appearance: none;
   }
 
   .field select {
@@ -406,7 +405,7 @@
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 </style>
@@ -846,7 +845,7 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script type="module">
-  import { getUser, registerBike, addPart, startSubscription, uploadBikePhotos, saveBikePhotos, getUserProfile, getMyBikes } from './velo-supabase.js'
+  import { getUser, registerBike, addPart, startSubscription, uploadBikePhotos, saveBikePhotos, getUserProfile, getMyBikes } from '/velo-supabase.js'
 
   // 로그인 체크 + 이름/기존 자전거 불러오기
   async function init() {

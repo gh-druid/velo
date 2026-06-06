@@ -395,7 +395,7 @@ body { -webkit-text-size-adjust: 100%; }
 </div>
 
 <script type="module">
-  import { supabase, getUser } from './velo-supabase.js'
+  import { supabase, getUser } from '/velo-supabase.js'
 
   let currentUser = null
   let referralData = null
@@ -569,7 +569,7 @@ body { -webkit-text-size-adjust: 100%; }
     logoutBtn.addEventListener('click', function() {
       if (window.handleLogout) window.handleLogout();
       else { 
-        import('./velo-supabase.js').then(m => m.signOut().then(() => location.href = '/login'));
+        import('/velo-supabase.js').then(m => m.signOut().then(() => location.href = '/login'));
       }
     });
   }
@@ -598,7 +598,7 @@ body { -webkit-text-size-adjust: 100%; }
       if (window.handleLogout) {
         window.handleLogout();
       } else {
-        import('./velo-supabase.js').then(function(m) {
+        import('/velo-supabase.js').then(function(m) {
           m.signOut().then(function() { location.href = '/login'; });
         });
       }
