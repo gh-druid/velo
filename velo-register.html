@@ -666,29 +666,30 @@ body { -webkit-text-size-adjust: 100%; }
 </div>
 
 <script>
-  let currentStep = 1;
+  window.currentStep = 1;
+  let currentStep = window.currentStep;
   let parts = [];
   let selectedPlan = 1;
   let photos = [];
 
   // STEP NAVIGATION
   window.goStep = function(n) {
-    if (n > currentStep && !validateStep(currentStep)) return;
-    document.getElementById('step' + currentStep).classList.remove('active');
-    const sc = document.getElementById('sc' + currentStep);
-    const sl = document.getElementById('sl' + currentStep);
-    if (n > currentStep) { sc.classList.remove('active'); sc.classList.add('done'); sc.textContent = '✓'; }
-    else { sc.classList.remove('done'); sc.classList.add('active'); sc.textContent = currentStep; }
-    currentStep = n;
-    document.getElementById('step' + currentStep).classList.add('active');
-    document.getElementById('sc' + currentStep).classList.add('active');
-    document.getElementById('sc' + currentStep).classList.remove('done');
-    document.querySelectorAll('.step-label').forEach((el,i) => el.classList.toggle('active', i+1===currentStep));
+    if (n > window.currentStep && !window.validateStep(window.currentStep)) return;
+    document.getElementById('step' + window.currentStep).classList.remove('active');
+    const sc = document.getElementById('sc' + window.currentStep);
+    const sl = document.getElementById('sl' + window.currentStep);
+    if (n > window.currentStep) { sc.classList.remove('active'); sc.classList.add('done'); sc.textContent = '✓'; }
+    else { sc.classList.remove('done'); sc.classList.add('active'); sc.textContent = window.currentStep; }
+    window.currentStep = n;
+    document.getElementById('step' + window.currentStep).classList.add('active');
+    document.getElementById('sc' + window.currentStep).classList.add('active');
+    document.getElementById('sc' + window.currentStep).classList.remove('done');
+    document.querySelectorAll('.step-label').forEach((el,i) => el.classList.toggle('active', i+1===window.currentStep));
     window.scrollTo({top:0, behavior:'smooth'});
   }
 
   // VALIDATION
-  function validateStep(n) {
+  window.validateStep = function validateStep(n) {
     if (n === 1) {
       let ok = true;
       const serial = document.getElementById('serial').value.trim();
