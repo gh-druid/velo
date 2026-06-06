@@ -205,7 +205,7 @@ nav {
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
-input, select, textarea { font-size: 16px !important; -webkit-appearance: none; }
+input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 
@@ -247,7 +247,6 @@ body { -webkit-text-size-adjust: 100%; }
       <div class="nav-dropdown" id="navDropdown">
         <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
         <button class="nav-dropdown-item" onclick="location.href='/payment'">구독 관리</button>
-        <button class="nav-dropdown-item" onclick="location.href='/referral'">🔗 레퍼럴</button>
         <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
       </div>
     </div>
@@ -289,11 +288,11 @@ body { -webkit-text-size-adjust: 100%; }
         <strong style="color:var(--white);">제5조 (계약 해지)</strong><br>
         벨로 또는 파트너 본인이 언제든 계약을 해지할 수 있으며, 해지 시 잔여 적립금은 정산 후 지급됩니다.
       </div>
-      <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px; color:var(--muted); margin-bottom:20px;">
-        <input type="checkbox" id="agreeReferral" style="width:16px; height:16px;">
-        위 계약 내용을 모두 읽었으며 동의합니다.
-      </label>
-      <button class="btn-primary" id="applyReferralBtn" style="touch-action:manipulation;">레퍼럴 파트너 신청</button>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+        <input type="checkbox" id="agreeReferral" style="width:16px; height:16px; flex-shrink:0; cursor:pointer;">
+        <span style="font-size:13px; color:var(--muted); cursor:pointer;" onclick="document.getElementById('agreeReferral').click()">위 계약 내용을 모두 읽었으며 동의합니다.</span>
+      </div>
+      <button class="btn-primary" id="applyReferralBtn" style="touch-action:manipulation; display:block; position:relative; z-index:10;">레퍼럴 파트너 신청</button>
     </div>
   </div>
 
