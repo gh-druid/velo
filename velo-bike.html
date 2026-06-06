@@ -615,7 +615,7 @@ body { -webkit-text-size-adjust: 100%; }
   async function init() {
     // URL에서 차대번호 읽기 (?serial=WTU123)
     const params = new URLSearchParams(location.search)
-    const serial = params.get('serial')
+    const serial = params.get('serial') || location.pathname.split('/').filter(Boolean).pop()
 
     if (!serial) {
       showError('차대번호가 없습니다.')
