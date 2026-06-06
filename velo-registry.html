@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>벨로 (Vélo) — 전체 등록 현황</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+  button, a { cursor:pointer; touch-action:manipulation; }
+  input, select { font-size:16px !important; }
+
+  nav { display:flex; justify-content:space-between; align-items:center; padding:0 40px; height:60px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); text-decoration:none; }
+  .nav-right { display:flex; align-items:center; gap:12px; }
+  .btn-nav { background:var(--accent); color:var(--black); border:none; padding:8px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; }
+  @media(max-width:768px) { nav { padding:0 16px; } }
+
+  .content { max-width:1100px; margin:0 auto; padding:40px; }
+  .page-title { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:2px; margin-bottom:6px; }
+  .page-sub { font-size:13px; color:var(--muted); margin-bottom:32px; }
+
+  .search-bar { display:flex; gap:12px; margin-bottom:24px; }
+  .search-input { flex:1; background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; }
+  .search-input::placeholder { color:var(--muted); }
+  .filter-select { background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; }
+
+  .stats-row { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+  .stat-box { background:var(--gray); border:1px solid var(--border); padding:16px 24px; flex:1; min-width:120px; }
+  .stat-label { font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:8px; }
+  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:1px; }
+  .stat-num.accent { color:var(--accent); }
+  .stat-num.red { color:var(--error); }
+
+  .bike-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
+  .bike-card { background:var(--gray); border:1px solid var(--border); padding:24px; transition:border-color 0.2s; text-decoration:none; display:block; cursor:pointer; }
+  .bike-card:hover { border-color:var(--accent); }
+  .bike-card.stolen { border-color:rgba(255,79,79,0.4); }
+  .bike-brand { font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:6px; }
+  .bike-model { font-size:18px; font-weight:500; color:var(--white); margin-bottom:12px; }
+  .bike-serial { font-family:'DM Mono',monospace; font-size:12px; color:var(--accent); letter-spacing:2px; margin-bottom:12px; }
+  .bike-status { display:inline-block; font-size:11px; letter-spacing:1px; padding:3px 10px; border:1px solid; }
+  .bike-status.normal { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+  .bike-status.stolen { color:var(--error); border-color:rgba(255,79,79,0.3); background:rgba(255,79,79,0.05); }
+  .bike-date { font-size:11px; color:var(--muted); margin-top:10px; }
+
+  .empty { text-align:center; padding:80px 0; color:var(--muted); font-size:14px; }
+  .loading { text-align:center; padding:60px 0; color:var(--muted); font-size:13px; }
+
+  @media(max-width:768px) {
+    .content { padding:24px 16px; }
+    .bike-grid { grid-template-columns:1fr; }
+    .search-bar { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">VÉLO</a>
+  <div class="nav-right">
+    <a href="/login" id="authBtn" class="btn-nav">로그인</a>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-title">전체 등록 현황</div>
+  <div class="page-sub">벨로에 등록된 자전거 목록입니다. 차대번호를 클릭하면 상세 정보를 확인할 수 있어요.</div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-label">총 등록</div>
+      <div class="stat-num accent" id="totalCount">-</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">정상</div>
+      <div class="stat-num accent" id="normalCount">-</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">도난 신고</div>
+      <div class="stat-num red" id="stolenCount">-</div>
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" class="search-input" id="searchInput" placeholder="브랜드, 모델, 차대번호 검색...">
+    <select class="filter-select" id="statusFilter">
+      <option value="all">전체</option>
+      <option value="normal">정상</option>
+      <option value="stolen">도난</option>
+    </select>
+  </div>
+
+  <div class="bike-grid" id="bikeGrid">
+    <div class="loading">불러오는 중...</div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+  const SUPABASE_URL = 'https://kfeksnbxucmkilxrbhth.supabase.co'
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWtzbmJ4dWNta2lseHJiaHRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5MzUzNjEsImV4cCI6MjA2NDUxMTM2MX0.HpbVGkPaGkHHBGV3aRUuMSMsUcxz1P9y_n73bdGwknk'
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+  let allBikes = []
+
+  async function init() {
+    // 로그인 상태 확인
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const btn = document.getElementById('authBtn')
+      btn.textContent = '대시보드'
+      btn.href = '/dashboard'
+    }
+
+    await loadBikes()
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+      renderBikes(filterBikes())
+    })
+    document.getElementById('statusFilter').addEventListener('change', function() {
+      renderBikes(filterBikes())
+    })
+  }
+
+  async function loadBikes() {
+    const { data } = await supabase
+      .from('bikes')
+      .select('id, brand, model, serial, status, created_at')
+      .order('created_at', { ascending: false })
+
+    allBikes = data || []
+
+    // 통계
+    document.getElementById('totalCount').textContent = allBikes.length
+    document.getElementById('normalCount').textContent = allBikes.filter(b => b.status === 'normal').length
+    document.getElementById('stolenCount').textContent = allBikes.filter(b => b.status === 'stolen').length
+
+    renderBikes(allBikes)
+  }
+
+  function filterBikes() {
+    const q = document.getElementById('searchInput').value.toLowerCase()
+    const status = document.getElementById('statusFilter').value
+    return allBikes.filter(b => {
+      const matchQ = !q || b.brand?.toLowerCase().includes(q) || b.model?.toLowerCase().includes(q) || b.serial?.toLowerCase().includes(q)
+      const matchStatus = status === 'all' || b.status === status
+      return matchQ && matchStatus
+    })
+  }
+
+  function renderBikes(bikes) {
+    const grid = document.getElementById('bikeGrid')
+    if (!bikes.length) {
+      grid.innerHTML = '<div class="empty">검색 결과가 없습니다.</div>'
+      return
+    }
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+
+    grid.innerHTML = bikes.map(b => `
+      <a href="/bike/${b.serial}" class="bike-card ${b.status === 'stolen' ? 'stolen' : ''}">
+        <div class="bike-brand">${b.brand || '-'}</div>
+        <div class="bike-model">${b.model || '-'}</div>
+        <div class="bike-serial">${b.serial}</div>
+        <span class="bike-status ${b.status === 'stolen' ? 'stolen' : 'normal'}">
+          ${b.status === 'stolen' ? '🚨 도난 신고' : '✓ 정상'}
+        </span>
+        <div class="bike-date">등록일 ${fmtDate(b.created_at)}</div>
+      </a>
+    `).join('')
+  }
+
+  init()
+</script>
+</body>
+</html>

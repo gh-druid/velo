@@ -26,6 +26,7 @@
     { "source": "/payment", "destination": "/velo-payment.html" },
     { "source": "/bike/:serial", "destination": "/velo-bike.html?serial=:serial" },
     { "source": "/transfer", "destination": "/velo-transfer.html" },
+    { "source": "/registry", "destination": "/velo-registry.html" },
     { "source": "/notifications", "destination": "/velo-notifications.html" },
     { "source": "/referral", "destination": "/velo-referral.html" },
     { "source": "/terms", "destination": "/velo-terms.html" },
