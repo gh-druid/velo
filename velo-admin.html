@@ -64,7 +64,8 @@
   .action-btn:hover { color:var(--white); border-color:rgba(255,255,255,0.3); }
   .action-btn.danger { color:var(--error); border-color:rgba(255,79,79,0.3); }
   .action-btn.danger:hover { background:rgba(255,79,79,0.1); }
-  .action-btn.accent { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+  .log-filter-btn { background:var(--gray); border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px; }
+  .log-filter-btn.active { background:var(--accent); color:var(--black); border-color:var(--accent); font-weight:700; }
 
   /* 수익 차트 */
   .revenue-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:32px; }
@@ -165,6 +166,7 @@ body { -webkit-text-size-adjust: 100%; }
     <button class="tab" data-tab="partners">🤝 파트너십</button>
     <button class="tab" data-tab="discounts">🎟️ 할인코드</button>
     <button class="tab" data-tab="referral">🔗 레퍼럴</button>
+    <button class="tab" data-tab="logs">📋 접속 로그</button>
   </div>
 
   <!-- 수익 탭 -->
@@ -522,6 +524,53 @@ body { -webkit-text-size-adjust: 100%; }
     </div>
   </div><!-- /tab-referral -->
 
+  <!-- 접속 로그 탭 -->
+  <div class="tab-content" id="tab-logs">
+    <!-- 필터 -->
+    <div style="display:flex; gap:8px; margin-bottom:16px;">
+      <button class="log-filter-btn active" data-log="signup">👤 회원가입</button>
+      <button class="log-filter-btn" data-log="scan">📡 NFC 스캔</button>
+      <button class="log-filter-btn" data-log="partner">🤝 파트너 신청</button>
+      <button class="log-filter-btn" data-log="referral">🔗 레퍼럴 신청</button>
+    </div>
+
+    <!-- 회원가입 로그 -->
+    <div class="table-wrap log-section" id="log-signup">
+      <div class="table-header"><div class="table-title">회원가입 로그</div></div>
+      <table>
+        <thead><tr><th>이름</th><th>이메일</th><th>기기/브라우저</th><th>가입일</th></tr></thead>
+        <tbody id="logSignupTable"><tr class="loading-row"><td colspan="4">불러오는 중...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- NFC 스캔 로그 -->
+    <div class="table-wrap log-section" id="log-scan" style="display:none;">
+      <div class="table-header"><div class="table-title">NFC 스캔 로그</div></div>
+      <table>
+        <thead><tr><th>자전거</th><th>차대번호</th><th>기기/브라우저</th><th>스캔일</th></tr></thead>
+        <tbody id="logScanTable"><tr class="loading-row"><td colspan="4">불러오는 중...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- 파트너 신청 로그 -->
+    <div class="table-wrap log-section" id="log-partner" style="display:none;">
+      <div class="table-header"><div class="table-title">파트너 신청 로그</div></div>
+      <table>
+        <thead><tr><th>샵 이름</th><th>이메일</th><th>기기/브라우저</th><th>신청일</th></tr></thead>
+        <tbody id="logPartnerTable"><tr class="loading-row"><td colspan="4">불러오는 중...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- 레퍼럴 신청 로그 -->
+    <div class="table-wrap log-section" id="log-referral" style="display:none;">
+      <div class="table-header"><div class="table-title">레퍼럴 신청 로그</div></div>
+      <table>
+        <thead><tr><th>이름</th><th>이메일</th><th>코드</th><th>기기/브라우저</th><th>신청일</th></tr></thead>
+        <tbody id="logReferralTable"><tr class="loading-row"><td colspan="5">불러오는 중...</td></tr></tbody>
+      </table>
+    </div>
+  </div><!-- /tab-logs -->
+
 </div><!-- /content -->
 
 <!-- 계정 정지 모달 -->
@@ -813,6 +862,7 @@ body { -webkit-text-size-adjust: 100%; }
       if (name === 'partners') loadPartners()
       if (name === 'discounts') loadDiscounts()
       if (name === 'referral') loadReferral()
+      if (name === 'logs') loadLogs()
     })
   })
 
@@ -825,6 +875,7 @@ body { -webkit-text-size-adjust: 100%; }
     if (name === 'partners') loadPartners()
     if (name === 'discounts') loadDiscounts()
     if (name === 'referral') loadReferral()
+    if (name === 'logs') loadLogs()
   }
 
   // 쿠폰 타입 변경 시 UI 조정
@@ -1038,6 +1089,86 @@ body { -webkit-text-size-adjust: 100%; }
           <td>${r.total_withdrawn?.toLocaleString()||0}원</td>
           <td style="color:var(--accent);">${((r.total_earned||0)-(r.total_withdrawn||0)).toLocaleString()}원</td>
         </tr>`).join('')
+    }
+  }
+
+  // 접속 로그
+  async function loadLogs() {
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}` }
+    const parseUA = ua => {
+      if (!ua) return '-'
+      if (ua.includes('iPhone')) return '📱 iPhone'
+      if (ua.includes('iPad')) return '📱 iPad'
+      if (ua.includes('Android')) return '📱 Android'
+      if (ua.includes('Mac')) return '💻 Mac'
+      if (ua.includes('Windows')) return '💻 Windows'
+      return '🖥️ 기타'
+    }
+
+    // 필터 버튼 이벤트
+    document.querySelectorAll('.log-filter-btn').forEach(btn => {
+      if (btn._logBound) return
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.log-filter-btn').forEach(b => b.classList.remove('active'))
+        this.classList.add('active')
+        document.querySelectorAll('.log-section').forEach(s => s.style.display = 'none')
+        document.getElementById('log-' + this.dataset.log).style.display = 'block'
+      })
+      btn._logBound = true
+    })
+
+    // 회원가입 로그
+    const { data: users } = await supabase.from('users').select('name, email, user_agent, created_at').order('created_at', { ascending: false }).limit(100)
+    const signupTbody = document.getElementById('logSignupTable')
+    if (!users?.length) { signupTbody.innerHTML = '<tr class="loading-row"><td colspan="4">없습니다.</td></tr>' }
+    else {
+      signupTbody.innerHTML = users.map(u => `<tr>
+        <td>${u.name||'-'}</td>
+        <td style="font-size:12px;">${u.email||'-'}</td>
+        <td style="font-size:12px;">${parseUA(u.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${(u.user_agent||'').slice(0,60)}</span></td>
+        <td style="font-size:11px;color:var(--muted);">${fmtDate(u.created_at)}</td>
+      </tr>`).join('')
+    }
+
+    // NFC 스캔 로그
+    const { data: scans } = await supabase.from('scan_logs').select('*, bikes(brand, model, serial)').order('created_at', { ascending: false }).limit(100)
+    const scanTbody = document.getElementById('logScanTable')
+    if (!scans?.length) { scanTbody.innerHTML = '<tr class="loading-row"><td colspan="4">없습니다.</td></tr>' }
+    else {
+      scanTbody.innerHTML = scans.map(s => `<tr>
+        <td>${s.bikes?.brand||'-'} ${s.bikes?.model||''}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;">${s.bikes?.serial||'-'}</td>
+        <td style="font-size:12px;">${parseUA(s.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${(s.user_agent||'').slice(0,60)}</span></td>
+        <td style="font-size:11px;color:var(--muted);">${fmtDate(s.created_at)}</td>
+      </tr>`).join('')
+    }
+
+    // 파트너 신청 로그
+    const { data: partners } = await supabase.from('partnerships').select('shop_name, email, user_agent, created_at').order('created_at', { ascending: false }).limit(100)
+    const partnerTbody = document.getElementById('logPartnerTable')
+    if (!partners?.length) { partnerTbody.innerHTML = '<tr class="loading-row"><td colspan="4">없습니다.</td></tr>' }
+    else {
+      partnerTbody.innerHTML = partners.map(p => `<tr>
+        <td>${p.shop_name||'-'}</td>
+        <td style="font-size:12px;">${p.email||'-'}</td>
+        <td style="font-size:12px;">${parseUA(p.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${(p.user_agent||'').slice(0,60)}</span></td>
+        <td style="font-size:11px;color:var(--muted);">${fmtDate(p.created_at)}</td>
+      </tr>`).join('')
+    }
+
+    // 레퍼럴 신청 로그
+    const { data: referrals } = await supabase.from('referrals').select('*, users:user_id(name, email)').order('created_at', { ascending: false }).limit(100)
+    const referralTbody = document.getElementById('logReferralTable')
+    if (!referrals?.length) { referralTbody.innerHTML = '<tr class="loading-row"><td colspan="5">없습니다.</td></tr>' }
+    else {
+      referralTbody.innerHTML = referrals.map(r => `<tr>
+        <td>${r.users?.name||'-'}</td>
+        <td style="font-size:12px;">${r.users?.email||'-'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${r.referral_code||'-'}</td>
+        <td style="font-size:12px;">${parseUA(r.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${(r.user_agent||'').slice(0,60)}</span></td>
+        <td style="font-size:11px;color:var(--muted);">${fmtDate(r.created_at)}</td>
+      </tr>`).join('')
     }
   }
 
