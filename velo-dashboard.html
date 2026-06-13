@@ -388,16 +388,6 @@ body { -webkit-text-size-adjust: 100%; }
   </div>
 </div>
 
-<!-- 알림 드롭다운 -->
-<div id="notifDropdown" style="display:none; position:fixed; top:60px; left:50%; transform:translateX(-25%); width:320px; background:var(--gray); border:1px solid var(--border); z-index:200; max-height:400px; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-  <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-    <span style="font-size:13px; font-weight:500; letter-spacing:1px;">알림</span>
-    <button onclick="readAll()" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;letter-spacing:1px;font-family:'Noto Sans KR',sans-serif;">모두 읽음</button>
-  </div>
-  <div id="notifList">
-    <div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">알림이 없습니다.</div>
-  </div>
-</div>
 
 <!-- 도난 신고 모달 -->
 <div class="modal-overlay" id="stolenModal" onclick="closeModal('stolenModal',event)">
@@ -438,7 +428,7 @@ body { -webkit-text-size-adjust: 100%; }
 <script>
 </script>
 <script type="module">
-  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getNotifications, getUnreadCount, markAllRead } from '/velo-supabase.js'
+  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode } from '/velo-supabase.js'
 
   let currentBikes = []
   let currentBikeId = null
@@ -469,7 +459,6 @@ body { -webkit-text-size-adjust: 100%; }
 
     // 자전거 목록
     await loadBikes()
-    await loadNotifications()
   }
 
   // 자전거 목록 불러오기
@@ -623,59 +612,6 @@ body { -webkit-text-size-adjust: 100%; }
     }
   }
 
-  // 알림
-  async function loadNotifications() {
-    const count = await getUnreadCount()
-    const badge = document.getElementById('notifBadge')
-    if (badge) {
-      if (count > 0) {
-        badge.style.display = 'flex'
-        badge.textContent = count > 9 ? '9+' : count
-      } else {
-        badge.style.display = 'none'
-      }
-    }
-  }
-
-  window.toggleNotif = async function() {
-    const dropdown = document.getElementById('notifDropdown')
-    const isOpen = dropdown.style.display === 'block'
-    dropdown.style.display = isOpen ? 'none' : 'block'
-
-    if (!isOpen) {
-      const notifs = await getNotifications()
-      const list = document.getElementById('notifList')
-      if (notifs.length === 0) {
-        list.innerHTML = '<div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">알림이 없습니다.</div>'
-      } else {
-        list.innerHTML = notifs.map(n => `
-          <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:flex-start; background:${n.is_read ? 'transparent' : 'rgba(200,245,66,0.03)'};">
-            <span style="font-size:18px; flex-shrink:0;">${n.type === 'scan' ? '📡' : n.type === 'stolen' ? '🚨' : '🤝'}</span>
-            <div style="flex:1;">
-              <div style="font-size:13px; line-height:1.5;">${n.message}</div>
-              <div style="font-size:11px; color:var(--muted); margin-top:4px; font-family:'Courier New',monospace;">${new Date(n.created_at).toLocaleDateString('ko-KR')}</div>
-            </div>
-            ${!n.is_read ? '<div style="width:6px;height:6px;background:var(--accent);border-radius:50%;flex-shrink:0;margin-top:4px;"></div>' : ''}
-          </div>
-        `).join('')
-      }
-    }
-  }
-
-  window.readAll = async function() {
-    await markAllRead()
-    document.getElementById('notifBadge').style.display = 'none'
-    document.getElementById('notifList').innerHTML = '<div style="padding:24px; text-align:center; color:var(--muted); font-size:13px;">알림이 없습니다.</div>'
-  }
-
-  // 알림 드롭다운 외부 클릭 닫기
-  document.addEventListener('click', e => {
-    const dropdown = document.getElementById('notifDropdown')
-    const bell = document.querySelector('[onclick="toggleNotif()"]')
-    if (dropdown && !dropdown.contains(e.target) && bell && !bell.contains(e.target)) {
-      dropdown.style.display = 'none'
-    }
-  })
 
   // 도난 신고
   window.openStolen = function(id, name) {
@@ -695,7 +631,6 @@ body { -webkit-text-size-adjust: 100%; }
       }
       document.getElementById('stolenModal').classList.remove('active')
       await loadBikes()
-      await loadNotifications()
     } catch(e) {
       alert(e.message)
     }
@@ -717,7 +652,6 @@ body { -webkit-text-size-adjust: 100%; }
         bike_id: id,
         is_read: false
       })
-      await loadNotifications()
     } catch(e) {
       alert(e.message)
     }
@@ -754,8 +688,6 @@ function showTransferHistory(){ if(window.showTransferHistory && window.showTran
 function filterBikes(){ if(window.filterBikes && window.filterBikes !== filterBikes) window.filterBikes.apply(this, arguments); }
 function openDelete(){ if(window.openDelete && window.openDelete !== openDelete) window.openDelete.apply(this, arguments); }
 function confirmDelete(){ if(window.confirmDelete && window.confirmDelete !== confirmDelete) window.confirmDelete.apply(this, arguments); }
-function toggleNotif(){ if(window.toggleNotif && window.toggleNotif !== toggleNotif) window.toggleNotif.apply(this, arguments); }
-function readAll(){ if(window.readAll && window.readAll !== readAll) window.readAll.apply(this, arguments); }
 function openStolen(){ if(window.openStolen && window.openStolen !== openStolen) window.openStolen.apply(this, arguments); }
 function confirmStolen(){ if(window.confirmStolen && window.confirmStolen !== confirmStolen) window.confirmStolen.apply(this, arguments); }
 function openTransfer(){ if(window.openTransfer && window.openTransfer !== openTransfer) window.openTransfer.apply(this, arguments); }

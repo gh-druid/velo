@@ -217,14 +217,6 @@ body { -webkit-text-size-adjust: 100%; }
 <body>
 
 
-<!-- 알림 드롭다운 -->
-<div id="notifDropdown" style="display:none; position:fixed; top:60px; right:200px; width:300px; background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); z-index:300; max-height:400px; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.5);">
-  <div style="padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
-    <span style="font-size:13px; font-weight:500;">알림</span>
-    <button id="readAllBtn" style="background:none;border:none;color:#888;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">모두 읽음</button>
-  </div>
-  <div id="notifList"><div style="padding:24px; text-align:center; color:#888; font-size:13px;">알림이 없습니다.</div></div>
-</div>
 <nav>
   <a href="/" class="nav-logo">VÉLO</a>
   <div class="nav-links">
@@ -327,7 +319,6 @@ body { -webkit-text-size-adjust: 100%; }
     <div class="code-display">
       <div class="code-value" id="myCode">—</div>
       <button class="btn-copy" id="copyCodeBtn">복사</button>
-      <button class="btn-copy" id="generateCodeBtn" style="display:none;">코드 발급</button>
     </div>
     <div class="code-link" id="myLink"></div>
   </div>
@@ -541,33 +532,6 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   init()
-</script>
-
-<script>
-// 알림 드롭다운
-(function() {
-  var btn = document.getElementById('notifBtn');
-  var dd = document.getElementById('notifDropdown');
-  if (btn && dd) {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
-    });
-    document.addEventListener('click', function(e) {
-      if (!btn.contains(e.target) && !dd.contains(e.target)) dd.style.display = 'none';
-    });
-  }
-  // 드롭다운 로그아웃
-  var logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', function() {
-      if (window.handleLogout) window.handleLogout();
-      else { 
-        import('/velo-supabase.js').then(m => m.signOut().then(() => location.href = '/login'));
-      }
-    });
-  }
-})();
 </script>
 
 
