@@ -23,6 +23,7 @@
     { "source": "/admin", "destination": "/velo-admin.html" },
     { "source": "/partner", "destination": "/velo-partner.html" },
     { "source": "/partner/dashboard", "destination": "/velo-partner-dashboard.html" },
+    { "source": "/partner/payment", "destination": "/velo-partner-payment.html" },
     { "source": "/payment", "destination": "/velo-payment.html" },
     { "source": "/bike/:serial", "destination": "/velo-bike.html?serial=:serial" },
     { "source": "/transfer", "destination": "/velo-transfer.html" },

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>벨로 (Vélo) — 파트너 결제 · 정산</title>
+<link rel="stylesheet" href="/velo-common.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --mid:#2e2e2e; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; --warning:#f5a623; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+
+  .content { max-width:880px; margin:0 auto; padding:40px; }
+
+  .page-head { margin-bottom:32px; }
+  .page-title { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:2px; }
+  .page-sub { font-size:13px; color:var(--muted); line-height:1.7; margin-top:6px; }
+
+  /* 접근 차단 */
+  .gate { text-align:center; padding:80px 0; }
+  .gate-icon { font-size:48px; margin-bottom:16px; }
+  .gate-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; margin-bottom:8px; }
+  .gate-desc { font-size:13px; color:var(--muted); line-height:1.8; margin-bottom:24px; }
+  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:14px 32px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
+
+  /* 탭 */
+  .tabs { display:flex; gap:2px; margin-bottom:24px; border-bottom:1px solid var(--border); }
+  .tab { padding:12px 20px; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Noto Sans KR',sans-serif; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.2s; letter-spacing:0.5px; }
+  .tab.active { color:var(--white); border-bottom-color:var(--accent); }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* 카드 */
+  .card { background:var(--gray); border:1px solid var(--border); padding:28px; margin-bottom:16px; }
+  .card-title { font-size:15px; font-weight:500; margin-bottom:6px; }
+  .card-sub { font-size:12px; color:var(--muted); line-height:1.7; }
+
+  .field { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .field label { font-size:11px; letter-spacing:2px; color:var(--muted); }
+  .field input, .field select {
+    background:var(--black); border:1px solid var(--border); color:var(--white);
+    padding:14px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none;
+    transition:border-color 0.2s; width:100%;
+  }
+  .field input:focus, .field select:focus { border-color:var(--accent); }
+
+  /* 수량 스텝퍼 */
+  .qty { display:flex; align-items:center; gap:12px; }
+  .qty button { width:44px; height:44px; background:var(--black); border:1px solid var(--border); color:var(--white); font-size:20px; cursor:pointer; transition:all 0.2s; }
+  .qty button:hover { border-color:var(--accent); color:var(--accent); }
+  .qty input { width:80px; text-align:center; }
+
+  /* 가격 요약 */
+  .summary { border:1px solid var(--border); padding:20px 24px; margin:16px 0; }
+  .summary-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-size:13px; border-bottom:1px solid var(--border); }
+  .summary-row:last-child { border-bottom:none; }
+  .summary-row.total { font-size:16px; font-weight:700; padding-top:14px; }
+  .summary-row .val { color:var(--accent); font-weight:500; }
+  .summary-row.total .val { font-size:20px; }
+
+  /* 큰 숫자 */
+  .balance { font-family:'Bebas Neue',sans-serif; font-size:56px; line-height:1; color:var(--accent); }
+  .balance-sub { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.7; }
+
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:16px; }
+  .stat { background:var(--gray); border:1px solid var(--border); padding:24px; }
+  .stat-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
+  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:36px; line-height:1; }
+  .stat-num.accent { color:var(--accent); }
+  .stat-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+
+  .btn-pay { background:var(--accent); color:var(--black); border:none; width:100%; padding:16px; font-family:'Noto Sans KR',sans-serif; font-size:15px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:opacity 0.2s; }
+  .btn-pay:hover { opacity:0.9; }
+  .btn-pay:disabled { opacity:0.4; cursor:not-allowed; }
+
+  .note { font-size:12px; color:var(--muted); line-height:1.8; margin-top:16px; }
+
+  .toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--accent); color:var(--black); padding:14px 24px; font-size:13px; font-weight:700; opacity:0; transition:all 0.3s; z-index:999; white-space:nowrap; }
+  .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+  @media(max-width:768px) {
+    .content { padding:24px 16px; }
+    .page-title { font-size:32px; }
+    .grid2 { grid-template-columns:1fr; }
+    .tab { padding:12px 12px; font-size:12px; }
+  }
+</style>
+
+<style id="nav-common-css">
+nav { display:grid; grid-template-columns:auto 1fr auto; align-items:center; padding:0 40px; height:70px; background:#1a1a1a; border-bottom:1px solid rgba(255,255,255,0.08); position:sticky; top:0; z-index:100; }
+.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+.nav-badge { font-size:10px; letter-spacing:2px; color:#0a0a0a; background:#c8f542; padding:3px 8px; margin-left:8px; }
+.nav-links { display:flex; gap:4px; justify-content:center; align-items:center; }
+.nav-link { padding:8px 14px; font-size:13px; color:#888; background:none; border:none; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:color 0.2s; text-decoration:none; letter-spacing:0.5px; white-space:nowrap; }
+.nav-link:hover { color:#f5f3ee; }
+.nav-link.active { color:#f5f3ee; background:rgba(200,245,66,0.08); }
+.nav-right { display:flex; align-items:center; gap:12px; justify-content:flex-end; }
+.nav-avatar { width:32px; height:32px; background:#c8f542; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#0a0a0a; cursor:pointer; flex-shrink:0; }
+.nav-dropdown-wrap { position:relative; }
+.nav-dropdown { position:absolute; top:44px; right:0; background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); min-width:180px; display:none; z-index:9999; box-shadow:0 8px 24px rgba(0,0,0,0.6); }
+.nav-dropdown.show { display:block; }
+.nav-dropdown-item { padding:12px 16px; font-size:13px; color:#888; cursor:pointer; display:block; background:none; border:none; font-family:'Noto Sans KR',sans-serif; width:100%; text-align:left; transition:all 0.2s; white-space:nowrap; }
+.nav-dropdown-item:hover { color:#f5f3ee; background:rgba(255,255,255,0.04); }
+.nav-dropdown-item.danger:hover { color:#ff4f4f; }
+.hamburger-btn { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
+.hamburger-btn span { width:22px; height:2px; background:#f5f3ee; display:block; }
+.mobile-nav { display:none; position:fixed; top:70px; left:0; right:0; background:#1a1a1a; border-bottom:1px solid rgba(255,255,255,0.08); z-index:99; padding:8px 0; flex-direction:column; }
+.mobile-nav.open { display:flex; }
+.mobile-nav a { color:#888; text-decoration:none; font-size:14px; padding:14px 24px; border-bottom:1px solid rgba(255,255,255,0.05); font-family:'Noto Sans KR',sans-serif; display:block; }
+.mobile-nav a:last-child { border-bottom:none; }
+@media(min-width:769px) { .hamburger-btn { display:none !important; } }
+@media(max-width:768px) { nav { padding:0 16px; grid-template-columns:auto auto; } .nav-links { display:none; } .hamburger-btn { display:flex !important; } }
+</style>
+
+<style id="compat-css">
+/* ===== 크로스 플랫폼 호환 ===== */
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+button, a, [onclick] { cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-size: 16px !important; }
+body { -webkit-text-size-adjust: 100%; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">VÉLO<span class="nav-badge">PARTNER</span></a>
+  <div class="nav-links">
+    <a href="/partner/dashboard" class="nav-link">📊 파트너 대시보드</a>
+    <a href="/partner/payment" class="nav-link active">💳 결제 · 정산</a>
+    <a href="/dashboard" class="nav-link">🚲 내 자전거</a>
+    <a href="/settings" class="nav-link">⚙️ 설정</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-dropdown-wrap">
+      <div class="nav-avatar" id="navAvatar"></div>
+      <div class="nav-dropdown" id="navDropdown">
+        <button class="nav-dropdown-item" onclick="location.href='/partner/dashboard'">파트너 대시보드</button>
+        <button class="nav-dropdown-item" onclick="location.href='/settings'">계정 설정</button>
+        <button class="nav-dropdown-item danger" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
+    <button class="hamburger-btn" id="hamburgerBtn"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="/partner/dashboard">📊 파트너 대시보드</a>
+  <a href="/partner/payment" style="color:#c8f542;">💳 결제 · 정산</a>
+  <a href="/dashboard">🚲 내 자전거</a>
+  <a href="/settings">⚙️ 설정</a>
+</div>
+
+<div class="content">
+
+  <!-- 로딩 -->
+  <div id="loading" class="gate"><div class="gate-icon">⏳</div><div class="gate-desc">불러오는 중...</div></div>
+
+  <!-- 승인된 파트너가 아닐 때 -->
+  <div id="gate" class="gate" style="display:none;">
+    <div class="gate-icon">🔒</div>
+    <div class="gate-title">파트너 전용 페이지</div>
+    <div class="gate-desc">승인된 벨로 파트너만 이용할 수 있는 결제·정산 페이지입니다.<br>먼저 파트너 신청 후 승인을 받아주세요.</div>
+    <a href="/partner" class="btn-primary">파트너 신청하기 →</a>
+  </div>
+
+  <!-- 본문 -->
+  <div id="main" style="display:none;">
+    <div class="page-head">
+      <div class="page-title">결제 · 정산</div>
+      <div class="page-sub" id="shopLine">파트너 샵</div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('stock', this)">📦 태그 재고 구매</button>
+      <button class="tab" onclick="switchTab('settlement', this)">💰 수익 정산</button>
+      <button class="tab" onclick="switchTab('payout', this)">🏦 출금</button>
+    </div>
+
+    <!-- 태그 재고 구매 -->
+    <div class="tab-content active" id="tab-stock">
+      <div class="card">
+        <div class="card-title">NFC 태그 재고 구매</div>
+        <div class="card-sub">파트너 원가로 NFC 칩(NTAG213·방수)을 추가 구매합니다. 영업일 기준 2~3일 내 배송됩니다.</div>
+      </div>
+
+      <div class="card">
+        <div class="field">
+          <label>수량 (개)</label>
+          <div class="qty">
+            <button type="button" onclick="changeQty(-10)">−</button>
+            <input type="number" id="stockQty" value="50" min="10" step="10" oninput="renderStock()">
+            <button type="button" onclick="changeQty(10)">+</button>
+            <span style="font-size:12px; color:var(--muted);">최소 10개 · 10개 단위</span>
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="summary-row"><span>파트너 단가</span><span><span id="unitPrice">1,200</span>원 / 개</span></div>
+          <div class="summary-row"><span>수량</span><span id="qtyLabel">50개</span></div>
+          <div class="summary-row"><span>배송비</span><span id="shipping">무료</span></div>
+          <div class="summary-row total"><span>결제 금액</span><span class="val" id="stockTotal">60,000원</span></div>
+        </div>
+
+        <button class="btn-pay" id="stockPayBtn" onclick="payStock()">재고 결제하기</button>
+        <div class="note">* 100개 이상 구매 시 배송비 무료 · 파트너 단가는 정기 구매량에 따라 조정됩니다.<br>* 결제 수단 연동은 PG 심사 완료 후 활성화됩니다 (현재 신청 접수 방식).</div>
+      </div>
+    </div>
+
+    <!-- 수익 정산 -->
+    <div class="tab-content" id="tab-settlement">
+      <div class="grid2">
+        <div class="stat">
+          <div class="stat-label">이번 달 발생 수익</div>
+          <div class="stat-num accent" id="monthRevenue">0</div>
+          <div class="stat-sub">원 · 태그 수수료의 30%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">누적 발생 수익</div>
+          <div class="stat-num" id="totalRevenue">0</div>
+          <div class="stat-sub">원</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">정산 안내</div>
+        <div class="card-sub">
+          파트너 샵 코드로 등록된 자전거 1대당 태그 발급 수수료(7,900원)의 30%가 수익으로 적립됩니다.<br>
+          매월 말일 기준으로 정산되며, 익월 10일 이내에 출금 가능 잔액으로 반영됩니다.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">최근 정산 내역</div>
+        <div id="settlementList" style="margin-top:12px; font-size:13px; color:var(--muted);">정산 내역이 없습니다.</div>
+      </div>
+    </div>
+
+    <!-- 출금 -->
+    <div class="tab-content" id="tab-payout">
+      <div class="card" style="text-align:center;">
+        <div class="card-sub" style="margin-bottom:8px;">출금 가능 잔액</div>
+        <div class="balance" id="payoutBalance">0</div>
+        <div class="balance-sub">원 · 정산 완료된 수익만 출금 가능합니다</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">출금 신청</div>
+        <div class="field" style="margin-top:16px;">
+          <label>은행</label>
+          <select id="bankName">
+            <option value="">선택해주세요</option>
+            <option>국민은행</option><option>신한은행</option><option>우리은행</option>
+            <option>하나은행</option><option>농협은행</option><option>카카오뱅크</option>
+            <option>토스뱅크</option><option>기업은행</option><option>기타</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>계좌번호</label>
+          <input type="text" id="bankAccount" placeholder="'-' 없이 숫자만 입력" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        </div>
+        <div class="field">
+          <label>예금주</label>
+          <input type="text" id="bankHolder" placeholder="예금주명">
+        </div>
+        <div class="field">
+          <label>출금 금액 (원)</label>
+          <input type="number" id="payoutAmount" placeholder="0" min="10000" step="1000">
+        </div>
+        <button class="btn-pay" id="payoutBtn" onclick="requestPayout()">출금 신청하기</button>
+        <div class="note">* 최소 출금 금액 10,000원 · 출금 신청 후 영업일 기준 3일 내 입금됩니다.<br>* 출금 수수료는 벨로가 부담합니다.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { supabase, getUser, getUserProfile, signOut } from '/velo-supabase.js'
+
+  const TAG_PRICE = 7900          // 태그 발급 수수료
+  const COMMISSION = 0.3          // 파트너 수익률 30%
+  const PARTNER_UNIT = 1200       // 태그 파트너 단가
+
+  let currentUser = null
+  let partner = null
+  let totalRevenue = 0
+  let payoutBalance = 0
+
+  function fmt(n) { return (n || 0).toLocaleString('ko-KR') }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast')
+    t.textContent = msg
+    t.classList.add('show')
+    setTimeout(() => t.classList.remove('show'), 2600)
+  }
+
+  // 아바타 이니셜
+  function setAvatar(name) {
+    const a = document.getElementById('navAvatar')
+    if (a) a.textContent = (name || 'P').trim().charAt(0).toUpperCase()
+  }
+
+  async function init() {
+    currentUser = await getUser()
+    if (!currentUser) { location.href = '/login'; return }
+
+    try {
+      const profile = await getUserProfile()
+      setAvatar(profile?.name)
+    } catch (e) { setAvatar('P') }
+
+    // 파트너십 확인
+    const { data } = await supabase
+      .from('partnerships')
+      .select('*')
+      .eq('email', currentUser.email)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    document.getElementById('loading').style.display = 'none'
+
+    if (!data || data.status !== 'approved') {
+      document.getElementById('gate').style.display = 'block'
+      return
+    }
+
+    partner = data
+    document.getElementById('main').style.display = 'block'
+    document.getElementById('shopLine').textContent = `${data.shop_name} · 파트너 코드 ${data.partner_code || '-'}`
+
+    renderStock()
+    await loadRevenue()
+  }
+
+  // ===== 수익 계산 =====
+  async function loadRevenue() {
+    const code = partner.partner_code
+    if (!code) return
+
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
+    const { data: bikes } = await supabase
+      .from('bikes')
+      .select('created_at')
+      .eq('partner_code', code)
+
+    const total = bikes?.length || 0
+    const monthCount = bikes?.filter(b => b.created_at >= monthStart).length || 0
+
+    totalRevenue = Math.floor(total * TAG_PRICE * COMMISSION)
+    const monthRevenue = Math.floor(monthCount * TAG_PRICE * COMMISSION)
+
+    document.getElementById('monthRevenue').textContent = fmt(monthRevenue)
+    document.getElementById('totalRevenue').textContent = fmt(totalRevenue)
+
+    // 출금 신청/완료 금액 차감 → 출금 가능 잔액
+    let withdrawn = 0
+    try {
+      const { data: payouts } = await supabase
+        .from('partner_payouts')
+        .select('amount')
+        .eq('partner_code', code)
+      withdrawn = (payouts || []).reduce((s, p) => s + (p.amount || 0), 0)
+    } catch (e) { /* 테이블 미존재 시 0 */ }
+
+    payoutBalance = Math.max(0, totalRevenue - withdrawn)
+    document.getElementById('payoutBalance').textContent = fmt(payoutBalance)
+
+    const amt = document.getElementById('payoutAmount')
+    if (amt) amt.max = payoutBalance
+
+    // 정산 내역
+    if (total > 0) {
+      document.getElementById('settlementList').innerHTML =
+        `이번 달 ${monthCount}건 등록 · <span style="color:var(--accent);">+${fmt(monthRevenue)}원</span> 발생<br>` +
+        `누적 ${total}건 등록 · 총 <span style="color:var(--accent);">${fmt(totalRevenue)}원</span> 발생`
+    }
+  }
+
+  // ===== 태그 재고 구매 =====
+  window.changeQty = function(delta) {
+    const input = document.getElementById('stockQty')
+    let v = parseInt(input.value, 10) || 0
+    v = Math.max(10, v + delta)
+    input.value = v
+    renderStock()
+  }
+
+  window.renderStock = function() {
+    const input = document.getElementById('stockQty')
+    let qty = parseInt(input.value, 10) || 0
+    if (qty < 10) qty = 10
+    const subtotal = qty * PARTNER_UNIT
+    const freeShip = qty >= 100
+    document.getElementById('unitPrice').textContent = fmt(PARTNER_UNIT)
+    document.getElementById('qtyLabel').textContent = `${fmt(qty)}개`
+    document.getElementById('shipping').textContent = freeShip ? '무료' : '3,000원'
+    const total = subtotal + (freeShip ? 0 : 3000)
+    document.getElementById('stockTotal').textContent = `${fmt(total)}원`
+  }
+
+  window.payStock = async function() {
+    const qty = parseInt(document.getElementById('stockQty').value, 10) || 0
+    if (qty < 10) { showToast('최소 10개부터 구매할 수 있습니다'); return }
+    const btn = document.getElementById('stockPayBtn')
+    btn.disabled = true; btn.textContent = '처리 중...'
+    try {
+      await supabase.from('tag_orders').insert({
+        partner_code: partner.partner_code,
+        email: currentUser.email,
+        quantity: qty,
+        unit_price: PARTNER_UNIT,
+        status: 'requested'
+      })
+    } catch (e) { /* 테이블 미존재 시에도 접수 처리 */ }
+    btn.disabled = false; btn.textContent = '재고 결제하기'
+    showToast(`태그 ${fmt(qty)}개 구매 신청이 접수되었습니다`)
+  }
+
+  // ===== 출금 =====
+  window.requestPayout = async function() {
+    const bank = document.getElementById('bankName').value
+    const account = document.getElementById('bankAccount').value.trim()
+    const holder = document.getElementById('bankHolder').value.trim()
+    const amount = parseInt(document.getElementById('payoutAmount').value, 10) || 0
+
+    if (!bank || !account || !holder) { showToast('은행·계좌번호·예금주를 모두 입력해주세요'); return }
+    if (amount < 10000) { showToast('최소 출금 금액은 10,000원입니다'); return }
+    if (amount > payoutBalance) { showToast('출금 가능 잔액을 초과했습니다'); return }
+
+    const btn = document.getElementById('payoutBtn')
+    btn.disabled = true; btn.textContent = '신청 중...'
+    try {
+      await supabase.from('partner_payouts').insert({
+        partner_code: partner.partner_code,
+        email: currentUser.email,
+        bank, account, holder, amount,
+        status: 'requested'
+      })
+    } catch (e) { /* 테이블 미존재 시에도 접수 처리 */ }
+    btn.disabled = false; btn.textContent = '출금 신청하기'
+    showToast(`${fmt(amount)}원 출금 신청이 접수되었습니다`)
+    document.getElementById('payoutAmount').value = ''
+  }
+
+  // ===== 탭 =====
+  window.switchTab = function(name, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
+    if (btn) btn.classList.add('active')
+    document.getElementById('tab-' + name).classList.add('active')
+  }
+
+  // ===== 로그아웃 =====
+  window.handleLogout = async function() {
+    try { await signOut() } catch (e) {}
+    location.href = '/login'
+  }
+
+  init()
+</script>
+
+<script id="nav-common-js">
+(function() {
+  var avatar = document.getElementById('navAvatar')
+  var dd = document.getElementById('navDropdown')
+  if (avatar && dd) {
+    avatar.addEventListener('click', function(e) { e.stopPropagation(); dd.classList.toggle('show') })
+    document.addEventListener('click', function(e) {
+      if (!dd.contains(e.target) && !avatar.contains(e.target)) dd.classList.remove('show')
+    })
+  }
+  var logoutBtn = document.getElementById('logoutBtn')
+  if (logoutBtn) logoutBtn.addEventListener('click', function() {
+    if (window.handleLogout) window.handleLogout()
+  })
+
+  var hb = document.getElementById('hamburgerBtn')
+  var mn = document.getElementById('mobileNav')
+  if (hb && mn) {
+    hb.addEventListener('click', function(e) { e.stopPropagation(); mn.classList.toggle('open') })
+    document.addEventListener('click', function(e) {
+      if (!mn.contains(e.target) && !hb.contains(e.target)) mn.classList.remove('open')
+    })
+  }
+})()
+</script>
+</body>
+</html>

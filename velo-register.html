@@ -399,8 +399,6 @@
   }
 </style>
 
-
-
 <style id="compat-css">
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
@@ -687,7 +685,7 @@ body { -webkit-text-size-adjust: 100%; }
       const brandSelect = document.getElementById('brand').value
       const brand = brandSelect === '기타' ? document.getElementById('brandCustom').value.trim() : brandSelect
       const model = document.getElementById('model').value.trim()
-      if (!serial) { showErr('serialErr', true); ok = false; } else showErr('serialErr', false)
+      if (serialEnabled && !serial) { showErr('serialErr', true); ok = false; } else showErr('serialErr', false)
       if (!brand) { showErr('brandErr', true); ok = false; } else showErr('brandErr', false)
       if (!model) { showErr('modelErr', true); ok = false; } else showErr('modelErr', false)
       return ok
@@ -840,7 +838,7 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script type="module">
-  import { getUser, registerBike, addPart as addPartDB, startSubscription, uploadBikePhotos, saveBikePhotos, getUserProfile, getMyBikes } from '/velo-supabase.js'
+  import { getUser, registerBike, addPart as addPartDB, startSubscription, uploadBikePhotos, saveBikePhotos, getUserProfile } from '/velo-supabase.js'
 
   // 로그인 체크 + 이름/기존 자전거 불러오기
   async function init() {
@@ -850,29 +848,6 @@ body { -webkit-text-size-adjust: 100%; }
     const profile = await getUserProfile()
     if (profile?.name) {
       document.getElementById('navUserName').textContent = profile.name
-    }
-
-    // 기존 자전거 차대번호 셀렉트에 추가
-    try {
-      const bikes = await getMyBikes()
-      const select = document.getElementById('serialSelect')
-      bikes.forEach(b => {
-        const opt = document.createElement('option')
-        opt.value = b.serial
-        opt.textContent = `${b.brand} ${b.model} (${b.serial})`
-        select.insertBefore(opt, select.lastElementChild)
-      })
-    } catch(e) {}
-  }
-
-  // 차대번호 선택
-  window.handleSerialSelect = function(val) {
-    const input = document.getElementById('serial')
-    if (val === '__new__' || val === '') {
-      input.value = ''
-      input.focus()
-    } else {
-      input.value = val
     }
   }
 
@@ -915,13 +890,13 @@ body { -webkit-text-size-adjust: 100%; }
         }
 
         // 부품 등록
-        for (const part of window._parts || []) {
+        for (const part of window.parts || []) {
           await addPartDB(bike.id, part)
         }
 
         // 구독 선택했으면 구독 시작
         const planMap = ['free', 'monthly', 'yearly']
-        const plan = planMap[window._selectedPlan || 0]
+        const plan = planMap[window.selectedPlan || 0]
         if (plan !== 'free') await startSubscription(plan)
 
         // 스텝 이동
@@ -934,37 +909,7 @@ body { -webkit-text-size-adjust: 100%; }
     }
   }
 
-  // parts, selectedPlan 공유
-  window._parts = window.parts
-  window._selectedPlan = window.selectedPlan
-
-  // 완료 후 대시보드로
-  document.querySelector('.complete-actions .btn-next')?.addEventListener('click', () => {
-    location.href = 'velo-dashboard.html'
-  })
-
-  init()
 </script>
 
-
-<script id="compat-js">
-// 크로스 플랫폼 호환 브리지
-(function() {
-  // onclick 속성 함수 window 등록 확인
-  document.addEventListener('DOMContentLoaded', function() {
-    var fns = ['toggleNotif','switchTab','openDelete','confirmDelete',
-               'openStolen','confirmStolen','openTransfer','closeModal',
-               'filterBikes','showTransferHistory','selectProduct','selectSub',
-               'applyDiscount','handleBrandChange','toggleSerial','openStolen',
-               'updateStatus','toggleDiscount','deleteDiscount','completeWithdrawal',
-               'grantLifetime','revokeLifetime','updatePartner','approveDelivery'];
-    fns.forEach(function(fn) {
-      if (!window[fn]) window[fn] = function() {
-        console.warn('Function not ready:', fn);
-      };
-    });
-  });
-})();
-</script>
 </body>
 </html>

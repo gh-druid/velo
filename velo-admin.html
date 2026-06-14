@@ -106,8 +106,6 @@
   }
 </style>
 
-
-
 <style id="compat-css">
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
@@ -475,8 +473,6 @@ body { -webkit-text-size-adjust: 100%; }
     </div>
   </div><!-- /tab-discounts -->
 
-
-
   <!-- 레퍼럴 탭 -->
   <div class="tab-content" id="tab-referral" style="padding:0 40px 60px;">
     <div class="table-wrap">
@@ -684,6 +680,14 @@ body { -webkit-text-size-adjust: 100%; }
     const { data } = await supabase.from('bikes').select('*, users(name, email)').order('created_at', { ascending: false })
     allBikes = data || []
     renderBikes(allBikes)
+    populatePartnerFilter()
+  }
+  function populatePartnerFilter() {
+    const sel = document.getElementById('partnerFilter')
+    if (!sel) return
+    const codes = [...new Set(allBikes.map(b => b.partner_code).filter(Boolean))].sort()
+    sel.innerHTML = '<option value="">전체 샵</option>' +
+      codes.map(c => `<option value="${c}">${c}</option>`).join('')
   }
   function renderBikes(bikes) {
     const tbody = document.getElementById('bikesTable')
@@ -701,7 +705,13 @@ body { -webkit-text-size-adjust: 100%; }
     </tr>`).join('')
   }
   window.filterBikes = function(q) {
-    renderBikes(allBikes.filter(b => b.serial?.includes(q.toUpperCase()) || b.model?.includes(q) || b.brand?.includes(q)))
+    const term = (q || '').trim()
+    renderBikes(allBikes.filter(b =>
+      b.serial?.includes(term.toUpperCase()) || b.model?.includes(term) || b.brand?.includes(term) || b.partner_code?.includes(term.toUpperCase())
+    ))
+  }
+  window.filterByPartner = function(code) {
+    renderBikes(code ? allBikes.filter(b => b.partner_code === code) : allBikes)
   }
 
   // 도난
@@ -1194,40 +1204,5 @@ body { -webkit-text-size-adjust: 100%; }
   init()
 </script>
 
-<script>/* compat-bridge */
-function updateStatus(){ if(window.updateStatus && window.updateStatus !== updateStatus) window.updateStatus.apply(this, arguments); }
-function grantLifetime(){ if(window.grantLifetime && window.grantLifetime !== grantLifetime) window.grantLifetime.apply(this, arguments); }
-function confirmSuspend(){ if(window.confirmSuspend && window.confirmSuspend !== confirmSuspend) window.confirmSuspend.apply(this, arguments); }
-function confirmDeleteUser(){ if(window.confirmDeleteUser && window.confirmDeleteUser !== confirmDeleteUser) window.confirmDeleteUser.apply(this, arguments); }
-function filterPartners(){ if(window.filterPartners && window.filterPartners !== filterPartners) window.filterPartners.apply(this, arguments); }
-function updatePartner(){ if(window.updatePartner && window.updatePartner !== updatePartner) window.updatePartner.apply(this, arguments); }
-function grantLifetime(){ if(window.grantLifetime && window.grantLifetime !== grantLifetime) window.grantLifetime.apply(this, arguments); }
-function revokeLifetime(){ if(window.revokeLifetime && window.revokeLifetime !== revokeLifetime) window.revokeLifetime.apply(this, arguments); }
-function quickCreate(){ if(window.quickCreate && window.quickCreate !== quickCreate) window.quickCreate.apply(this, arguments); }
-function createDiscountCode(){ if(window.createDiscountCode && window.createDiscountCode !== createDiscountCode) window.createDiscountCode.apply(this, arguments); }
-function toggleDiscount(){ if(window.toggleDiscount && window.toggleDiscount !== toggleDiscount) window.toggleDiscount.apply(this, arguments); }
-function deleteDiscount(){ if(window.deleteDiscount && window.deleteDiscount !== deleteDiscount) window.deleteDiscount.apply(this, arguments); }
-function closeModal(){ if(window.closeModal && window.closeModal !== closeModal) window.closeModal.apply(this, arguments); }
-</script>
-
-<script id="compat-js">
-// 크로스 플랫폼 호환 브리지
-(function() {
-  // onclick 속성 함수 window 등록 확인
-  document.addEventListener('DOMContentLoaded', function() {
-    var fns = ['toggleNotif','switchTab','openDelete','confirmDelete',
-               'openStolen','confirmStolen','openTransfer','closeModal',
-               'filterBikes','showTransferHistory','selectProduct','selectSub',
-               'applyDiscount','handleBrandChange','toggleSerial','openStolen',
-               'updateStatus','toggleDiscount','deleteDiscount','completeWithdrawal',
-               'grantLifetime','revokeLifetime','updatePartner','approveDelivery'];
-    fns.forEach(function(fn) {
-      if (!window[fn]) window[fn] = function() {
-        console.warn('Function not ready:', fn);
-      };
-    });
-  });
-})();
-</script>
 </body>
 </html>

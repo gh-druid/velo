@@ -97,8 +97,6 @@
   .nav-dropdown-item.danger:hover { color:#ff4f4f; }
 </style>
 
-
-
 <style id="nav-common-css">
 /* ===== 공통 네비 ===== */
 nav {
@@ -227,7 +225,6 @@ body { -webkit-text-size-adjust: 100%; }
 </style>
 </head>
 <body>
-
 
 <nav>
   <a href="/" class="nav-logo">VÉLO</a>
@@ -422,9 +419,10 @@ body { -webkit-text-size-adjust: 100%; }
           <div class="stock-num" id="stockCount">-</div>
         </div>
         <div style="background:var(--gray); border:1px solid var(--border); padding:24px; font-size:13px; color:var(--muted); line-height:1.8;">
-          태그 재고가 부족하면 velokr20@gmail.com 또는 @velokr20으로 연락해주세요.<br>
-          파트너 원가로 추가 구매 가능합니다.
+          태그 재고가 부족하면 파트너 원가로 바로 추가 구매할 수 있습니다.<br>
+          문의: velokr20@gmail.com 또는 @velokr20
         </div>
+        <a href="/partner/payment" class="btn-primary" style="margin-top:16px;">결제 · 정산 페이지로 이동 →</a>
       </div>
 
     </div>
@@ -574,12 +572,6 @@ body { -webkit-text-size-adjust: 100%; }
   init()
 </script>
 
-<script>/* compat-bridge */
-function switchTab(){ if(window.switchTab && window.switchTab !== switchTab) window.switchTab.apply(this, arguments); }
-function handleLogout(){ if(window.handleLogout && window.handleLogout !== handleLogout) window.handleLogout.apply(this, arguments); }
-</script>
-
-
 <script id="nav-common-js">
 (function() {
   var avatar = document.getElementById('navAvatar');
@@ -607,26 +599,6 @@ function handleLogout(){ if(window.handleLogout && window.handleLogout !== handl
       }
     });
   }
-})();
-</script>
-
-<script id="compat-js">
-// 크로스 플랫폼 호환 브리지
-(function() {
-  // onclick 속성 함수 window 등록 확인
-  document.addEventListener('DOMContentLoaded', function() {
-    var fns = ['toggleNotif','switchTab','openDelete','confirmDelete',
-               'openStolen','confirmStolen','openTransfer','closeModal',
-               'filterBikes','showTransferHistory','selectProduct','selectSub',
-               'applyDiscount','handleBrandChange','toggleSerial','openStolen',
-               'updateStatus','toggleDiscount','deleteDiscount','completeWithdrawal',
-               'grantLifetime','revokeLifetime','updatePartner','approveDelivery'];
-    fns.forEach(function(fn) {
-      if (!window[fn]) window[fn] = function() {
-        console.warn('Function not ready:', fn);
-      };
-    });
-  });
 })();
 </script>
 

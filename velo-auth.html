@@ -86,8 +86,6 @@
   }
 </style>
 
-
-
 <style id="compat-css">
 /* ===== 크로스 플랫폼 호환 ===== */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
@@ -366,31 +364,5 @@ body { -webkit-text-size-adjust: 100%; }
   })
 </script>
 
-<script>/* compat-bridge */
-function goScreen(){ if(window.goScreen && window.goScreen !== goScreen) window.goScreen.apply(this, arguments); }
-function handleLogin(){ if(window.handleLogin && window.handleLogin !== handleLogin) window.handleLogin.apply(this, arguments); }
-function handleSignup(){ if(window.handleSignup && window.handleSignup !== handleSignup) window.handleSignup.apply(this, arguments); }
-function handleForgot(){ if(window.handleForgot && window.handleForgot !== handleForgot) window.handleForgot.apply(this, arguments); }
-</script>
-
-<script id="compat-js">
-// 크로스 플랫폼 호환 브리지
-(function() {
-  // onclick 속성 함수 window 등록 확인
-  document.addEventListener('DOMContentLoaded', function() {
-    var fns = ['toggleNotif','switchTab','openDelete','confirmDelete',
-               'openStolen','confirmStolen','openTransfer','closeModal',
-               'filterBikes','showTransferHistory','selectProduct','selectSub',
-               'applyDiscount','handleBrandChange','toggleSerial','openStolen',
-               'updateStatus','toggleDiscount','deleteDiscount','completeWithdrawal',
-               'grantLifetime','revokeLifetime','updatePartner','approveDelivery'];
-    fns.forEach(function(fn) {
-      if (!window[fn]) window[fn] = function() {
-        console.warn('Function not ready:', fn);
-      };
-    });
-  });
-})();
-</script>
 </body>
 </html>
