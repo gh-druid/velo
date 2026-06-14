@@ -622,24 +622,73 @@ body { -webkit-text-size-adjust: 100%; }
       return
     }
 
-    await Promise.all([loadStats(), loadUsers(), loadPartnerMap().then(loadBikes), loadStolen(), loadDelivery()])
+    await Promise.all([loadStats(), loadUsers(), loadBikes(), loadStolen(), loadDelivery()])
     document.addEventListener('click', function(e) {
       if (e.target && e.target.id === 'grantLifetimeBtn') window.grantLifetime()
     })
   }
 
-  // 통계
+  // 통계 + 수익 탭
   async function loadStats() {
-    const { data: users } = await supabase.from('users').select('plan')
-    const { data: bikes } = await supabase.from('bikes').select('id')
-    const { data: stolen } = await supabase.from('bikes').select('id').eq('status','stolen')
-    if (users) {
-      document.getElementById('totalUsers').textContent = users.length
-      const subs = users.filter(u => ['monthly','yearly','lifetime'].includes(u.plan))
-      document.getElementById('totalSubs').textContent = subs.length
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v }
+    const [{ data: users }, { data: bikes }, { data: orders }] = await Promise.all([
+      supabase.from('users').select('plan'),
+      supabase.from('bikes').select('id, status'),
+      supabase.from('orders').select('amount, created_at'),
+    ])
+
+    // 상단 요약
+    const userList = users || []
+    const planCount = { free: 0, monthly: 0, yearly: 0, lifetime: 0 }
+    userList.forEach(u => { const p = u.plan || 'free'; planCount[p] = (planCount[p] || 0) + 1 })
+    set('totalUsers', userList.length)
+    set('totalSubs', planCount.monthly + planCount.yearly + planCount.lifetime)
+
+    const bikeList = bikes || []
+    set('totalBikes', bikeList.length)
+    set('totalStolen', bikeList.filter(b => b.status === 'stolen').length)
+
+    // 수익 탭 — 구독 현황
+    set('freePlan', (planCount.free || 0) + '명')
+    set('monthlyPlan', planCount.monthly + '명')
+    set('yearlyPlan', planCount.yearly + '명')
+    const subRevenue = planCount.monthly * 490 + planCount.yearly * Math.round(4900 / 12)
+    set('subRevenue', subRevenue.toLocaleString() + '원')
+
+    // 수익 탭 — 이번 달 수익 (구독 + 이번 달 결제 주문)
+    const orderList = orders || []
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const monthOrderRevenue = orderList
+      .filter(o => new Date(o.created_at) >= monthStart)
+      .reduce((sum, o) => sum + (o.amount || 0), 0)
+    set('monthRevenue', (subRevenue + monthOrderRevenue).toLocaleString())
+
+    renderRevenueChart(orderList)
+  }
+
+  // 최근 6개월 매출 차트
+  function renderRevenueChart(orders) {
+    const chart = document.getElementById('revenueChart')
+    if (!chart) return
+    const now = new Date()
+    const months = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      months.push({ y: d.getFullYear(), m: d.getMonth(), label: (d.getMonth() + 1) + '월', total: 0 })
     }
-    if (bikes) document.getElementById('totalBikes').textContent = bikes.length
-    if (stolen) document.getElementById('totalStolen').textContent = stolen.length
+    ;(orders || []).forEach(o => {
+      const d = new Date(o.created_at)
+      const slot = months.find(x => x.y === d.getFullYear() && x.m === d.getMonth())
+      if (slot) slot.total += (o.amount || 0)
+    })
+    const max = Math.max(1, ...months.map(x => x.total))
+    chart.innerHTML = months.map(x => `
+      <div class="bar-wrap">
+        <div class="bar" style="height:${Math.round((x.total / max) * 64)}px;" title="${x.total.toLocaleString()}원"></div>
+        <div class="bar-label">${x.label}</div>
+      </div>
+    `).join('')
   }
 
   // 유저
@@ -667,13 +716,6 @@ body { -webkit-text-size-adjust: 100%; }
     renderUsers(allUsers.filter(u => u.name?.includes(q) || u.email?.includes(q)))
   }
 
-  // 파트너맵
-  let partnerMap = {}
-  async function loadPartnerMap() {
-    const { data } = await supabase.from('partnerships').select('user_id, partner_code').eq('status','approved')
-    if (data) data.forEach(p => { partnerMap[p.user_id] = p.partner_code })
-  }
-
   // 자전거
   let allBikes = []
   async function loadBikes() {
@@ -691,13 +733,15 @@ body { -webkit-text-size-adjust: 100%; }
   }
   function renderBikes(bikes) {
     const tbody = document.getElementById('bikesTable')
-    if (!bikes.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="6">자전거가 없습니다.</td></tr>'; return; }
+    if (!bikes.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">자전거가 없습니다.</td></tr>'; return; }
     tbody.innerHTML = bikes.map(b => `<tr>
       <td>${b.brand} ${b.model}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;">${b.serial}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${b.serial||'-'}</td>
       <td>${b.users?.name||'-'}</td>
+      <td>${b.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${b.partner_code}</span>`:'-'}</td>
+      <td style="font-size:12px;color:var(--muted);">${b.tag_location||'-'}</td>
       <td><span class="badge badge-${b.status==='normal'?'normal':'stolen'}">${b.status==='normal'?'정상':b.status==='stolen'?'도난':'배송중'}</span></td>
-      <td style="font-size:11px;color:var(--muted);">${new Date(b.created_at).toLocaleDateString('ko-KR')}</td>
+      <td style="font-size:11px;color:var(--muted);">${b.created_at?new Date(b.created_at).toLocaleDateString('ko-KR'):'-'}</td>
       <td>
         <button class="action-btn accent" onclick="location.href='/bike/${b.serial}'">보기</button>
         <button class="action-btn" onclick="updateStatus('${b.id}','normal')">정상화</button>
@@ -732,8 +776,13 @@ body { -webkit-text-size-adjust: 100%; }
 
   // 파트너십
   async function loadPartners() {
-    const { data } = await supabase.from('partnerships').select('*, users(name, email)').order('created_at', { ascending: false })
+    const { data } = await supabase.from('partnerships').select('*').order('created_at', { ascending: false })
     allPartners = data || []
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v }
+    set('partnerTotal', allPartners.length)
+    set('partnerApproved', allPartners.filter(p => p.status === 'approved').length)
+    set('partnerPending', allPartners.filter(p => !p.status || p.status === 'pending').length)
+    set('partnerRejected', allPartners.filter(p => p.status === 'rejected').length)
     window.filterPartners('all')
   }
 
@@ -1053,18 +1102,24 @@ body { -webkit-text-size-adjust: 100%; }
     }
     const tbody = document.getElementById('partnersTable')
     if (!tbody) return
-    const filtered = status === 'all' ? allPartners : allPartners.filter(p => p.status === status)
-    if (!filtered.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="6">없습니다.</td></tr>'; return; }
+    const pad = n => String(n).padStart(2,'0')
+    const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
+    const filtered = status === 'all' ? allPartners : allPartners.filter(p => (p.status || 'pending') === status)
+    if (!filtered.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="10">없습니다.</td></tr>'; return; }
     tbody.innerHTML = filtered.map(p => `<tr>
-      <td>${p.users?.name||'-'}</td>
-      <td style="font-size:11px;">${p.users?.email||'-'}</td>
       <td>${p.shop_name||'-'}</td>
-      <td>${p.shop_address||'-'}</td>
+      <td>${p.owner_name||'-'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${p.phone||'-'}</td>
+      <td style="font-size:11px;">${p.email||'-'}</td>
+      <td>${p.region||'-'}</td>
+      <td>${p.monthly_sales||'-'}</td>
+      <td>${p.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${p.partner_code}</span>`:'-'}</td>
+      <td style="font-size:11px;color:var(--muted);">${p.created_at?fmtDate(p.created_at):'-'}</td>
       <td><span class="badge badge-${p.status==='approved'?'normal':p.status==='rejected'?'stolen':'pending'}">${p.status==='approved'?'승인':p.status==='rejected'?'거절':'대기'}</span></td>
-      <td>${p.status==='pending'?`
+      <td>${(!p.status||p.status==='pending')?`
         <button class="action-btn accent" onclick="updatePartner('${p.id}','approved')">승인</button>
         <button class="action-btn danger" onclick="updatePartner('${p.id}','rejected')">거절</button>
-      `:p.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${p.partner_code}</span>`:'-'}</td>
+      `:'-'}</td>
     </tr>`).join('')
   }
 
@@ -1142,16 +1197,26 @@ body { -webkit-text-size-adjust: 100%; }
     }
 
     // NFC 스캔 로그
-    const { data: scans } = await supabase.from('scan_logs').select('*').order('scanned_at', { ascending: false }).limit(100)
+    const { data: scans } = await supabase.from('scan_logs').select('*').order('created_at', { ascending: false }).limit(100)
     const scanTbody = document.getElementById('logScanTable')
     if (!scans?.length) { scanTbody.innerHTML = '<tr class="loading-row"><td colspan="4">없습니다.</td></tr>' }
     else {
-      scanTbody.innerHTML = scans.map(s => `<tr>
-        <td style="font-family:'DM Mono',monospace;font-size:12px;">${s.bike_id||'-'}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:12px;">${s.bike_id||'-'}</td>
+      // 스캔된 자전거 정보 조회 (FK 임베드 의존 없이 안전하게)
+      const bikeIds = [...new Set(scans.map(s => s.bike_id).filter(Boolean))]
+      const bikeMap = {}
+      if (bikeIds.length) {
+        const { data: bks } = await supabase.from('bikes').select('id, serial, brand, model').in('id', bikeIds)
+        ;(bks || []).forEach(b => { bikeMap[b.id] = b })
+      }
+      scanTbody.innerHTML = scans.map(s => {
+        const b = bikeMap[s.bike_id]
+        return `<tr>
+        <td>${b ? `${b.brand||''} ${b.model||''}`.trim() || '-' : '-'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;">${b?.serial||'-'}</td>
         <td style="font-size:12px;">${parseUA(s.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${(s.user_agent||'').slice(0,60)}</span></td>
         <td style="font-size:11px;color:var(--muted);">${fmtDate(s.scanned_at || s.created_at)}</td>
-      </tr>`).join('')
+      </tr>`
+      }).join('')
     }
 
     // 파트너 신청 로그
