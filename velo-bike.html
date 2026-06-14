@@ -441,6 +441,32 @@ input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 </style>
+
+<style id="bounty-css">
+  .bounty-box { background:rgba(200,245,66,0.06); border:1px solid rgba(200,245,66,0.3); padding:22px 24px; margin-bottom:16px; }
+  .bounty-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; gap:12px; }
+  .bounty-label { font-size:11px; letter-spacing:3px; color:var(--accent); }
+  .bounty-amount { font-family:'Bebas Neue',sans-serif; font-size:38px; color:var(--accent); line-height:1; }
+  .bounty-desc { font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:16px; }
+  .finder-form { background:var(--gray); border:1px solid var(--border); padding:22px 24px; margin-bottom:16px; }
+  .finder-form .ff-title { font-size:13px; font-weight:500; letter-spacing:1px; margin-bottom:16px; }
+  .ff-field { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .ff-field label { font-size:11px; letter-spacing:1px; color:var(--muted); }
+  .ff-field input, .ff-field select, .ff-field textarea {
+    background:var(--black); border:1px solid var(--border); color:var(--white);
+    padding:12px 14px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; width:100%;
+  }
+  .ff-field input:focus, .ff-field select:focus, .ff-field textarea:focus { border-color:var(--accent); }
+  .ff-field textarea { resize:vertical; min-height:60px; }
+  .ff-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ff-photos-prev { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .ff-photos-prev img { width:60px; height:60px; object-fit:cover; border:1px solid var(--border); }
+  .btn-finder { background:var(--accent); color:var(--black); border:none; width:100%; padding:14px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:opacity 0.2s; }
+  .btn-finder:hover { opacity:0.9; }
+  .btn-finder:disabled { opacity:0.4; cursor:not-allowed; }
+  .claim-status { padding:20px 24px; border:1px solid var(--border); background:var(--gray); margin-bottom:16px; }
+  @media (max-width:480px) { .ff-row { grid-template-columns:1fr; } }
+</style>
 </head>
 <body id="pageBody">
 
@@ -470,6 +496,67 @@ body { -webkit-text-size-adjust: 100%; }
     </div>
     <div class="stolen-alert-date" id="stolenDate"></div>
   </div>
+
+  <!-- BOUNTY (도난 시) -->
+  <div class="bounty-box" id="bountyBox" style="display:none;">
+    <div class="bounty-head">
+      <div class="bounty-label">현상금 / BOUNTY</div>
+      <div class="bounty-amount" id="bountyAmount">-</div>
+    </div>
+    <div class="bounty-desc" id="bountyDesc">이 자전거를 발견하셨나요? 아래 정보를 제출하면 소유자가 확인 후 현상금을 지급합니다.</div>
+    <button class="btn-finder" type="button" id="openFinderBtn">🔍 발견 제보하기</button>
+  </div>
+
+  <!-- 발견자 신고 폼 -->
+  <div class="finder-form" id="finderForm" style="display:none;">
+    <div class="ff-title">발견 제보</div>
+    <div class="ff-row">
+      <div class="ff-field">
+        <label>발견자 이름 *</label>
+        <input type="text" id="ffName" placeholder="홍길동">
+      </div>
+      <div class="ff-field">
+        <label>연락처 *</label>
+        <input type="tel" id="ffPhone" placeholder="010-0000-0000" inputmode="tel">
+      </div>
+    </div>
+    <div class="ff-row">
+      <div class="ff-field">
+        <label>은행 *</label>
+        <select id="ffBank">
+          <option value="">선택</option>
+          <option>국민은행</option><option>신한은행</option><option>우리은행</option>
+          <option>하나은행</option><option>농협은행</option><option>카카오뱅크</option>
+          <option>토스뱅크</option><option>기업은행</option><option>새마을금고</option><option>기타</option>
+        </select>
+      </div>
+      <div class="ff-field">
+        <label>계좌번호 *</label>
+        <input type="text" id="ffAccount" placeholder="'-' 없이 숫자만" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      </div>
+    </div>
+    <div class="ff-field">
+      <label>발견 위치 *</label>
+      <input type="text" id="ffLocation" placeholder="예: 서울시 강남구 역삼동 OO 앞">
+    </div>
+    <div class="ff-field">
+      <label>상세 위치 (선택)</label>
+      <textarea id="ffDetail" placeholder="자전거가 묶여있던 곳, 주변 특징 등"></textarea>
+    </div>
+    <div class="ff-field">
+      <label>발견 시간</label>
+      <input type="datetime-local" id="ffFoundAt">
+    </div>
+    <div class="ff-field">
+      <label>사진 첨부 (최대 4장, 선택)</label>
+      <input type="file" id="ffPhotos" accept="image/*" multiple>
+      <div class="ff-photos-prev" id="ffPhotoPreview"></div>
+    </div>
+    <button class="btn-finder" type="button" id="submitFinderBtn">제보 제출하기</button>
+  </div>
+
+  <!-- 제보 상태 (재방문 발견자) -->
+  <div class="claim-status" id="claimStatus" style="display:none;"></div>
 
   <!-- OWNER CARD -->
   <div class="owner-card">
@@ -600,7 +687,7 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script type="module">
-  import { getBikeBySerial, maskPhone, supabase } from '/velo-supabase.js'
+  import { getBikeBySerial, maskPhone, supabase, submitBountyClaim, uploadClaimPhotos, getBountyClaim, submitDispute } from '/velo-supabase.js'
 
   const pad = n => String(n).padStart(2, '0')
 
@@ -645,6 +732,7 @@ body { -webkit-text-size-adjust: 100%; }
       const now = new Date(bike.stolen_at)
       document.getElementById('stolenDate').textContent =
         `신고일: ${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
+      setupBounty(bike)
     } else {
       banner.className = 'status-banner safe'
       banner.innerHTML = '<span class="status-icon">✓</span><span class="status-text">벨로에 등록된 자전거입니다</span><span class="status-badge">정상</span>'
@@ -774,6 +862,117 @@ body { -webkit-text-size-adjust: 100%; }
 
     // 연식
     if (bike.year) document.querySelector('.bike-year').textContent = `${bike.year}년식`
+  }
+
+  // ===== 현상금 / 발견자 제보 =====
+  async function setupBounty(bike) {
+    const box = document.getElementById('bountyBox')
+    const desc = document.getElementById('bountyDesc')
+    const amt = document.getElementById('bountyAmount')
+    box.style.display = 'block'
+
+    if (bike.bounty && !bike.bounty_paid) {
+      amt.textContent = '₩' + Number(bike.bounty).toLocaleString()
+    } else if (bike.bounty_paid) {
+      amt.textContent = '지급 완료'
+      desc.textContent = '이 자전거의 현상금은 이미 지급되었습니다.'
+    } else {
+      amt.textContent = '미설정'
+      desc.textContent = '소유자가 현상금을 설정하지 않았지만, 발견 정보를 제보할 수 있습니다.'
+    }
+
+    // 발견 시간 기본값 (현재)
+    const foundAtInput = document.getElementById('ffFoundAt')
+    const local = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+    foundAtInput.value = local.toISOString().slice(0, 16)
+
+    // 폼 열기
+    document.getElementById('openFinderBtn').addEventListener('click', () => {
+      document.getElementById('finderForm').style.display = 'block'
+      document.getElementById('openFinderBtn').style.display = 'none'
+      document.getElementById('finderForm').scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+
+    // 사진 미리보기
+    let finderPhotos = []
+    document.getElementById('ffPhotos').addEventListener('change', (e) => {
+      finderPhotos = Array.from(e.target.files).slice(0, 4)
+      document.getElementById('ffPhotoPreview').innerHTML =
+        finderPhotos.map(f => `<img src="${URL.createObjectURL(f)}" alt="">`).join('')
+    })
+
+    // 제출
+    const v = id => document.getElementById(id).value.trim()
+    document.getElementById('submitFinderBtn').addEventListener('click', async () => {
+      const name = v('ffName'), phone = v('ffPhone'), bank = v('ffBank'),
+            account = v('ffAccount'), location = v('ffLocation'), detail = v('ffDetail')
+      const foundAtVal = document.getElementById('ffFoundAt').value
+      if (!name || !phone || !bank || !account || !location) {
+        alert('이름, 연락처, 은행, 계좌번호, 발견 위치는 필수입니다.'); return
+      }
+      const btn = document.getElementById('submitFinderBtn')
+      btn.disabled = true; btn.textContent = '제출 중...'
+      try {
+        let photoUrls = []
+        if (finderPhotos.length) {
+          try { photoUrls = await uploadClaimPhotos(finderPhotos, bike.id) } catch (e) { /* 업로드 실패해도 제보는 진행 */ }
+        }
+        const claim = await submitBountyClaim({
+          bikeId: bike.id, finderName: name, finderPhone: phone, finderBank: bank,
+          finderAccount: account, location, locationDetail: detail, photos: photoUrls,
+          foundAt: foundAtVal ? new Date(foundAtVal).toISOString() : null
+        })
+        localStorage.setItem('velo_claim_' + bike.id, claim.id)
+        try {
+          const { createNotification } = await import('/velo-supabase.js')
+          await createNotification(bike.user_id, 'bounty', `${bike.brand} ${bike.model} 발견 제보가 접수되었습니다.`, bike.id)
+        } catch (e) {}
+        renderClaimStatus(claim)
+      } catch (e) {
+        alert('제보 실패: ' + e.message)
+        btn.disabled = false; btn.textContent = '제보 제출하기'
+      }
+    })
+
+    // 기존 제보 상태 확인 (재방문 발견자)
+    const savedClaimId = localStorage.getItem('velo_claim_' + bike.id)
+    if (savedClaimId) {
+      try {
+        const claim = await getBountyClaim(savedClaimId)
+        if (claim) renderClaimStatus(claim)
+      } catch (e) {}
+    }
+  }
+
+  function renderClaimStatus(claim) {
+    document.getElementById('finderForm').style.display = 'none'
+    document.getElementById('bountyBox').style.display = 'none'
+    const card = document.getElementById('claimStatus')
+    card.style.display = 'block'
+    const map = {
+      pending: { t: '✅ 제보 접수 완료', d: '소유자가 제보를 확인 중입니다. 현상금 지급 여부는 소유자가 결정합니다.' },
+      paid: { t: '🎉 현상금 지급 처리됨', d: '소유자가 회원님의 제보를 채택했습니다. 입력하신 계좌로 현상금이 지급됩니다.' },
+      rejected: { t: '제보 미채택', d: '이번 제보는 채택되지 않았습니다. 부당하다고 생각되면 벨로에 이의를 제기할 수 있습니다.' },
+      disputed: { t: '⚖️ 이의 제기 접수됨', d: '벨로가 이의 제기를 검토 중입니다. 결과는 입력하신 연락처로 안내됩니다.' }
+    }
+    const s = map[claim.status] || map.pending
+    let html = `<div style="font-size:15px; font-weight:500; margin-bottom:6px;">${s.t}</div>` +
+               `<div style="font-size:13px; color:var(--muted); line-height:1.7;">${s.d}</div>`
+    if (claim.status === 'rejected' || claim.status === 'paid') {
+      html += `<button id="disputeBtn" type="button" style="margin-top:14px; background:none; border:1px solid var(--border); color:var(--muted); padding:10px 18px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer;">⚖️ 이의 제기</button>`
+    }
+    card.innerHTML = html
+    const db = document.getElementById('disputeBtn')
+    if (db) db.addEventListener('click', async () => {
+      const reason = prompt('이의 제기 사유를 입력해주세요 (벨로가 검토합니다):')
+      if (!reason || !reason.trim()) return
+      try {
+        await submitDispute(claim.id, reason.trim())
+        alert('이의 제기가 접수되었습니다. 벨로가 검토 후 연락드립니다.')
+        claim.status = 'disputed'
+        renderClaimStatus(claim)
+      } catch (e) { alert('오류: ' + e.message) }
+    })
   }
 
   // 탭 전환

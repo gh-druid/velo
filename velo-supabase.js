@@ -139,7 +139,7 @@ export async function getBikeByNfcUid(nfcUid) {
 }
 
 // 자전거 등록
-export async function registerBike({ serial, brand, model, year, color, memo, partnerCode, photos }) {
+export async function registerBike({ serial, brand, model, year, color, memo, partnerCode, photos, bounty }) {
   const user = await getUser()
   if (!user) throw new Error('로그인이 필요합니다')
 
@@ -155,7 +155,9 @@ export async function registerBike({ serial, brand, model, year, color, memo, pa
       memo,
       photos,
       status: 'normal',
-      partner_code: partnerCode || null
+      partner_code: partnerCode || null,
+      bounty: bounty || null,
+      bounty_paid: false
     })
     .select()
     .single()
@@ -345,6 +347,181 @@ export async function startSubscription(plan) {
   })
 
   await supabase.from('users').update({ plan }).eq('id', user.id)
+}
+
+// =============================================
+// BOUNTY (현상금) — 도난 자전거 제보 & 지급
+// =============================================
+
+// 제보 사진 업로드 (발견자 — 비로그인 가능)
+export async function uploadClaimPhotos(files, bikeId) {
+  const urls = []
+  for (const file of files) {
+    const ext = (file.name.split('.').pop() || 'jpg')
+    const path = `claims/${bikeId}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`
+    const { error } = await supabase.storage.from('bike-photos').upload(path, file, { upsert: true })
+    if (error) throw error
+    const { data: { publicUrl } } = supabase.storage.from('bike-photos').getPublicUrl(path)
+    urls.push(publicUrl)
+  }
+  return urls
+}
+
+// 제보 등록 (발견자 — 비로그인 가능)
+export async function submitBountyClaim({ bikeId, finderName, finderPhone, finderBank, finderAccount, location, locationDetail, photos, foundAt }) {
+  const { data, error } = await supabase
+    .from('bounty_claims')
+    .insert({
+      bike_id: bikeId,
+      finder_name: finderName,
+      finder_phone: finderPhone,
+      finder_bank: finderBank,
+      finder_account: finderAccount,
+      location,
+      location_detail: locationDetail || null,
+      photos: photos || [],
+      found_at: foundAt || new Date().toISOString(),
+      status: 'pending'
+    })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+// 특정 자전거의 제보 목록 (소유자용)
+export async function getBountyClaims(bikeId) {
+  const { data, error } = await supabase
+    .from('bounty_claims')
+    .select('*')
+    .eq('bike_id', bikeId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+// 단일 제보 조회 (발견자가 자기 제보 상태 확인용)
+export async function getBountyClaim(claimId) {
+  const { data, error } = await supabase
+    .from('bounty_claims')
+    .select('*, bikes(brand, model, serial, bounty, bounty_paid, user_id)')
+    .eq('id', claimId)
+    .single()
+  if (error) throw error
+  return data
+}
+
+// 바운티 N분할 지급 (소유자) — 선택한 제보자들에게 균등 분할
+export async function payBounty(bikeId, claimIds) {
+  const user = await getUser()
+  if (!user) throw new Error('로그인이 필요합니다')
+  if (!claimIds || !claimIds.length) throw new Error('지급할 제보자를 선택해주세요')
+
+  const { data: bike } = await supabase
+    .from('bikes')
+    .select('id, user_id, bounty')
+    .eq('id', bikeId)
+    .single()
+  if (!bike) throw new Error('자전거를 찾을 수 없습니다')
+  if (bike.user_id !== user.id) throw new Error('본인 자전거만 지급할 수 있습니다')
+
+  const total = bike.bounty || 0
+  const share = claimIds.length ? Math.floor(total / claimIds.length) : 0
+
+  // 선택된 제보 → 지급 완료
+  const { error: e1 } = await supabase
+    .from('bounty_claims')
+    .update({ status: 'paid' })
+    .in('id', claimIds)
+  if (e1) throw e1
+
+  // 자전거 바운티 지급 처리
+  await supabase.from('bikes').update({ bounty_paid: true }).eq('id', bikeId)
+
+  return { share, count: claimIds.length, total }
+}
+
+// 제보 거절 (소유자/관리자)
+export async function rejectClaim(claimId) {
+  const { error } = await supabase
+    .from('bounty_claims')
+    .update({ status: 'rejected' })
+    .eq('id', claimId)
+  if (error) throw error
+}
+
+// 이의 제기 (발견자) — 억울한 경우 벨로에 이의 제기
+export async function submitDispute(claimId, reason) {
+  const { error } = await supabase
+    .from('bounty_claims')
+    .update({ status: 'disputed' })
+    .eq('id', claimId)
+  if (error) throw error
+  // 사유는 별도 테이블에 best-effort 저장 (테이블 없어도 무방)
+  try {
+    await supabase.from('bounty_disputes').insert({ claim_id: claimId, reason: reason || null, status: 'open' })
+  } catch (e) { /* noop */ }
+  return true
+}
+
+// =============================================
+// BOUNTY — 관리자 (admin)
+// =============================================
+
+// 전체 제보 목록 (admin)
+export async function getAllBountyClaims() {
+  const { data, error } = await supabase
+    .from('bounty_claims')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+// 이의 제기 목록 (admin) — disputed 상태 제보
+export async function getDisputedClaims() {
+  const { data, error } = await supabase
+    .from('bounty_claims')
+    .select('*')
+    .eq('status', 'disputed')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+// 제보 상태 변경 (admin) — 승인(paid)/거절(rejected)/대기(pending)
+export async function adminUpdateClaimStatus(claimId, status) {
+  const { error } = await supabase
+    .from('bounty_claims')
+    .update({ status })
+    .eq('id', claimId)
+  if (error) throw error
+}
+
+// 바운티 금액 조정 (admin)
+export async function adminAdjustBounty(bikeId, amount) {
+  const { error } = await supabase
+    .from('bikes')
+    .update({ bounty: amount })
+    .eq('id', bikeId)
+  if (error) throw error
+}
+
+// 계정 경고 (admin) — 경고 3회면 자동 정지
+export async function adminWarnUser(userId) {
+  const { data: u } = await supabase.from('users').select('warning_count').eq('id', userId).single()
+  const warningCount = (u?.warning_count || 0) + 1
+  const updates = { warning_count: warningCount }
+  if (warningCount >= 3) updates.is_suspended = true
+  const { error } = await supabase.from('users').update(updates).eq('id', userId)
+  if (error) throw error
+  return { warningCount, suspended: warningCount >= 3 }
+}
+
+// 계정 정지/해제 (admin)
+export async function adminSetSuspended(userId, suspended) {
+  const { error } = await supabase.from('users').update({ is_suspended: !!suspended }).eq('id', userId)
+  if (error) throw error
 }
 
 // =============================================

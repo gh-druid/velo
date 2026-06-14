@@ -520,6 +520,13 @@ body { -webkit-text-size-adjust: 100%; }
         <input type="text" id="partnerCode" placeholder="파트너 샵에서 받은 코드 입력" style="letter-spacing:2px; font-family:'DM Mono',monospace;" oninput="this.value=this.value.toUpperCase()">
         <div class="field-hint">파트너 샵을 통해 등록 시 코드를 입력해주세요.</div>
       </div>
+
+      <div class="field span2">
+        <label>현상금 / 바운티 (선택)</label>
+        <input type="number" id="bounty" placeholder="예: 50000" min="10000" step="1000" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <div class="field-hint">도난 시 자전거를 찾아준 제보자에게 지급할 현상금입니다. 설정 시 최소 10,000원 이상. 도난 신고 시 스캔 화면에 노출됩니다.</div>
+        <div class="field-error" id="bountyErr">현상금은 최소 10,000원 이상이어야 합니다.</div>
+      </div>
     </div>
 
     <div class="form-nav">
@@ -872,13 +879,22 @@ body { -webkit-text-size-adjust: 100%; }
       const color = document.getElementById('color').value.trim()
       const memo = document.getElementById('memo').value.trim()
       const partnerCode = document.getElementById('partnerCode').value.trim() || null
+      const bountyRaw = parseInt(document.getElementById('bounty').value, 10) || 0
+      // 현상금은 선택사항이나, 입력 시 최소 10,000원
+      if (bountyRaw > 0 && bountyRaw < 10000) {
+        showErr('bountyErr', true)
+        alert('현상금은 최소 10,000원 이상이어야 합니다.')
+        return
+      }
+      showErr('bountyErr', false)
+      const bounty = bountyRaw >= 10000 ? bountyRaw : null
 
       const btn = document.querySelector('#step3 .btn-next')
       btn.textContent = '저장 중...'; btn.disabled = true
 
       try {
         // 자전거 등록
-        const bike = await registerBike({ serial, brand, model, year, color, memo, partnerCode, photos: [] })
+        const bike = await registerBike({ serial, brand, model, year, color, memo, partnerCode, photos: [], bounty })
 
         // 사진 업로드 (파일이 있으면)
         const photoInput = document.getElementById('photoInput')

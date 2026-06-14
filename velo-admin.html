@@ -164,6 +164,7 @@ body { -webkit-text-size-adjust: 100%; }
     <button class="tab" data-tab="partners">🤝 파트너십</button>
     <button class="tab" data-tab="discounts">🎟️ 할인코드</button>
     <button class="tab" data-tab="referral">🔗 레퍼럴</button>
+    <button class="tab" data-tab="bounty">🎯 바운티 클레임</button>
     <button class="tab" data-tab="logs">📋 접속 로그</button>
   </div>
 
@@ -567,6 +568,40 @@ body { -webkit-text-size-adjust: 100%; }
     </div>
   </div><!-- /tab-logs -->
 
+  <!-- 바운티 클레임 탭 -->
+  <div class="tab-content" id="tab-bounty" style="padding:0 40px 60px;">
+
+    <!-- 이의 제기 -->
+    <div class="table-wrap" style="margin-bottom:16px;">
+      <div class="table-header">
+        <div class="table-title">이의 제기 (Disputes)</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>발견자</th><th>자전거</th><th>발견 위치</th><th>접수일</th><th>처리</th></tr>
+        </thead>
+        <tbody id="disputesTable">
+          <tr class="loading-row"><td colspan="5">탭을 선택하면 불러옵니다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 전체 제보 -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">전체 바운티 제보</div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>발견자</th><th>연락처/계좌</th><th>자전거</th><th>소유자</th><th>현상금</th><th>위치/시간</th><th>상태</th><th>처리</th></tr>
+        </thead>
+        <tbody id="bountyClaimsTable">
+          <tr class="loading-row"><td colspan="8">탭을 선택하면 불러옵니다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div><!-- /tab-bounty -->
+
 </div><!-- /content -->
 
 <!-- 계정 정지 모달 -->
@@ -600,7 +635,7 @@ body { -webkit-text-size-adjust: 100%; }
 <div class="toast" id="toast"></div>
 
 <script type="module">
-  import { supabase, getUser, signOut } from '/velo-supabase.js'
+  import { supabase, getUser, signOut, getAllBountyClaims, adminUpdateClaimStatus, adminAdjustBounty, adminWarnUser, adminSetSuspended } from '/velo-supabase.js'
 
   // 관리자 이메일 (본인 이메일로 바꿔줘요)
   const ADMIN_EMAIL = 'velokr20@gmail.com'
@@ -935,6 +970,7 @@ body { -webkit-text-size-adjust: 100%; }
     if (name === 'discounts') loadDiscounts()
     if (name === 'referral') loadReferral()
     if (name === 'logs') loadLogs()
+    if (name === 'bounty') loadBounty()
   }
 
   // 쿠폰 타입 변경 시 UI 조정
@@ -1252,6 +1288,98 @@ body { -webkit-text-size-adjust: 100%; }
     await supabase.from('referral_withdrawals').update({ status: 'completed' }).eq('id', id)
     showToast('✅ 입금 완료 처리됐습니다.')
     await loadReferral()
+  }
+
+  // ===== 바운티 클레임 =====
+  let bountyBikeMap = {}
+  async function loadBounty() {
+    let claims = []
+    try { claims = await getAllBountyClaims() } catch(e) {
+      document.getElementById('bountyClaimsTable').innerHTML = `<tr class="loading-row"><td colspan="8">불러오기 실패: ${e.message}</td></tr>`
+      return
+    }
+    // 자전거/소유자 정보 매핑
+    const ids = [...new Set(claims.map(c => c.bike_id).filter(Boolean))]
+    bountyBikeMap = {}
+    if (ids.length) {
+      const { data: bks } = await supabase.from('bikes')
+        .select('id, user_id, brand, model, serial, bounty, bounty_paid, users(name, email)')
+        .in('id', ids)
+      ;(bks || []).forEach(b => { bountyBikeMap[b.id] = b })
+    }
+    renderBountyClaims(claims)
+    renderDisputes(claims.filter(c => c.status === 'disputed'))
+  }
+
+  const _bpad = n => String(n).padStart(2,'0')
+  const _bfmt = d => { if(!d) return '-'; const dt = new Date(d); return `${dt.getFullYear()}.${_bpad(dt.getMonth()+1)}.${_bpad(dt.getDate())}` }
+  const _bStatus = { pending:'대기', paid:'지급', rejected:'거절', disputed:'이의제기' }
+
+  function renderBountyClaims(claims) {
+    const tbody = document.getElementById('bountyClaimsTable')
+    if (!claims.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">제보가 없습니다.</td></tr>'; return }
+    tbody.innerHTML = claims.map(c => {
+      const b = bountyBikeMap[c.bike_id]
+      const owner = b?.users
+      return `<tr>
+        <td>${c.finder_name||'-'}</td>
+        <td style="font-size:11px;">${c.finder_phone||'-'}<br><span style="color:var(--muted);">${c.finder_bank||''} ${c.finder_account||''}</span></td>
+        <td style="font-size:12px;">${b?`${b.brand} ${b.model}`:'-'}<br><span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${b?.serial||''}</span></td>
+        <td style="font-size:12px;">${owner?.name||'-'}</td>
+        <td style="color:var(--accent); white-space:nowrap;">${b?.bounty?('₩'+b.bounty.toLocaleString()):'-'}${b?.bounty_paid?'<br><span style="font-size:10px; color:var(--muted);">지급완료</span>':''}</td>
+        <td style="font-size:12px;">${c.location||'-'}<br><span style="font-size:10px; color:var(--muted);">${_bfmt(c.found_at)}</span></td>
+        <td><span class="badge badge-${c.status==='paid'?'normal':c.status==='rejected'?'stolen':'pending'}">${_bStatus[c.status]||c.status}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="action-btn accent" onclick="bAdminApprove('${c.id}')">승인</button>
+          <button class="action-btn danger" onclick="bAdminReject('${c.id}')">거절</button>
+          ${b?`<button class="action-btn" onclick="bAdminAdjust('${b.id}',${b.bounty||0})">금액조정</button>`:''}
+          ${b?.user_id?`<button class="action-btn" onclick="bAdminWarn('${b.user_id}')">소유자경고</button><button class="action-btn danger" onclick="bAdminSuspend('${b.user_id}')">소유자정지</button>`:''}
+        </td>
+      </tr>`
+    }).join('')
+  }
+
+  function renderDisputes(list) {
+    const tbody = document.getElementById('disputesTable')
+    if (!list.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="5">이의 제기가 없습니다.</td></tr>'; return }
+    tbody.innerHTML = list.map(c => {
+      const b = bountyBikeMap[c.bike_id]
+      return `<tr>
+        <td>${c.finder_name||'-'}<br><span style="font-size:11px; color:var(--muted);">${c.finder_phone||''}</span></td>
+        <td style="font-size:12px;">${b?`${b.brand} ${b.model}`:'-'}<br><span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${b?.serial||''}</span></td>
+        <td style="font-size:12px;">${c.location||'-'}${c.location_detail?`<br><span style="font-size:10px; color:var(--muted);">${c.location_detail}</span>`:''}</td>
+        <td style="font-size:11px; color:var(--muted);">${_bfmt(c.created_at)}</td>
+        <td style="white-space:nowrap;">
+          <button class="action-btn accent" onclick="bResolveDispute('${c.id}','paid')">인정(지급)</button>
+          <button class="action-btn danger" onclick="bResolveDispute('${c.id}','rejected')">기각</button>
+        </td>
+      </tr>`
+    }).join('')
+  }
+
+  window.bAdminApprove = async function(id) {
+    try { await adminUpdateClaimStatus(id, 'paid'); showToast('✅ 제보 승인(지급) 처리'); loadBounty() } catch(e) { showToast('오류: ' + e.message) }
+  }
+  window.bAdminReject = async function(id) {
+    try { await adminUpdateClaimStatus(id, 'rejected'); showToast('제보 거절 처리'); loadBounty() } catch(e) { showToast('오류: ' + e.message) }
+  }
+  window.bAdminAdjust = async function(bikeId, cur) {
+    const v = prompt('현상금 금액을 입력하세요 (원):', cur)
+    if (v === null) return
+    const amt = parseInt(v, 10)
+    if (isNaN(amt) || amt < 0) { showToast('올바른 금액을 입력하세요'); return }
+    try { await adminAdjustBounty(bikeId, amt); showToast('현상금 금액 조정 완료'); loadBounty() } catch(e) { showToast('오류: ' + e.message) }
+  }
+  window.bAdminWarn = async function(userId) {
+    if (!confirm('이 소유자에게 경고를 부여하시겠습니까?\n(경고 3회 시 자동 정지됩니다)')) return
+    try { const r = await adminWarnUser(userId); showToast(r.suspended ? '⚠ 경고 3회 — 계정 정지됨' : `경고 부여 (${r.warningCount}회)`) } catch(e) { showToast('오류: ' + e.message) }
+  }
+  window.bAdminSuspend = async function(userId) {
+    if (!confirm('이 소유자 계정을 정지하시겠습니까?')) return
+    try { await adminSetSuspended(userId, true); showToast('계정 정지 처리됨') } catch(e) { showToast('오류: ' + e.message) }
+  }
+  window.bResolveDispute = async function(claimId, status) {
+    try { await adminUpdateClaimStatus(claimId, status); showToast(status === 'paid' ? '이의 인정 — 지급 처리' : '이의 기각 처리'); loadBounty() } catch(e) { showToast('오류: ' + e.message) }
   }
 
   function showToast(msg) {

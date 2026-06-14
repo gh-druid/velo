@@ -422,10 +422,25 @@ body { -webkit-text-size-adjust: 100%; }
   </div>
 </div>
 
+<!-- 현상금 제보 모달 -->
+<div class="modal-overlay" id="claimsModal" onclick="closeModal('claimsModal',event)">
+  <div class="modal" style="max-width:580px;">
+    <button class="modal-close" onclick="document.getElementById('claimsModal').classList.remove('active')">×</button>
+    <div class="modal-title">발견 제보</div>
+    <div class="modal-sub" id="claimsSub">제보 목록</div>
+    <div id="claimsBounty" style="background:var(--black); border:1px solid var(--border); padding:14px 16px; font-size:14px; margin-bottom:16px;"></div>
+    <div id="claimsList" style="max-height:46vh; overflow:auto; margin-bottom:16px;"></div>
+    <div style="border-top:1px solid var(--border); padding-top:16px;">
+      <div id="claimsShareInfo" style="font-size:13px; color:var(--muted); margin-bottom:12px;">제보자를 선택하면 현상금이 N분할됩니다.</div>
+      <button class="btn-primary" id="payBountyBtn" style="width:100%; opacity:0.4;" disabled onclick="payToSelected()">선택한 제보자에게 분할 지급</button>
+    </div>
+  </div>
+</div>
+
 <script>
 </script>
 <script type="module">
-  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode } from '/velo-supabase.js'
+  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getBountyClaims, payBounty, rejectClaim } from '/velo-supabase.js'
 
   let currentBikes = []
   let currentBikeId = null
@@ -519,6 +534,7 @@ body { -webkit-text-size-adjust: 100%; }
               ${bike.status === 'stolen' ? '신고 취소' : '도난 신고'}
             </button>
             ${!hasSubscription ? `<button class="bike-btn accent" onclick="location.href='/payment'">구독 시작 →</button>` : ''}
+            ${bike.status === 'stolen' ? `<button class="bike-btn accent" onclick="openClaims('${bike.id}','${bike.model}')">🎯 제보 확인</button>` : ''}
             <button class="bike-btn accent" onclick="location.href='/bike/${bike.serial}'">상세 →</button>
             <button class="bike-btn danger" onclick="openDelete('${bike.id}','${bike.model}')">삭제</button>
           </div>
@@ -650,6 +666,111 @@ body { -webkit-text-size-adjust: 100%; }
       })
     } catch(e) {
       alert(e.message)
+    }
+  }
+
+  // ===== 현상금 제보 =====
+  let claimsBikeId = null
+  let claimsData = []
+  let claimsBountyAmt = 0
+
+  window.openClaims = async function(id, model) {
+    claimsBikeId = id
+    const bike = currentBikes.find(b => b.id === id)
+    claimsBountyAmt = bike?.bounty || 0
+    document.getElementById('claimsSub').textContent = `"${model}" 도난 자전거 발견 제보`
+    document.getElementById('claimsBounty').innerHTML = claimsBountyAmt
+      ? `현상금 <strong style="color:var(--accent);">₩${claimsBountyAmt.toLocaleString()}</strong>${bike?.bounty_paid ? ' · <span style="color:var(--accent);">지급 완료</span>' : ''}`
+      : '현상금이 설정되지 않은 자전거입니다.'
+    document.getElementById('claimsList').innerHTML = '<div style="padding:24px; color:var(--muted); font-size:13px;">불러오는 중...</div>'
+    document.getElementById('claimsModal').classList.add('active')
+    try {
+      claimsData = await getBountyClaims(id)
+      renderClaims()
+    } catch(e) {
+      document.getElementById('claimsList').innerHTML = `<div style="padding:24px; color:var(--error); font-size:13px;">불러오기 실패: ${e.message}</div>`
+    }
+  }
+
+  function renderClaims() {
+    const list = document.getElementById('claimsList')
+    const bike = currentBikes.find(b => b.id === claimsBikeId)
+    const paid = bike?.bounty_paid
+    if (!claimsData.length) {
+      list.innerHTML = '<div style="padding:24px; color:var(--muted); font-size:13px; text-align:center;">아직 제보가 없습니다.</div>'
+      updateShareInfo(); return
+    }
+    const pad = n => String(n).padStart(2,'0')
+    const fmt = d => { if(!d) return '-'; const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}` }
+    const sLabel = { pending:'대기', paid:'지급됨', rejected:'거절', disputed:'이의제기' }
+    const sColor = { pending:'var(--warning)', paid:'var(--accent)', rejected:'var(--muted)', disputed:'var(--warning)' }
+    list.innerHTML = claimsData.map(c => {
+      const selectable = c.status === 'pending' && !paid
+      const photos = (c.photos || []).map(u => `<img src="${u}" style="width:48px; height:48px; object-fit:cover; border:1px solid var(--border);">`).join('')
+      return `
+      <div style="border:1px solid var(--border); padding:14px 16px; margin-bottom:8px; display:flex; gap:12px; align-items:flex-start;">
+        ${selectable ? `<input type="checkbox" class="claim-check" value="${c.id}" onchange="updateShareInfo()" style="margin-top:4px; width:18px; height:18px; flex-shrink:0;">` : `<span style="width:18px; flex-shrink:0;"></span>`}
+        <div style="flex:1; min-width:0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+            <span style="font-size:14px; font-weight:500;">${c.finder_name || '-'}</span>
+            <span style="font-size:10px; letter-spacing:1px; padding:2px 8px; border:1px solid; color:${sColor[c.status]||'var(--muted)'}; border-color:currentColor;">${sLabel[c.status]||c.status}</span>
+          </div>
+          <div style="font-size:12px; color:var(--muted); line-height:1.7;">
+            📞 ${c.finder_phone || '-'} · 🏦 ${c.finder_bank || '-'} ${c.finder_account || ''}<br>
+            📍 ${c.location || '-'}${c.location_detail ? ' · ' + c.location_detail : ''}<br>
+            🕒 ${fmt(c.found_at)}
+          </div>
+          ${photos ? `<div style="display:flex; gap:4px; margin-top:8px; flex-wrap:wrap;">${photos}</div>` : ''}
+          ${selectable ? `<button class="bike-btn danger" style="margin-top:8px;" onclick="rejectOneClaim('${c.id}')">제보 거절</button>` : ''}
+        </div>
+      </div>`
+    }).join('')
+    updateShareInfo()
+  }
+
+  window.updateShareInfo = function() {
+    const checked = document.querySelectorAll('.claim-check:checked')
+    const n = checked.length
+    const info = document.getElementById('claimsShareInfo')
+    const btn = document.getElementById('payBountyBtn')
+    if (n === 0) {
+      info.textContent = '제보자를 선택하면 현상금이 N분할됩니다.'
+      btn.disabled = true; btn.style.opacity = '0.4'; return
+    }
+    const share = claimsBountyAmt ? Math.floor(claimsBountyAmt / n) : 0
+    info.innerHTML = `${n}명 선택 · 1인당 <strong style="color:var(--accent);">₩${share.toLocaleString()}</strong> 지급`
+    btn.disabled = false; btn.style.opacity = '1'
+  }
+
+  window.rejectOneClaim = async function(claimId) {
+    if (!confirm('이 제보를 거절하시겠습니까?')) return
+    try {
+      await rejectClaim(claimId)
+      claimsData = claimsData.map(c => c.id === claimId ? { ...c, status: 'rejected' } : c)
+      renderClaims()
+    } catch(e) { alert('오류: ' + e.message) }
+  }
+
+  window.payToSelected = async function() {
+    const checked = [...document.querySelectorAll('.claim-check:checked')].map(c => c.value)
+    if (!checked.length) { alert('지급할 제보자를 선택해주세요.'); return }
+    const share = claimsBountyAmt ? Math.floor(claimsBountyAmt / checked.length) : 0
+    if (!confirm(`${checked.length}명에게 각 ₩${share.toLocaleString()}씩 분할 지급 처리하시겠습니까?`)) return
+    const btn = document.getElementById('payBountyBtn')
+    btn.disabled = true; btn.textContent = '처리 중...'
+    try {
+      await payBounty(claimsBikeId, checked)
+      try {
+        const { createNotification } = await import('/velo-supabase.js')
+        await createNotification(currentUser.id, 'bounty', `현상금을 ${checked.length}명의 제보자에게 분할 지급 처리했습니다.`, claimsBikeId)
+      } catch(e) {}
+      alert('현상금 지급 처리가 완료되었습니다.')
+      document.getElementById('claimsModal').classList.remove('active')
+      btn.textContent = '선택한 제보자에게 분할 지급'
+      await loadBikes()
+    } catch(e) {
+      alert('지급 실패: ' + e.message)
+      btn.disabled = false; btn.style.opacity = '1'; btn.textContent = '선택한 제보자에게 분할 지급'
     }
   }
 
