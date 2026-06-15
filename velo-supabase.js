@@ -71,16 +71,18 @@ export async function getUser() {
 }
 
 // 현재 유저 프로필 가져오기
+// 주의: users.email 컬럼은 anon/authenticated 가 읽을 수 없음(이메일 보호).
+//       본인 이메일은 auth 세션에서 가져와 합쳐준다.
 export async function getUserProfile() {
   const user = await getUser()
   if (!user) return null
   const { data, error } = await supabase
     .from('users')
-    .select('*')
+    .select('id, name, phone, plan, created_at, is_admin, lifetime_free, referral_code, avg_rating, warning_count, is_suspended')
     .eq('id', user.id)
     .single()
   if (error) throw error
-  return data
+  return { ...data, email: user.email }
 }
 
 // 프로필 수정

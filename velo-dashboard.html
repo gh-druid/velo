@@ -453,7 +453,7 @@ body { -webkit-text-size-adjust: 100%; }
     if (!currentUser) { location.href = 'velo-auth.html'; return; }
 
     // 유저 정보
-    const { data: profile } = await supabase.from('users').select('*').eq('id', currentUser.id).single()
+    const { data: profile } = await supabase.from('users').select('id, name, plan, is_admin, lifetime_free').eq('id', currentUser.id).single()
     if (profile) {
       hasSubscription = profile.plan === 'monthly' || profile.plan === 'yearly' || profile.plan === 'lifetime' || profile.lifetime_free
       const initial = profile.name ? profile.name[0] : '?'
