@@ -316,7 +316,7 @@ body { -webkit-text-size-adjust: 100%; }
 </div>
 
 <script type="module">
-  import { getUser, getUserProfile, startSubscription, getMyBikes, supabase, validateDiscountCode, useDiscountCode } from '/velo-supabase.js'
+  import { getUser, getUserProfile, startSubscription, getMyBikes, supabase, validateDiscountCode, useDiscountCode, escapeHtml as esc } from '/velo-supabase.js'
 
   const TOSS_CLIENT_KEY = 'YOUR_TOSS_CLIENT_KEY'
 
@@ -371,9 +371,9 @@ body { -webkit-text-size-adjust: 100%; }
           onclick="selectBike('${b.id}')"
           style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div class="product-name">${b.brand.toUpperCase()}</div>
-            <div style="font-size:16px; font-weight:500;">${b.model}</div>
-            <div style="font-size:11px; color:var(--muted); font-family:'Courier New',monospace; margin-top:4px;">${b.serial}</div>
+            <div class="product-name">${esc((b.brand||'').toUpperCase())}</div>
+            <div style="font-size:16px; font-weight:500;">${esc(b.model)}</div>
+            <div style="font-size:11px; color:var(--muted); font-family:'Courier New',monospace; margin-top:4px;">${esc(b.serial)}</div>
           </div>
           <div style="font-size:11px; color:var(--muted);">${b.status === 'pending' ? '배송 중' : '활성'}</div>
         </div>
@@ -547,7 +547,7 @@ body { -webkit-text-size-adjust: 100%; }
     }
     if (discountAmt > 0) {
       discountRow.style.display = 'flex'
-      discountRow.innerHTML = `<span>할인 (${appliedDiscount.code})</span><span class="price">-${discountAmt.toLocaleString()}원</span>`
+      discountRow.innerHTML = `<span>할인 (${esc(appliedDiscount.code)})</span><span class="price">-${discountAmt.toLocaleString()}원</span>`
     } else {
       discountRow.style.display = 'none'
     }

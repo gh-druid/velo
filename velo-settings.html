@@ -736,7 +736,7 @@ body { -webkit-text-size-adjust: 100%; }
         const time = `${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`
         const icons = { scan:'📡', stolen:'🚨', transfer:'🤝' }
         return `<div style="padding:14px 20px; border-bottom:1px solid var(--border); opacity:${n.is_read?0.5:1};">
-          <div style="font-size:13px; margin-bottom:4px;">${icons[n.type]||'🔔'} ${n.message}</div>
+          <div style="font-size:13px; margin-bottom:4px;">${icons[n.type]||'🔔'} ${esc(n.message)}</div>
           <div style="font-size:11px; color:var(--muted);">${time}</div>
         </div>`
       }).join('')
@@ -801,7 +801,7 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script type="module">
-  import { getUser, getUserProfile, updateProfile, signOut, supabase, getNotifications, markAllRead } from '/velo-supabase.js'
+  import { getUser, getUserProfile, updateProfile, signOut, supabase, getNotifications, markAllRead, escapeHtml as esc } from '/velo-supabase.js'
 
   // 로그인 체크 + 프로필 불러오기
   async function init() {

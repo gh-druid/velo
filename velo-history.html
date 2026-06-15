@@ -282,7 +282,7 @@ body { -webkit-text-size-adjust: 100%; }
 </div>
 
 <script type="module">
-  import { supabase, getUser, getMyBikes, signOut, getNotifications, markAllRead } from '/velo-supabase.js'
+  import { supabase, getUser, getMyBikes, signOut, getNotifications, markAllRead, escapeHtml as esc } from '/velo-supabase.js'
 
   let currentUser = null
 
@@ -324,7 +324,7 @@ body { -webkit-text-size-adjust: 100%; }
         const time = `${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`
         const icons = { scan:'📡', stolen:'🚨', transfer:'🤝' }
         return `<div style="padding:14px 20px; border-bottom:1px solid var(--border); opacity:${n.is_read?0.5:1};">
-          <div style="font-size:13px; margin-bottom:4px;">${icons[n.type]||'🔔'} ${n.message}</div>
+          <div style="font-size:13px; margin-bottom:4px;">${icons[n.type]||'🔔'} ${esc(n.message)}</div>
           <div style="font-size:11px; color:var(--muted);">${time}</div>
         </div>`
       }).join('')
@@ -350,8 +350,8 @@ body { -webkit-text-size-adjust: 100%; }
         <div class="record-left">
           <div class="record-icon">🚲</div>
           <div class="record-info">
-            <div class="record-title">${b.brand.toUpperCase()} ${b.model}</div>
-            <div class="record-sub">${b.serial} · 부품 ${b.parts?.length || 0}개</div>
+            <div class="record-title">${esc((b.brand||'').toUpperCase())} ${esc(b.model)}</div>
+            <div class="record-sub">${esc(b.serial)} · 부품 ${b.parts?.length || 0}개</div>
           </div>
         </div>
         <div class="record-right">
@@ -370,8 +370,8 @@ body { -webkit-text-size-adjust: 100%; }
         <div class="record-card" style="flex-direction:column; align-items:flex-start; gap:20px;">
           <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
             <div>
-              <div class="record-title">${b.brand.toUpperCase()} ${b.model}</div>
-              <div class="record-sub">${b.serial}</div>
+              <div class="record-title">${esc((b.brand||'').toUpperCase())} ${esc(b.model)}</div>
+              <div class="record-sub">${esc(b.serial)}</div>
             </div>
             <span class="record-status status-pending">배송 중</span>
           </div>
@@ -429,8 +429,8 @@ body { -webkit-text-size-adjust: 100%; }
           <div class="record-left">
             <div class="record-icon">${isSender ? '📤' : '📥'}</div>
             <div class="record-info">
-              <div class="record-title">${isSender ? '양도' : '양수'} — ${t.bikes?.brand || ''} ${t.bikes?.model || ''}</div>
-              <div class="record-sub">${t.bikes?.serial || ''} · ${isSender ? `→ ${t.to_user?.name || '미완료'}` : `← ${t.from_user?.name || '알 수 없음'}`}</div>
+              <div class="record-title">${isSender ? '양도' : '양수'} — ${esc(t.bikes?.brand || '')} ${esc(t.bikes?.model || '')}</div>
+              <div class="record-sub">${esc(t.bikes?.serial || '')} · ${isSender ? `→ ${esc(t.to_user?.name || '미완료')}` : `← ${esc(t.from_user?.name || '알 수 없음')}`}</div>
             </div>
           </div>
           <div class="record-right">

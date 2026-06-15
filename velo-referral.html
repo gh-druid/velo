@@ -379,7 +379,7 @@ body { -webkit-text-size-adjust: 100%; }
 </div>
 
 <script type="module">
-  import { supabase, getUser } from '/velo-supabase.js'
+  import { supabase, getUser, escapeHtml as esc } from '/velo-supabase.js'
 
   let currentUser = null
   let referralData = null
@@ -458,7 +458,7 @@ body { -webkit-text-size-adjust: 100%; }
       document.getElementById('withdrawList').innerHTML = withdrawals.map(w => `
         <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border);">
           <div>
-            <div style="font-size:13px;">${w.bank_name} ${w.account_number}</div>
+            <div style="font-size:13px;">${esc(w.bank_name)} ${esc(w.account_number)}</div>
             <div style="font-size:11px; color:var(--muted); margin-top:4px;">${fmtDate(w.created_at)}</div>
           </div>
           <div style="display:flex; align-items:center; gap:12px;">

@@ -106,6 +106,7 @@
   // Supabase publishable key (브라우저 공개용 — RLS로 보호). 레거시 anon JWT 대체.
   const SUPABASE_KEY = 'sb_publishable_2uHPO55MzcH9WY1sxPUOpA_cmjop6ai'
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+  const esc = v => (v === null || v === undefined) ? '' : String(v).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]))
 
   let allBikes = []
 
@@ -164,10 +165,10 @@
     const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
 
     grid.innerHTML = bikes.map(b => `
-      <a href="/bike/${b.serial}" class="bike-card ${b.status === 'stolen' ? 'stolen' : ''}">
-        <div class="bike-brand">${b.brand || '-'}</div>
-        <div class="bike-model">${b.model || '-'}</div>
-        <div class="bike-serial">${b.serial}</div>
+      <a href="/bike/${encodeURIComponent(b.serial)}" class="bike-card ${b.status === 'stolen' ? 'stolen' : ''}">
+        <div class="bike-brand">${esc(b.brand || '-')}</div>
+        <div class="bike-model">${esc(b.model || '-')}</div>
+        <div class="bike-serial">${esc(b.serial)}</div>
         <span class="bike-status ${b.status === 'stolen' ? 'stolen' : 'normal'}">
           ${b.status === 'stolen' ? '🚨 도난 신고' : '✓ 정상'}
         </span>
