@@ -17,38 +17,34 @@ update storage.buckets
        allowed_mime_types = array['image/jpeg','image/png','image/webp','image/heic']
  where id = 'bike-photos';
 
--- objects 정책 초기화 후 재생성
-do $$
-declare r record;
-begin
-  for r in select policyname from pg_policies where schemaname='storage' and tablename='objects' loop
-    execute format('drop policy %I on storage.objects', r.policyname);
-  end loop;
-end $$;
-
-alter table storage.objects enable row level security;
-
--- 읽기: bike-photos는 공개
-create policy "bikephotos_read" on storage.objects
-  for select using (bucket_id = 'bike-photos');
-
--- 업로드(로그인 유저): 본인 user_id 폴더에만
-create policy "bikephotos_user_upload" on storage.objects
-  for insert to authenticated
-  with check (bucket_id = 'bike-photos' and (storage.foldername(name))[1] = auth.uid()::text);
-
--- 업로드(익명 발견자): 'claims/' 폴더에만 (현상금 제보 사진)
-create policy "bikephotos_claim_upload" on storage.objects
-  for insert to anon
-  with check (bucket_id = 'bike-photos' and (storage.foldername(name))[1] = 'claims');
-
--- 수정/삭제: 본인 폴더(또는 관리자). 익명은 불가.
-create policy "bikephotos_owner_modify" on storage.objects
-  for update to authenticated
-  using (bucket_id = 'bike-photos' and (storage.foldername(name))[1] = auth.uid()::text);
-create policy "bikephotos_owner_delete" on storage.objects
-  for delete to authenticated
-  using (bucket_id = 'bike-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+-- =============================================================
+-- ⚠ storage.objects 정책은 SQL로 못 만듭니다.
+--   SQL 에디터(postgres)는 storage.objects 소유자가 아니라서
+--   "ERROR: 42501: must be owner of table objects" 가 납니다.
+--   (RLS는 storage.objects에 이미 기본 활성화되어 있음)
+--
+--   => 아래 4개 정책은 대시보드 UI로 생성하세요:
+--      Storage > 버킷(bike-photos) > Policies > New policy > "custom"
+--   각 정책의 설정값(Allowed operation / Target roles / USING·WITH CHECK):
+--
+--   [1] 읽기 공개      SELECT / anon,authenticated
+--        USING:      bucket_id = 'bike-photos'
+--
+--   [2] 유저 업로드     INSERT / authenticated
+--        WITH CHECK: bucket_id = 'bike-photos'
+--                    and (storage.foldername(name))[1] = auth.uid()::text
+--
+--   [3] 익명 제보 업로드 INSERT / anon
+--        WITH CHECK: bucket_id = 'bike-photos'
+--                    and (storage.foldername(name))[1] = 'claims'
+--
+--   [4] 소유자 수정/삭제 UPDATE,DELETE / authenticated
+--        USING:      bucket_id = 'bike-photos'
+--                    and (storage.foldername(name))[1] = auth.uid()::text
+--
+--   참고: 빠르게 하려면 UI의 "Get started quickly" 템플릿 중
+--   "Give users access to own folder" 를 쓰고 표현식만 위로 바꿔도 됩니다.
+-- =============================================================
 
 
 -- =============================================================
