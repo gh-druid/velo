@@ -395,7 +395,7 @@ export async function getBountyClaims(bikeId) {
     .from('bounty_claims')
     .select('*')
     .eq('bike_id', bikeId)
-    .order('created_at', { ascending: false })
+    .order('found_at', { ascending: false })
   if (error) throw error
   return data || []
 }
@@ -404,7 +404,7 @@ export async function getBountyClaims(bikeId) {
 export async function getBountyClaim(claimId) {
   const { data, error } = await supabase
     .from('bounty_claims')
-    .select('*, bikes(brand, model, serial, bounty, bounty_paid, user_id)')
+    .select('*')
     .eq('id', claimId)
     .single()
   if (error) throw error
@@ -473,7 +473,7 @@ export async function getAllBountyClaims() {
   const { data, error } = await supabase
     .from('bounty_claims')
     .select('*')
-    .order('created_at', { ascending: false })
+    .order('found_at', { ascending: false })
   if (error) throw error
   return data || []
 }
@@ -484,7 +484,7 @@ export async function getDisputedClaims() {
     .from('bounty_claims')
     .select('*')
     .eq('status', 'disputed')
-    .order('created_at', { ascending: false })
+    .order('found_at', { ascending: false })
   if (error) throw error
   return data || []
 }

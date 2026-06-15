@@ -1232,8 +1232,8 @@ body { -webkit-text-size-adjust: 100%; }
       </tr>`).join('')
     }
 
-    // NFC 스캔 로그
-    const { data: scans } = await supabase.from('scan_logs').select('*').order('created_at', { ascending: false }).limit(100)
+    // NFC 스캔 로그 (scan_logs는 scanned_at 컬럼 사용)
+    const { data: scans } = await supabase.from('scan_logs').select('*').order('scanned_at', { ascending: false }).limit(100)
     const scanTbody = document.getElementById('logScanTable')
     if (!scans?.length) { scanTbody.innerHTML = '<tr class="loading-row"><td colspan="4">없습니다.</td></tr>' }
     else {
@@ -1348,7 +1348,7 @@ body { -webkit-text-size-adjust: 100%; }
         <td>${c.finder_name||'-'}<br><span style="font-size:11px; color:var(--muted);">${c.finder_phone||''}</span></td>
         <td style="font-size:12px;">${b?`${b.brand} ${b.model}`:'-'}<br><span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${b?.serial||''}</span></td>
         <td style="font-size:12px;">${c.location||'-'}${c.location_detail?`<br><span style="font-size:10px; color:var(--muted);">${c.location_detail}</span>`:''}</td>
-        <td style="font-size:11px; color:var(--muted);">${_bfmt(c.created_at)}</td>
+        <td style="font-size:11px; color:var(--muted);">${_bfmt(c.found_at)}</td>
         <td style="white-space:nowrap;">
           <button class="action-btn accent" onclick="bResolveDispute('${c.id}','paid')">인정(지급)</button>
           <button class="action-btn danger" onclick="bResolveDispute('${c.id}','rejected')">기각</button>
