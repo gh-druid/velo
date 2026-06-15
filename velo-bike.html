@@ -681,7 +681,7 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script type="module">
-  import { getBikeBySerial, maskPhone, supabase, submitBountyClaim, uploadClaimPhotos, getBountyClaim, submitDispute } from '/velo-supabase.js'
+  import { getBikeBySerial, maskPhone, supabase, submitBountyClaim, uploadClaimPhotos, getBountyClaim, submitDispute, escapeHtml as esc } from '/velo-supabase.js'
 
   const pad = n => String(n).padStart(2, '0')
 
@@ -766,7 +766,7 @@ body { -webkit-text-size-adjust: 100%; }
     if (bike.photos && bike.photos.length > 0) {
       document.getElementById('photoGallery').style.display = 'block'
       document.getElementById('photoGrid').innerHTML = bike.photos.map(url =>
-        `<img src="${url}" style="width:100%; aspect-ratio:1; object-fit:cover;" loading="lazy">`
+        `<img src="${esc(url)}" style="width:100%; aspect-ratio:1; object-fit:cover;" loading="lazy">`
       ).join('')
     }
 
@@ -786,13 +786,13 @@ body { -webkit-text-size-adjust: 100%; }
           <div style="display:flex; align-items:center; gap:12px;">
             <span style="font-size:20px;">${icons[p.type] || '🔧'}</span>
             <div>
-              <div style="font-size:14px; font-weight:500;">${p.name}</div>
-              <div style="font-size:11px; color:var(--muted); margin-top:2px;">${p.type}${p.serial ? ' · ' + p.serial : ''}</div>
+              <div style="font-size:14px; font-weight:500;">${esc(p.name)}</div>
+              <div style="font-size:11px; color:var(--muted); margin-top:2px;">${esc(p.type)}${p.serial ? ' · ' + esc(p.serial) : ''}</div>
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:10px; padding:3px 8px; border:1px solid; ${p.status === 'lost' ? 'color:#ff4f4f; border-color:rgba(255,79,79,0.3);' : 'color:#c8f542; border-color:rgba(200,245,66,0.3);'}">${p.status === 'lost' ? '분실' : '정상'}</span>
-            <button onclick="reportPartLost('${p.id}','${p.name}','${p.status}')" style="font-size:11px; padding:4px 10px; border:1px solid rgba(255,79,79,0.3); background:none; color:#ff4f4f; cursor:pointer; font-family:'Noto Sans KR',sans-serif;">${p.status === 'lost' ? '신고 취소' : '분실 신고'}</button>
+            <button onclick="reportPartLost('${p.id}')" data-name="${esc(p.name)}" style="font-size:11px; padding:4px 10px; border:1px solid rgba(255,79,79,0.3); background:none; color:#ff4f4f; cursor:pointer; font-family:'Noto Sans KR',sans-serif;">${p.status === 'lost' ? '신고 취소' : '분실 신고'}</button>
           </div>
         </div>
       `).join('')
@@ -806,7 +806,7 @@ body { -webkit-text-size-adjust: 100%; }
     let historyHTML = `
       <div class="history-item">
         <div class="history-dot current"></div>
-        <div class="history-owner current">${owner?.name || '알 수 없음'} (현재)</div>
+        <div class="history-owner current">${esc(owner?.name || '알 수 없음')} (현재)</div>
         <div class="history-date">${fmtDate(bike.created_at)}</div>
         <div class="history-tag current">현재</div>
       </div>
@@ -830,7 +830,7 @@ body { -webkit-text-size-adjust: 100%; }
           historyHTML += `
             <div class="history-item">
               <div class="history-dot"></div>
-              <div class="history-owner">${masked} (이전)</div>
+              <div class="history-owner">${esc(masked)} (이전)</div>
               <div class="history-date">${fmtDate(t.completed_at)}</div>
               <div class="history-tag">${transfers.length - i}대</div>
             </div>
@@ -984,8 +984,10 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   // 부품 분실 신고
-  window.reportPartLost = async function(partId, partName, currentStatus) {
-    const isLost = currentStatus === 'lost'
+  window.reportPartLost = async function(partId) {
+    const { data: part } = await supabase.from('parts').select('name, status').eq('id', partId).single()
+    const partName = part?.name || '부품'
+    const isLost = part?.status === 'lost'
     const msg = isLost
       ? `"${partName}" 분실 신고를 취소하시겠습니까?`
       : `"${partName}"을(를) 분실 신고하시겠습니까?`

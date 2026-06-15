@@ -635,7 +635,7 @@ body { -webkit-text-size-adjust: 100%; }
 <div class="toast" id="toast"></div>
 
 <script type="module">
-  import { supabase, getUser, signOut, getAllBountyClaims, adminUpdateClaimStatus, adminAdjustBounty, adminWarnUser, adminSetSuspended } from '/velo-supabase.js'
+  import { supabase, getUser, signOut, getAllBountyClaims, adminUpdateClaimStatus, adminAdjustBounty, adminWarnUser, adminSetSuspended, escapeHtml as esc } from '/velo-supabase.js'
 
   // 관리자 이메일 (본인 이메일로 바꿔줘요)
   const ADMIN_EMAIL = 'velokr20@gmail.com'
@@ -739,12 +739,12 @@ body { -webkit-text-size-adjust: 100%; }
     const pad = n => String(n).padStart(2,'0')
     const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
     tbody.innerHTML = users.map(u => `<tr>
-      <td>${u.name||'-'}</td>
-      <td style="font-size:12px;">${u.email||'-'}</td>
-      <td>${u.phone||'-'}</td>
-      <td><span class="badge badge-${u.plan==='free'?'normal':'pending'}">${u.plan||'free'}</span>${u.lifetime_free?' <span class="badge badge-normal">평생</span>':''}</td>
+      <td>${esc(u.name||'-')}</td>
+      <td style="font-size:12px;">${esc(u.email||'-')}</td>
+      <td>${esc(u.phone||'-')}</td>
+      <td><span class="badge badge-${u.plan==='free'?'normal':'pending'}">${esc(u.plan||'free')}</span>${u.lifetime_free?' <span class="badge badge-normal">평생</span>':''}</td>
       <td style="font-size:11px;color:var(--muted);">${fmtDate(u.created_at)}</td>
-      <td><button class="action-btn danger" onclick="suspendUser('${u.id}','${u.name||''}')">정지</button></td>
+      <td><button class="action-btn danger" onclick="suspendUser('${u.id}')">정지</button></td>
     </tr>`).join('')
   }
   window.filterUsers = function(q) {
@@ -764,21 +764,21 @@ body { -webkit-text-size-adjust: 100%; }
     if (!sel) return
     const codes = [...new Set(allBikes.map(b => b.partner_code).filter(Boolean))].sort()
     sel.innerHTML = '<option value="">전체 샵</option>' +
-      codes.map(c => `<option value="${c}">${c}</option>`).join('')
+      codes.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')
   }
   function renderBikes(bikes) {
     const tbody = document.getElementById('bikesTable')
     if (!bikes.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">자전거가 없습니다.</td></tr>'; return; }
     tbody.innerHTML = bikes.map(b => `<tr>
-      <td>${b.brand} ${b.model}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;">${b.serial||'-'}</td>
-      <td>${b.users?.name||'-'}</td>
-      <td>${b.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${b.partner_code}</span>`:'-'}</td>
-      <td style="font-size:12px;color:var(--muted);">${b.tag_location||'-'}</td>
+      <td>${esc(`${b.brand} ${b.model}`)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${esc(b.serial||'-')}</td>
+      <td>${esc(b.users?.name||'-')}</td>
+      <td>${b.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${esc(b.partner_code)}</span>`:'-'}</td>
+      <td style="font-size:12px;color:var(--muted);">${esc(b.tag_location||'-')}</td>
       <td><span class="badge badge-${b.status==='normal'?'normal':'stolen'}">${b.status==='normal'?'정상':b.status==='stolen'?'도난':'배송중'}</span></td>
       <td style="font-size:11px;color:var(--muted);">${b.created_at?new Date(b.created_at).toLocaleDateString('ko-KR'):'-'}</td>
       <td>
-        <button class="action-btn accent" onclick="location.href='/bike/${b.serial}'">보기</button>
+        <button class="action-btn accent" onclick="location.href='/bike/${encodeURIComponent(b.serial)}'">보기</button>
         <button class="action-btn" onclick="updateStatus('${b.id}','normal')">정상화</button>
       </td>
     </tr>`).join('')
@@ -801,9 +801,9 @@ body { -webkit-text-size-adjust: 100%; }
     const pad = n => String(n).padStart(2,'0')
     const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
     tbody.innerHTML = data.map(b => `<tr>
-      <td>${b.brand} ${b.model}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;">${b.serial}</td>
-      <td>${b.users?.name||'-'}</td>
+      <td>${esc(`${b.brand} ${b.model}`)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${esc(b.serial)}</td>
+      <td>${esc(b.users?.name||'-')}</td>
       <td style="font-size:11px;color:var(--muted);">${b.stolen_at?fmtDate(b.stolen_at):'-'}</td>
       <td><button class="action-btn" onclick="updateStatus('${b.id}','normal')">해제</button></td>
     </tr>`).join('')
@@ -848,8 +848,8 @@ body { -webkit-text-size-adjust: 100%; }
     const pad = n => String(n).padStart(2,'0')
     const fmtDate = d => { const dt = new Date(d); return `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())}` }
     tbody.innerHTML = data.map(u => `<tr>
-      <td>${u.name||'-'}</td>
-      <td style="font-size:12px;">${u.email||'-'}</td>
+      <td>${esc(u.name||'-')}</td>
+      <td style="font-size:12px;">${esc(u.email||'-')}</td>
       <td style="font-size:11px;color:var(--muted);">${fmtDate(u.created_at)}</td>
       <td><button class="action-btn danger" onclick="revokeLifetime('${u.id}')">해제</button></td>
     </tr>`).join('')
@@ -892,11 +892,11 @@ body { -webkit-text-size-adjust: 100%; }
     tbody.innerHTML = orders.map(o => `
       <tr style="cursor:pointer;" onclick="openOrderModal('${o.id}')">
         <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${fmtDate(o.created_at)}</td>
-        <td>${o.users?.name || '-'}<br><span style="font-size:11px;color:var(--muted);">${o.users?.email || ''}</span></td>
-        <td>${o.product_name || '-'}</td>
+        <td>${esc(o.users?.name || '-')}<br><span style="font-size:11px;color:var(--muted);">${esc(o.users?.email || '')}</span></td>
+        <td>${esc(o.product_name || '-')}</td>
         <td style="color:var(--accent);">${o.amount?.toLocaleString() || 0}원</td>
-        <td>${o.ship_name || '-'}</td>
-        <td style="font-family:'DM Mono',monospace; font-size:12px;">${o.ship_phone || '-'}</td>
+        <td>${esc(o.ship_name || '-')}</td>
+        <td style="font-family:'DM Mono',monospace; font-size:12px;">${esc(o.ship_phone || '-')}</td>
         <td><span class="badge ${statusClass[o.delivery_status] || 'badge-pending'}">${statusLabel[o.delivery_status] || '대기'}</span></td>
         <td onclick="event.stopPropagation()">
           <button class="action-btn" onclick="updateDelivery('${o.id}','shipped')">발송</button>
@@ -914,14 +914,14 @@ body { -webkit-text-size-adjust: 100%; }
       <div style="display:flex; flex-direction:column; gap:12px; font-size:13px;">
         <div style="display:grid; grid-template-columns:120px 1fr; gap:8px;">
           <span style="color:#888;">주문일</span><span>${new Date(o.created_at).toLocaleString('ko-KR')}</span>
-          <span style="color:#888;">상품</span><span>${o.product_name || '-'}</span>
+          <span style="color:#888;">상품</span><span>${esc(o.product_name || '-')}</span>
           <span style="color:#888;">결제 금액</span><span style="color:#c8f542;">${o.amount?.toLocaleString() || 0}원</span>
-          <span style="color:#888;">결제 키</span><span style="font-family:'DM Mono',monospace; font-size:11px; word-break:break-all;">${o.payment_key || '-'}</span>
-          <span style="color:#888;">받는 사람</span><span>${o.ship_name || '-'}</span>
-          <span style="color:#888;">연락처</span><span>${o.ship_phone || '-'}</span>
-          <span style="color:#888;">주소</span><span>${o.ship_addr || '-'} ${o.ship_addr_detail || ''}</span>
+          <span style="color:#888;">결제 키</span><span style="font-family:'DM Mono',monospace; font-size:11px; word-break:break-all;">${esc(o.payment_key || '-')}</span>
+          <span style="color:#888;">받는 사람</span><span>${esc(o.ship_name || '-')}</span>
+          <span style="color:#888;">연락처</span><span>${esc(o.ship_phone || '-')}</span>
+          <span style="color:#888;">주소</span><span>${esc(o.ship_addr || '-')} ${esc(o.ship_addr_detail || '')}</span>
           <span style="color:#888;">배송 상태</span><span>${statusLabel[o.delivery_status] || '대기'}</span>
-          <span style="color:#888;">구매자</span><span>${o.users?.name || '-'} (${o.users?.email || '-'})</span>
+          <span style="color:#888;">구매자</span><span>${esc(o.users?.name || '-')} (${esc(o.users?.email || '-')})</span>
         </div>
       </div>
     `
@@ -1063,12 +1063,12 @@ body { -webkit-text-size-adjust: 100%; }
     const targetLabel = { all: '전체', tag: '태그', subscription: '구독' }
     tbody.innerHTML = data.map(d => `
       <tr>
-        <td style="font-family:'DM Mono',monospace; font-size:13px; letter-spacing:2px; color:var(--accent);">${d.code}</td>
-        <td><strong>${typeLabel(d)}</strong></td>
+        <td style="font-family:'DM Mono',monospace; font-size:13px; letter-spacing:2px; color:var(--accent);">${esc(d.code)}</td>
+        <td><strong>${esc(typeLabel(d))}</strong></td>
         <td>${targetLabel[d.target] || '전체'}</td>
         <td>${(d.max_uses === null || d.max_uses === -1) ? '무제한' : `${d.used_count} / ${d.max_uses}명`}</td>
         <td style="font-size:11px; color:var(--muted);">${d.expires_at ? new Date(d.expires_at).toLocaleDateString('ko-KR') : '무기한'}</td>
-        <td>${d.description ? `<span style="font-size:11px;color:var(--muted);">${d.description}</span>` : '-'}</td>
+        <td>${d.description ? `<span style="font-size:11px;color:var(--muted);">${esc(d.description)}</span>` : '-'}</td>
         <td><span class="badge ${d.is_active ? 'badge-normal' : 'badge-stolen'}">${d.is_active ? '활성' : '비활성'}</span></td>
         <td>
           <button class="action-btn" onclick="toggleDiscount('${d.id}',${d.is_active})">${d.is_active ? '비활성화' : '활성화'}</button>
@@ -1098,7 +1098,8 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   // 토스트
-  window.suspendUser = async function(id, name) {
+  window.suspendUser = async function(id) {
+    const name = (allUsers.find(u => u.id === id) || {}).name || ''
     if (!confirm(`${name} 계정을 정지하시겠습니까?`)) return
     await supabase.from('users').update({ is_suspended: true }).eq('id', id)
     showToast('계정이 정지되었습니다.')
@@ -1143,13 +1144,13 @@ body { -webkit-text-size-adjust: 100%; }
     const filtered = status === 'all' ? allPartners : allPartners.filter(p => (p.status || 'pending') === status)
     if (!filtered.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="10">없습니다.</td></tr>'; return; }
     tbody.innerHTML = filtered.map(p => `<tr>
-      <td>${p.shop_name||'-'}</td>
-      <td>${p.owner_name||'-'}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;">${p.phone||'-'}</td>
-      <td style="font-size:11px;">${p.email||'-'}</td>
-      <td>${p.region||'-'}</td>
-      <td>${p.monthly_sales||'-'}</td>
-      <td>${p.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${p.partner_code}</span>`:'-'}</td>
+      <td>${esc(p.shop_name||'-')}</td>
+      <td>${esc(p.owner_name||'-')}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${esc(p.phone||'-')}</td>
+      <td style="font-size:11px;">${esc(p.email||'-')}</td>
+      <td>${esc(p.region||'-')}</td>
+      <td>${esc(p.monthly_sales||'-')}</td>
+      <td>${p.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${esc(p.partner_code)}</span>`:'-'}</td>
       <td style="font-size:11px;color:var(--muted);">${p.created_at?fmtDate(p.created_at):'-'}</td>
       <td><span class="badge badge-${p.status==='approved'?'normal':p.status==='rejected'?'stolen':'pending'}">${p.status==='approved'?'승인':p.status==='rejected'?'거절':'대기'}</span></td>
       <td>${(!p.status||p.status==='pending')?`
@@ -1168,10 +1169,10 @@ body { -webkit-text-size-adjust: 100%; }
     if (wtbody) {
       wtbody.innerHTML = !withdrawals?.length ? '<tr class="loading-row"><td colspan="8">출금 신청이 없습니다.</td></tr>' :
         withdrawals.map(w => `<tr>
-          <td>${w.referrals?.users?.name||'-'}</td>
-          <td>${w.bank_name||'-'}</td>
-          <td style="font-family:'DM Mono',monospace;font-size:12px;">${w.account_number||'-'}</td>
-          <td>${w.account_holder||'-'}</td>
+          <td>${esc(w.referrals?.users?.name||'-')}</td>
+          <td>${esc(w.bank_name||'-')}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;">${esc(w.account_number||'-')}</td>
+          <td>${esc(w.account_holder||'-')}</td>
           <td style="color:var(--accent);">${w.amount?.toLocaleString()||0}원</td>
           <td style="font-size:11px;color:var(--muted);">${fmtDate(w.created_at)}</td>
           <td><span class="badge badge-${w.status==='completed'?'done':'pending'}">${w.status==='completed'?'입금완료':'처리중'}</span></td>
@@ -1183,8 +1184,8 @@ body { -webkit-text-size-adjust: 100%; }
     if (stbody) {
       stbody.innerHTML = !referrals?.length ? '<tr class="loading-row"><td colspan="6">레퍼럴 유저가 없습니다.</td></tr>' :
         referrals.map(r => `<tr>
-          <td>${r.users?.name||'-'}<br><span style="font-size:11px;color:var(--muted);">${r.users?.email||''}</span></td>
-          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${r.referral_code}</td>
+          <td>${esc(r.users?.name||'-')}<br><span style="font-size:11px;color:var(--muted);">${esc(r.users?.email||'')}</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${esc(r.referral_code)}</td>
           <td>${r.total_referred||0}명</td>
           <td>${r.total_earned?.toLocaleString()||0}원</td>
           <td>${r.total_withdrawn?.toLocaleString()||0}원</td>
@@ -1225,9 +1226,9 @@ body { -webkit-text-size-adjust: 100%; }
     if (!users?.length) { signupTbody.innerHTML = '<tr class="loading-row"><td colspan="4">없습니다.</td></tr>' }
     else {
       signupTbody.innerHTML = users.map(u => `<tr>
-        <td>${u.name||'-'}</td>
-        <td style="font-size:12px;">${u.email||'-'}</td>
-        <td style="font-size:12px;">${parseUA(u.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${(u.user_agent||'').slice(0,60)}</span></td>
+        <td>${esc(u.name||'-')}</td>
+        <td style="font-size:12px;">${esc(u.email||'-')}</td>
+        <td style="font-size:12px;">${parseUA(u.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${esc((u.user_agent||'').slice(0,60))}</span></td>
         <td style="font-size:11px;color:var(--muted);">${fmtDate(u.created_at)}</td>
       </tr>`).join('')
     }
@@ -1247,9 +1248,9 @@ body { -webkit-text-size-adjust: 100%; }
       scanTbody.innerHTML = scans.map(s => {
         const b = bikeMap[s.bike_id]
         return `<tr>
-        <td>${b ? `${b.brand||''} ${b.model||''}`.trim() || '-' : '-'}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:12px;">${b?.serial||'-'}</td>
-        <td style="font-size:12px;">${parseUA(s.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${(s.user_agent||'').slice(0,60)}</span></td>
+        <td>${esc(b ? `${b.brand||''} ${b.model||''}`.trim() || '-' : '-')}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;">${esc(b?.serial||'-')}</td>
+        <td style="font-size:12px;">${parseUA(s.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${esc((s.user_agent||'').slice(0,60))}</span></td>
         <td style="font-size:11px;color:var(--muted);">${fmtDate(s.scanned_at || s.created_at)}</td>
       </tr>`
       }).join('')
@@ -1261,9 +1262,9 @@ body { -webkit-text-size-adjust: 100%; }
     if (!partners?.length) { partnerTbody.innerHTML = '<tr class="loading-row"><td colspan="4">없습니다.</td></tr>' }
     else {
       partnerTbody.innerHTML = partners.map(p => `<tr>
-        <td>${p.shop_name||'-'}</td>
-        <td style="font-size:12px;">${p.email||'-'}</td>
-        <td style="font-size:12px;">${parseUA(p.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${(p.user_agent||'').slice(0,60)}</span></td>
+        <td>${esc(p.shop_name||'-')}</td>
+        <td style="font-size:12px;">${esc(p.email||'-')}</td>
+        <td style="font-size:12px;">${parseUA(p.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${esc((p.user_agent||'').slice(0,60))}</span></td>
         <td style="font-size:11px;color:var(--muted);">${fmtDate(p.created_at)}</td>
       </tr>`).join('')
     }
@@ -1274,10 +1275,10 @@ body { -webkit-text-size-adjust: 100%; }
     if (!referrals?.length) { referralTbody.innerHTML = '<tr class="loading-row"><td colspan="5">없습니다.</td></tr>' }
     else {
       referralTbody.innerHTML = referrals.map(r => `<tr>
-        <td>${r.users?.name||'-'}</td>
-        <td style="font-size:12px;">${r.users?.email||'-'}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${r.referral_code||'-'}</td>
-        <td style="font-size:12px;">${parseUA(r.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${(r.user_agent||'').slice(0,60)}</span></td>
+        <td>${esc(r.users?.name||'-')}</td>
+        <td style="font-size:12px;">${esc(r.users?.email||'-')}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${esc(r.referral_code||'-')}</td>
+        <td style="font-size:12px;">${parseUA(r.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${esc((r.user_agent||'').slice(0,60))}</span></td>
         <td style="font-size:11px;color:var(--muted);">${fmtDate(r.created_at)}</td>
       </tr>`).join('')
     }
@@ -1322,13 +1323,13 @@ body { -webkit-text-size-adjust: 100%; }
       const b = bountyBikeMap[c.bike_id]
       const owner = b?.users
       return `<tr>
-        <td>${c.finder_name||'-'}</td>
-        <td style="font-size:11px;">${c.finder_phone||'-'}<br><span style="color:var(--muted);">${c.finder_bank||''} ${c.finder_account||''}</span></td>
-        <td style="font-size:12px;">${b?`${b.brand} ${b.model}`:'-'}<br><span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${b?.serial||''}</span></td>
-        <td style="font-size:12px;">${owner?.name||'-'}</td>
+        <td>${esc(c.finder_name||'-')}</td>
+        <td style="font-size:11px;">${esc(c.finder_phone||'-')}<br><span style="color:var(--muted);">${esc(c.finder_bank||'')} ${esc(c.finder_account||'')}</span></td>
+        <td style="font-size:12px;">${b?esc(`${b.brand} ${b.model}`):'-'}<br><span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${esc(b?.serial||'')}</span></td>
+        <td style="font-size:12px;">${esc(owner?.name||'-')}</td>
         <td style="color:var(--accent); white-space:nowrap;">${b?.bounty?('₩'+b.bounty.toLocaleString()):'-'}${b?.bounty_paid?'<br><span style="font-size:10px; color:var(--muted);">지급완료</span>':''}</td>
-        <td style="font-size:12px;">${c.location||'-'}<br><span style="font-size:10px; color:var(--muted);">${_bfmt(c.found_at)}</span></td>
-        <td><span class="badge badge-${c.status==='paid'?'normal':c.status==='rejected'?'stolen':'pending'}">${_bStatus[c.status]||c.status}</span></td>
+        <td style="font-size:12px;">${esc(c.location||'-')}<br><span style="font-size:10px; color:var(--muted);">${_bfmt(c.found_at)}</span></td>
+        <td><span class="badge badge-${c.status==='paid'?'normal':c.status==='rejected'?'stolen':'pending'}">${esc(_bStatus[c.status]||c.status)}</span></td>
         <td style="white-space:nowrap;">
           <button class="action-btn accent" onclick="bAdminApprove('${c.id}')">승인</button>
           <button class="action-btn danger" onclick="bAdminReject('${c.id}')">거절</button>
@@ -1345,9 +1346,9 @@ body { -webkit-text-size-adjust: 100%; }
     tbody.innerHTML = list.map(c => {
       const b = bountyBikeMap[c.bike_id]
       return `<tr>
-        <td>${c.finder_name||'-'}<br><span style="font-size:11px; color:var(--muted);">${c.finder_phone||''}</span></td>
-        <td style="font-size:12px;">${b?`${b.brand} ${b.model}`:'-'}<br><span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${b?.serial||''}</span></td>
-        <td style="font-size:12px;">${c.location||'-'}${c.location_detail?`<br><span style="font-size:10px; color:var(--muted);">${c.location_detail}</span>`:''}</td>
+        <td>${esc(c.finder_name||'-')}<br><span style="font-size:11px; color:var(--muted);">${esc(c.finder_phone||'')}</span></td>
+        <td style="font-size:12px;">${b?esc(`${b.brand} ${b.model}`):'-'}<br><span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${esc(b?.serial||'')}</span></td>
+        <td style="font-size:12px;">${esc(c.location||'-')}${c.location_detail?`<br><span style="font-size:10px; color:var(--muted);">${esc(c.location_detail)}</span>`:''}</td>
         <td style="font-size:11px; color:var(--muted);">${_bfmt(c.found_at)}</td>
         <td style="white-space:nowrap;">
           <button class="action-btn accent" onclick="bResolveDispute('${c.id}','paid')">인정(지급)</button>

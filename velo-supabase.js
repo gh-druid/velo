@@ -12,6 +12,17 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_2uHPO55MzcH9WY1sxPUOpA_cmjop6ai
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
 
 // =============================================
+// XSS 방어 — innerHTML 템플릿에 들어가는 사용자/DB 문자열은 반드시 이걸로 감쌀 것
+// HTML 텍스트/속성 컨텍스트용 이스케이프
+// =============================================
+export function escapeHtml(v) {
+  if (v === null || v === undefined) return ''
+  return String(v).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ))
+}
+
+// =============================================
 // AUTH (인증)
 // =============================================
 

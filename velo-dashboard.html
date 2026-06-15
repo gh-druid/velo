@@ -440,7 +440,7 @@ body { -webkit-text-size-adjust: 100%; }
 <script>
 </script>
 <script type="module">
-  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getBountyClaims, payBounty, rejectClaim } from '/velo-supabase.js'
+  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getBountyClaims, payBounty, rejectClaim, escapeHtml as esc } from '/velo-supabase.js'
 
   let currentBikes = []
   let currentBikeId = null
@@ -522,21 +522,21 @@ body { -webkit-text-size-adjust: 100%; }
           <div class="bike-status ${bike.status}">${bike.status === 'pending' ? '배송 중' : bike.status === 'stolen' ? '도난' : '정상'}</div>
         </div>
         <div class="bike-card-body">
-          <div class="bike-brand">${bike.brand.toUpperCase()}</div>
-          <div class="bike-model">${bike.model}</div>
-          <div class="bike-serial">${bike.serial}</div>
+          <div class="bike-brand">${esc((bike.brand||'').toUpperCase())}</div>
+          <div class="bike-model">${esc(bike.model)}</div>
+          <div class="bike-serial">${esc(bike.serial)}</div>
         </div>
         <div class="bike-card-footer">
           <div class="bike-meta">${new Date(bike.created_at).toLocaleDateString('ko-KR')} · 부품 ${bike.parts?.length || 0}개</div>
           <div class="bike-actions">
-            <button class="bike-btn" onclick="openTransfer('${bike.id}','${bike.model}')">양도</button>
-            <button class="bike-btn danger" ${!hasSubscription ? 'onclick="alert(\'도난 신고는 구독자만 이용 가능합니다.\')" style="opacity:0.4;"' : `onclick="openStolen('${bike.id}','${bike.model}')"`}>
+            <button class="bike-btn" onclick="openTransfer('${bike.id}')">양도</button>
+            <button class="bike-btn danger" ${!hasSubscription ? 'onclick="alert(\'도난 신고는 구독자만 이용 가능합니다.\')" style="opacity:0.4;"' : `onclick="openStolen('${bike.id}')"`}>
               ${bike.status === 'stolen' ? '신고 취소' : '도난 신고'}
             </button>
             ${!hasSubscription ? `<button class="bike-btn accent" onclick="location.href='/payment'">구독 시작 →</button>` : ''}
-            ${bike.status === 'stolen' ? `<button class="bike-btn accent" onclick="openClaims('${bike.id}','${bike.model}')">🎯 제보 확인</button>` : ''}
-            <button class="bike-btn accent" onclick="location.href='/bike/${bike.serial}'">상세 →</button>
-            <button class="bike-btn danger" onclick="openDelete('${bike.id}','${bike.model}')">삭제</button>
+            ${bike.status === 'stolen' ? `<button class="bike-btn accent" onclick="openClaims('${bike.id}')">🎯 제보 확인</button>` : ''}
+            <button class="bike-btn accent" onclick="location.href='/bike/${encodeURIComponent(bike.serial)}'">상세 →</button>
+            <button class="bike-btn danger" onclick="openDelete('${bike.id}')">삭제</button>
           </div>
         </div>
       </div>
@@ -578,12 +578,12 @@ body { -webkit-text-size-adjust: 100%; }
             <div class="bike-status normal">${isSender ? '판매' : '구매'}</div>
           </div>
           <div class="bike-card-body">
-            <div class="bike-brand">${t.bikes?.brand?.toUpperCase() || '-'}</div>
-            <div class="bike-model">${t.bikes?.model || '-'}</div>
-            <div class="bike-serial">${t.bikes?.serial || '-'}</div>
+            <div class="bike-brand">${esc(t.bikes?.brand?.toUpperCase() || '-')}</div>
+            <div class="bike-model">${esc(t.bikes?.model || '-')}</div>
+            <div class="bike-serial">${esc(t.bikes?.serial || '-')}</div>
           </div>
           <div class="bike-card-footer">
-            <div class="bike-meta">${dateStr} · ${isSender ? `→ ${t.to_user?.name || '알 수 없음'}` : `← ${t.from_user?.name || '알 수 없음'}`}</div>
+            <div class="bike-meta">${dateStr} · ${isSender ? `→ ${esc(t.to_user?.name || '알 수 없음')}` : `← ${esc(t.from_user?.name || '알 수 없음')}`}</div>
           </div>
         </div>
       `
@@ -598,8 +598,9 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   // 삭제
-  window.openDelete = function(id, name) {
+  window.openDelete = function(id) {
     currentBikeId = id
+    const name = (currentBikes.find(b => b.id === id) || {}).model || ''
     document.getElementById('deleteModalSub').textContent = `"${name}"을(를) 삭제하시겠습니까?`
     document.getElementById('deleteConfirmInput').value = ''
     document.getElementById('deleteModal').classList.add('active')
@@ -626,8 +627,9 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   // 도난 신고
-  window.openStolen = function(id, name) {
+  window.openStolen = function(id) {
     currentBikeId = id
+    const name = (currentBikes.find(b => b.id === id) || {}).model || ''
     document.getElementById('stolenModalSub').textContent = `"${name}"을(를) 도난 신고하시겠습니까?`
     document.getElementById('stolenModal').classList.add('active')
   }
@@ -649,7 +651,7 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   // 양도 코드 생성
-  window.openTransfer = async function(id, name) {
+  window.openTransfer = async function(id) {
     currentBikeId = id
     try {
       const transfer = await createTransferCode(id)
@@ -674,11 +676,11 @@ body { -webkit-text-size-adjust: 100%; }
   let claimsData = []
   let claimsBountyAmt = 0
 
-  window.openClaims = async function(id, model) {
+  window.openClaims = async function(id) {
     claimsBikeId = id
     const bike = currentBikes.find(b => b.id === id)
     claimsBountyAmt = bike?.bounty || 0
-    document.getElementById('claimsSub').textContent = `"${model}" 도난 자전거 발견 제보`
+    document.getElementById('claimsSub').textContent = `"${bike?.model || ''}" 도난 자전거 발견 제보`
     document.getElementById('claimsBounty').innerHTML = claimsBountyAmt
       ? `현상금 <strong style="color:var(--accent);">₩${claimsBountyAmt.toLocaleString()}</strong>${bike?.bounty_paid ? ' · <span style="color:var(--accent);">지급 완료</span>' : ''}`
       : '현상금이 설정되지 않은 자전거입니다.'
@@ -706,18 +708,18 @@ body { -webkit-text-size-adjust: 100%; }
     const sColor = { pending:'var(--warning)', paid:'var(--accent)', rejected:'var(--muted)', disputed:'var(--warning)' }
     list.innerHTML = claimsData.map(c => {
       const selectable = c.status === 'pending' && !paid
-      const photos = (c.photos || []).map(u => `<img src="${u}" style="width:48px; height:48px; object-fit:cover; border:1px solid var(--border);">`).join('')
+      const photos = (c.photos || []).map(u => `<img src="${esc(u)}" style="width:48px; height:48px; object-fit:cover; border:1px solid var(--border);">`).join('')
       return `
       <div style="border:1px solid var(--border); padding:14px 16px; margin-bottom:8px; display:flex; gap:12px; align-items:flex-start;">
         ${selectable ? `<input type="checkbox" class="claim-check" value="${c.id}" onchange="updateShareInfo()" style="margin-top:4px; width:18px; height:18px; flex-shrink:0;">` : `<span style="width:18px; flex-shrink:0;"></span>`}
         <div style="flex:1; min-width:0;">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
-            <span style="font-size:14px; font-weight:500;">${c.finder_name || '-'}</span>
-            <span style="font-size:10px; letter-spacing:1px; padding:2px 8px; border:1px solid; color:${sColor[c.status]||'var(--muted)'}; border-color:currentColor;">${sLabel[c.status]||c.status}</span>
+            <span style="font-size:14px; font-weight:500;">${esc(c.finder_name || '-')}</span>
+            <span style="font-size:10px; letter-spacing:1px; padding:2px 8px; border:1px solid; color:${sColor[c.status]||'var(--muted)'}; border-color:currentColor;">${esc(sLabel[c.status]||c.status)}</span>
           </div>
           <div style="font-size:12px; color:var(--muted); line-height:1.7;">
-            📞 ${c.finder_phone || '-'} · 🏦 ${c.finder_bank || '-'} ${c.finder_account || ''}<br>
-            📍 ${c.location || '-'}${c.location_detail ? ' · ' + c.location_detail : ''}<br>
+            📞 ${esc(c.finder_phone || '-')} · 🏦 ${esc(c.finder_bank || '-')} ${esc(c.finder_account || '')}<br>
+            📍 ${esc(c.location || '-')}${c.location_detail ? ' · ' + esc(c.location_detail) : ''}<br>
             🕒 ${fmt(c.found_at)}
           </div>
           ${photos ? `<div style="display:flex; gap:4px; margin-top:8px; flex-wrap:wrap;">${photos}</div>` : ''}
