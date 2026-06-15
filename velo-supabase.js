@@ -4,10 +4,7 @@
 // =============================================
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-
-const SUPABASE_URL = 'https://kfeksnbxucmkilxrbhth.supabase.co'
-// Supabase publishable key (브라우저 공개용 — RLS 정책으로 보호됨). 레거시 anon JWT 키를 대체.
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_2uHPO55MzcH9WY1sxPUOpA_cmjop6ai'
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '/velo-config.js'
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
 
