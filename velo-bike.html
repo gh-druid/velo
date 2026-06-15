@@ -669,12 +669,6 @@ body { -webkit-text-size-adjust: 100%; }
   </div>
 </div>
 
-<!-- 데모 토글 -->
-<div class="demo-toggle">
-  <button class="demo-btn active" id="demoNormal" onclick="setMode('normal')">정상 모드</button>
-  <button class="demo-btn" id="demoStolen" onclick="setMode('stolen')">도난 모드</button>
-</div>
-
 <script>
   // 현재 시각
   function updateTime() {
@@ -1018,9 +1012,6 @@ body { -webkit-text-size-adjust: 100%; }
       </div>
     `
   }
-
-  // 데모 토글 숨기기 (실제 서비스에서는 불필요)
-  document.querySelector('.demo-toggle')?.remove()
 
   init()
 </script>
