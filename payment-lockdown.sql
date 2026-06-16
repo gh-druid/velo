@@ -25,10 +25,14 @@ begin
 end $$;
 -- 트리거(trg_guard_users_privileged)는 이미 존재 → 함수만 교체됨.
 
--- 2) subscriptions / orders 는 서버(Edge Function)만 생성/수정
-revoke insert, update, delete on public.subscriptions from anon, authenticated;
-revoke insert, update, delete on public.orders        from anon, authenticated;
+-- 2) subscriptions / orders 는 서버(Edge Function)만 "생성"하게 함.
+--    ⚠ INSERT 만 회수한다. UPDATE/DELETE 까지 회수하면 관리자 배송처리
+--    (orders delivery_status 변경, 태그발급 탭)가 깨진다.
+--    일반 유저의 update/delete 는 이미 RLS(orders_upd = is_admin())가 차단함.
+revoke insert on public.subscriptions from anon, authenticated;
+revoke insert on public.orders        from anon, authenticated;
 -- 조회(select)는 기존 정책 유지: 본인 것 + 관리자만.
+-- 관리자 배송처리(update)는 RLS orders_upd(is_admin()) + 기존 update 권한으로 동작.
 
 -- 참고: service_role 은 모든 권한 + RLS 우회라 Edge Function 에서 정상 동작.
 -- =============================================================
