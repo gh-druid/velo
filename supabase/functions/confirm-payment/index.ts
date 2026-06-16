@@ -30,8 +30,11 @@ const json = (o: unknown, s = 200) =>
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   try {
-    const { paymentKey, orderId, amount, plan = 'free', product } = await req.json()
+    const { paymentKey, orderId, amount, plan = 'free', product, discountCode, ship } = await req.json()
     if (!paymentKey || !orderId || typeof amount !== 'number') return json({ error: 'bad request' }, 400)
+
+    // service_role 클라이언트(권한부여 + 할인코드 검증용)
+    const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 
     // 1) 호출자 신원은 JWT에서 확인(body의 userId 신뢰 금지)
     const authHeader = req.headers.get('Authorization') ?? ''
@@ -42,9 +45,25 @@ Deno.serve(async (req) => {
     const { data: { user } } = await userClient.auth.getUser()
     if (!user) return json({ error: 'unauthorized' }, 401)
 
-    // 2) 서버가 기대 금액 계산 → 클라이언트가 보낸 amount와 PG amount가 일치해야 함
-    const expected = (PRODUCT_PRICE[product] ?? -1) + (SUB_PRICE[plan] ?? -1)
-    if (expected < 0 || amount !== expected) return json({ error: 'amount mismatch', expected }, 400)
+    // 2) 서버가 기대 금액 계산(클라이언트 값 신뢰 금지) — 태그/구독 분리 후 할인 적용
+    let tag = PRODUCT_PRICE[product] ?? -1
+    let sub = SUB_PRICE[plan] ?? -1
+    if (tag < 0 || sub < 0) return json({ error: 'bad product/plan' }, 400)
+    let dc: any = null
+    if (discountCode) {
+      const { data } = await admin.from('discount_codes').select('*')
+        .eq('code', String(discountCode).toUpperCase()).eq('is_active', true).maybeSingle()
+      if (data && (!data.expires_at || new Date(data.expires_at) > new Date())
+               && (data.max_uses == null || data.used_count < data.max_uses)) {
+        dc = data
+        const cut = (p: number) => dc.discount_type === 'percent'
+          ? Math.floor(p * dc.discount_value / 100) : Math.min(dc.discount_value, p)
+        if (dc.target === 'all' || dc.target === 'tag') tag -= cut(tag)
+        if (dc.target === 'all' || dc.target === 'subscription') sub -= cut(sub)
+      }
+    }
+    const expected = tag + sub
+    if (amount !== expected) return json({ error: 'amount mismatch', expected }, 400)
 
     // 3) Toss 서버 승인(secret key) — 여기서 실제로 결제가 캡처됨
     const tossRes = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
@@ -58,10 +77,11 @@ Deno.serve(async (req) => {
     if (!tossRes.ok) return json({ error: 'payment not confirmed', detail: await tossRes.text() }, 402)
 
     // 4) 확정된 경우에만 service_role 로 권한 부여(RLS/가드 우회 가능 역할)
-    const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
     await admin.from('orders').insert({
       user_id: user.id, product_name: product, amount, payment_key: paymentKey,
       status: 'paid', delivery_status: 'pending',
+      ship_name: ship?.name ?? null, ship_phone: ship?.phone ?? null,
+      ship_addr: ship?.addr ?? null, ship_addr_detail: ship?.addrDetail ?? null,
     })
     if (plan !== 'free') {
       const days = plan === 'yearly' ? 365 : 30
@@ -69,6 +89,11 @@ Deno.serve(async (req) => {
         user_id: user.id, plan, expires_at: new Date(Date.now() + days * 864e5).toISOString(),
       })
       await admin.from('users').update({ plan }).eq('id', user.id)
+    }
+    // 할인코드 사용 기록(중복 방지는 unique 제약 권장)
+    if (dc) {
+      await admin.from('discount_code_uses').insert({ code_id: dc.id, user_id: user.id })
+      await admin.rpc('increment_discount_code_use', { code_id: dc.id }).catch(() => {})
     }
     return json({ ok: true })
   } catch (e) {
