@@ -235,6 +235,7 @@ body { -webkit-text-size-adjust: 100%; }
 
 <script type="module">
   import { supabase, getUser, getNotifications, markAllRead, signOut, escapeHtml as esc } from '/velo-supabase.js'
+  import { toast, timeAgo, skeleton } from '/velo-ui.js'
 
   let currentUser = null
   let allNotifs = []
@@ -261,8 +262,10 @@ body { -webkit-text-size-adjust: 100%; }
 
     // 모두 읽음
     document.getElementById('readAllBtn').addEventListener('click', async () => {
+      const unread = allNotifs.filter(n => !n.is_read).length
       await markAllRead(currentUser.id)
       await loadNotifications()
+      toast(unread ? `${unread}개를 읽음 처리했어요` : '읽지 않은 알림이 없어요', 'success')
     })
 
     // 드롭다운 로그아웃
@@ -282,6 +285,7 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   async function loadNotifications() {
+    document.getElementById('notifList').innerHTML = skeleton(4, 64)
     allNotifs = await getNotifications(currentUser.id)
     renderNotifs()
   }
@@ -291,27 +295,22 @@ body { -webkit-text-size-adjust: 100%; }
     const filtered = currentFilter === 'all' ? allNotifs : allNotifs.filter(n => n.type === currentFilter)
 
     if (!filtered.length) {
-      list.innerHTML = '<div class="empty"><div class="empty-icon">🔔</div><div class="empty-text">알림이 없습니다.</div></div>'
+      list.innerHTML = `<div class="v-empty"><div class="v-empty-icon">🔔</div><div class="v-empty-title">${currentFilter === 'all' ? '알림이 없어요' : '해당 알림이 없어요'}</div><div class="v-empty-desc">스캔·도난·양도 활동이 생기면 여기에 알려드려요.</div></div>`
       return
     }
 
-    const pad = n => String(n).padStart(2,'0')
-    const icons = { scan:'📡', stolen:'🚨', transfer:'🤝' }
+    const icons = { scan:'📡', stolen:'🚨', transfer:'🤝', bounty:'🎯' }
 
-    list.innerHTML = filtered.map(n => {
-      const dt = new Date(n.created_at)
-      const time = `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`
-      return `
+    list.innerHTML = filtered.map(n => `
         <div class="notif-item ${n.is_read ? 'read' : ''}">
           <div class="notif-icon">${icons[n.type] || '🔔'}</div>
           <div class="notif-body">
             <div class="notif-msg">${esc(n.message)}</div>
-            <div class="notif-time">${time}</div>
+            <div class="notif-time">${timeAgo(n.created_at)}</div>
           </div>
           ${!n.is_read ? '<div class="notif-unread-dot"></div>' : ''}
         </div>
-      `
-    }).join('')
+      `).join('')
   }
 
   init()
