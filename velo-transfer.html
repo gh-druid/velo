@@ -688,6 +688,7 @@ body { -webkit-text-size-adjust: 100%; }
 
 <script type="module">
   import { supabase, getUser, verifyTransferCode, acceptTransfer } from '/velo-supabase.js'
+  import { toast } from '/velo-ui.js'
 
   let currentTransfer = null
 
@@ -808,7 +809,7 @@ body { -webkit-text-size-adjust: 100%; }
       window.goStep(3)
     } catch(e) {
       btn.textContent = '양도 수락하기'; btn.classList.remove('loading')
-      alert('오류: ' + e.message)
+      toast('오류: ' + e.message, 'error')
     }
   }
 

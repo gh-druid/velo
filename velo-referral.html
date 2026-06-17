@@ -381,6 +381,7 @@ body { -webkit-text-size-adjust: 100%; }
 
 <script type="module">
   import { supabase, getUser, escapeHtml as esc } from '/velo-supabase.js'
+  import { toast } from '/velo-ui.js'
 
   let currentUser = null
   let referralData = null
@@ -478,7 +479,7 @@ body { -webkit-text-size-adjust: 100%; }
       applyBtn.addEventListener('click', async function() {
         var checkbox = document.getElementById('agreeReferral')
         if (!checkbox || !checkbox.checked) {
-          alert('계약 내용에 동의해주세요.'); return;
+          toast('계약 내용에 동의해주세요.', 'error'); return;
         }
         const code = 'VLO' + Math.random().toString(36).slice(2,8).toUpperCase()
         await supabase.from('referrals').insert({ user_id: currentUser.id, referral_code: code, user_agent: navigator.userAgent })
@@ -491,14 +492,14 @@ body { -webkit-text-size-adjust: 100%; }
     document.getElementById('copyCodeBtn').addEventListener('click', () => {
       const code = document.getElementById('myCode').textContent
       navigator.clipboard?.writeText(`velokr.com/register?ref=${code}`)
-        .then(() => alert('링크가 복사됐어요!'))
-        .catch(() => alert(`velokr.com/register?ref=${code}`))
+        .then(() => toast('링크가 복사됐어요!', 'success'))
+        .catch(() => toast(`복사 실패 — velokr.com/register?ref=${code}`))
     })
 
     // 출금 신청 버튼
     document.getElementById('withdrawBtn').addEventListener('click', () => {
       const available = referralData ? referralData.total_earned - referralData.total_withdrawn : 0
-      if (available < 10000) { alert(`출금은 10,000원 이상부터 가능합니다.\n현재: ${available.toLocaleString()}원`); return; }
+      if (available < 10000) { toast(`출금은 10,000원 이상부터 가능합니다. (현재 ${available.toLocaleString()}원)`, 'error'); return; }
       document.getElementById('withdrawAmount').textContent = available.toLocaleString()
       document.getElementById('withdrawModal').classList.add('active')
     })
@@ -508,7 +509,7 @@ body { -webkit-text-size-adjust: 100%; }
       const bankName = document.getElementById('bankName').value.trim()
       const accountNumber = document.getElementById('accountNumber').value.trim()
       const accountHolder = document.getElementById('accountHolder').value.trim()
-      if (!bankName || !accountNumber || !accountHolder) { alert('모든 항목을 입력해주세요.'); return; }
+      if (!bankName || !accountNumber || !accountHolder) { toast('모든 항목을 입력해주세요.', 'error'); return; }
 
       const available = referralData.total_earned - referralData.total_withdrawn
       await supabase.from('referral_withdrawals').insert({
@@ -521,7 +522,7 @@ body { -webkit-text-size-adjust: 100%; }
       })
       await supabase.from('referrals').update({ total_withdrawn: referralData.total_earned }).eq('id', referralData.id)
       document.getElementById('withdrawModal').classList.remove('active')
-      alert('출금 신청이 완료됐습니다. 영업일 3일 내 입금됩니다.')
+      toast('출금 신청이 완료됐습니다. 영업일 3일 내 입금됩니다.', 'success')
       await loadReferral()
     })
 

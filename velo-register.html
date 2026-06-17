@@ -752,7 +752,7 @@ body { -webkit-text-size-adjust: 100%; }
     const type = document.getElementById('partType').value
     const name = document.getElementById('partName').value.trim()
     const serial = document.getElementById('partSerial').value.trim()
-    if (!type || !name) { alert('부품 종류와 브랜드/모델을 입력해주세요.'); return }
+    if (!type || !name) { toast('부품 종류와 브랜드/모델을 입력해주세요.', 'error'); return }
     window.parts.push({ type, name, serial })
     document.getElementById('partType').value = ''
     document.getElementById('partName').value = ''
@@ -847,6 +847,7 @@ body { -webkit-text-size-adjust: 100%; }
 
 <script type="module">
   import { getUser, registerBike, addPart as addPartDB, startSubscription, uploadBikePhotos, saveBikePhotos, getUserProfile } from '/velo-supabase.js'
+  import { toast } from '/velo-ui.js'
 
   // 로그인 체크 + 이름/기존 자전거 불러오기
   async function init() {
@@ -884,7 +885,7 @@ body { -webkit-text-size-adjust: 100%; }
       // 현상금은 선택사항이나, 입력 시 최소 10,000원
       if (bountyRaw > 0 && bountyRaw < 10000) {
         showErr('bountyErr', true)
-        alert('현상금은 최소 10,000원 이상이어야 합니다.')
+        toast('현상금은 최소 10,000원 이상이어야 합니다.', 'error')
         return
       }
       showErr('bountyErr', false)
@@ -920,7 +921,7 @@ body { -webkit-text-size-adjust: 100%; }
         _baseGoStep(4)
       } catch(e) {
         btn.textContent = '결제 및 신청 완료 →'; btn.disabled = false
-        alert('오류: ' + e.message)
+        toast('오류: ' + e.message, 'error')
       }
       return
     }

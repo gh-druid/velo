@@ -318,6 +318,7 @@ body { -webkit-text-size-adjust: 100%; }
 
 <script type="module">
   import { getUser, getUserProfile, startSubscription, getMyBikes, supabase, validateDiscountCode, useDiscountCode, escapeHtml as esc } from '/velo-supabase.js'
+  import { toast } from '/velo-ui.js'
 
   const TOSS_CLIENT_KEY = 'YOUR_TOSS_CLIENT_KEY'
 
@@ -438,8 +439,8 @@ body { -webkit-text-size-adjust: 100%; }
     const shipName = document.getElementById('shipName')?.value.trim()
     const shipPhone = document.getElementById('shipPhone')?.value.trim()
     const shipAddr = document.getElementById('shipAddr')?.value.trim()
-    if (!shipName || !shipPhone || !shipAddr) { alert('배송 정보를 입력해주세요.'); return; }
-    if (!agree1 || !agree2) { alert('약관에 동의해주세요.'); return; }
+    if (!shipName || !shipPhone || !shipAddr) { toast('배송 정보를 입력해주세요.', 'error'); return; }
+    if (!agree1 || !agree2) { toast('약관에 동의해주세요.', 'error'); return; }
 
     const prod = products[selectedProd]
     const sub = subs[selectedSub]
@@ -485,7 +486,7 @@ body { -webkit-text-size-adjust: 100%; }
         failUrl: window.location.origin + '/velo-payment.html',
       })
     } catch(e) {
-      if (e.code !== 'USER_CANCEL') alert('결제 오류: ' + e.message)
+      if (e.code !== 'USER_CANCEL') toast('결제 오류: ' + e.message, 'error')
     }
   }
 
