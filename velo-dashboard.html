@@ -347,11 +347,19 @@ body { -webkit-text-size-adjust: 100%; }
   <!-- 자전거 목록 -->
   <div class="section-header">
     <div class="section-title">내 자전거</div>
-    <div class="filter-tabs">
-      <button class="filter-tab active" onclick="filterBikes('all',this)">전체</button>
-      <button class="filter-tab" onclick="filterBikes('normal',this)">정상</button>
-      <button class="filter-tab" onclick="filterBikes('stolen',this)">도난</button>
-      <button class="filter-tab" onclick="showTransferHistory(this)">양도 이력</button>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <input id="bikeSearch" class="v-input" placeholder="모델·차대번호 검색" style="width:200px; padding:9px 13px; font-size:13px;" oninput="applyBikeView()">
+      <select id="bikeSort" class="v-select" style="width:auto; padding:9px 32px 9px 13px; font-size:13px;" onchange="applyBikeView()">
+        <option value="recent">최신순</option>
+        <option value="old">오래된순</option>
+        <option value="name">모델명순</option>
+      </select>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterBikes('all',this)">전체</button>
+        <button class="filter-tab" onclick="filterBikes('normal',this)">정상</button>
+        <button class="filter-tab" onclick="filterBikes('stolen',this)">도난</button>
+        <button class="filter-tab" onclick="showTransferHistory(this)">양도 이력</button>
+      </div>
     </div>
   </div>
 
@@ -442,6 +450,8 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 <script type="module">
   import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getBountyClaims, payBounty, rejectClaim, escapeHtml as esc } from '/velo-supabase.js'
+  import { toast, confirmDialog, skeleton } from '/velo-ui.js'
+  window.toast = toast
 
   let currentBikes = []
   let currentBikeId = null
@@ -475,9 +485,10 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   // 자전거 목록 불러오기
+  let currentFilter = 'all'
   async function loadBikes() {
     const grid = document.getElementById('bikesGrid')
-    grid.innerHTML = '<div style="padding:40px;color:var(--muted);font-size:13px;">불러오는 중...</div>'
+    grid.innerHTML = skeleton(3, 168)
 
     try {
       const bikes = await getMyBikes()
@@ -490,30 +501,31 @@ body { -webkit-text-size-adjust: 100%; }
       document.getElementById('sumParts').textContent = totalParts
       document.getElementById('sumStolen').textContent = stolenCount
 
-      renderBikes(bikes, 'all')
+      currentFilter = 'all'
+      applyBikeView()
     } catch(e) {
-      grid.innerHTML = '<div style="padding:40px;color:var(--error);font-size:13px;">불러오기 실패: ' + e.message + '</div>'
+      grid.innerHTML = `<div class="v-empty" style="grid-column:1/-1"><div class="v-empty-icon">⚠️</div><div class="v-empty-title">불러오기 실패</div><div class="v-empty-desc">${esc(e.message)}</div></div>`
     }
   }
 
-  function renderBikes(bikes, filter) {
+  // 검색 + 필터 + 정렬 적용
+  window.applyBikeView = function() {
     const grid = document.getElementById('bikesGrid')
-    const filtered = filter === 'all' ? bikes : bikes.filter(b => b.status === filter)
-
-    if (filtered.length === 0) {
-      grid.innerHTML = ''
-      const emptyState = document.getElementById('emptyState')
-      if (filter === 'all') {
-        emptyState.classList.add('show')
-      } else {
-        emptyState.classList.remove('show')
-        grid.innerHTML = `<div style="padding:40px; color:var(--muted); font-size:13px; text-align:center;">${filter === 'normal' ? '정상' : '도난'} 상태의 자전거가 없습니다.</div>`
-      }
+    const empty = document.getElementById('emptyState')
+    if (!currentBikes.length) { grid.innerHTML = ''; empty.classList.add('show'); return }
+    empty.classList.remove('show')
+    const q = (document.getElementById('bikeSearch')?.value || '').trim().toLowerCase()
+    const sort = document.getElementById('bikeSort')?.value || 'recent'
+    let list = currentFilter === 'all' ? currentBikes.slice() : currentBikes.filter(b => b.status === currentFilter)
+    if (q) list = list.filter(b => `${b.brand||''} ${b.model||''} ${b.serial||''}`.toLowerCase().includes(q))
+    list.sort((a, b) => sort === 'name' ? (a.model||'').localeCompare(b.model||'')
+      : sort === 'old' ? new Date(a.created_at) - new Date(b.created_at)
+      : new Date(b.created_at) - new Date(a.created_at))
+    if (!list.length) {
+      grid.innerHTML = `<div class="v-empty" style="grid-column:1/-1"><div class="v-empty-icon">🔍</div><div class="v-empty-title">결과가 없어요</div><div class="v-empty-desc">${q ? '검색어와 일치하는 자전거가 없습니다.' : '해당 상태의 자전거가 없습니다.'}</div></div>`
       return
     }
-
-    document.getElementById('emptyState').classList.remove('show')
-    grid.innerHTML = filtered.map(bike => `
+    grid.innerHTML = list.map(bike => `
       <div class="bike-card" data-status="${bike.status}" data-id="${bike.id}">
         <div class="bike-card-header">
           <div class="nfc-indicator">
@@ -531,7 +543,7 @@ body { -webkit-text-size-adjust: 100%; }
           <div class="bike-meta">${new Date(bike.created_at).toLocaleDateString('ko-KR')} · 부품 ${bike.parts?.length || 0}개</div>
           <div class="bike-actions">
             <button class="bike-btn" onclick="openTransfer('${bike.id}')">양도</button>
-            <button class="bike-btn danger" ${!hasSubscription ? 'onclick="alert(\'도난 신고는 구독자만 이용 가능합니다.\')" style="opacity:0.4;"' : `onclick="openStolen('${bike.id}')"`}>
+            <button class="bike-btn danger" ${!hasSubscription ? 'onclick="toast(\'도난 신고는 구독자만 이용 가능합니다.\',\'error\')" style="opacity:0.4;"' : `onclick="openStolen('${bike.id}')"`}>
               ${bike.status === 'stolen' ? '신고 취소' : '도난 신고'}
             </button>
             ${!hasSubscription ? `<button class="bike-btn accent" onclick="location.href='/payment'">구독 시작 →</button>` : ''}
@@ -548,7 +560,7 @@ body { -webkit-text-size-adjust: 100%; }
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'))
     btn.classList.add('active')
     const grid = document.getElementById('bikesGrid')
-    grid.innerHTML = '<div style="padding:40px; color:var(--muted); font-size:13px;">불러오는 중...</div>'
+    grid.innerHTML = skeleton(3, 168)
     document.getElementById('emptyState').classList.remove('show')
 
     const { data: transfers } = await supabase
@@ -595,7 +607,8 @@ body { -webkit-text-size-adjust: 100%; }
   window.filterBikes = function(status, btn) {
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'))
     btn.classList.add('active')
-    renderBikes(currentBikes, status)
+    currentFilter = status
+    applyBikeView()
   }
 
   // 삭제
@@ -623,7 +636,7 @@ body { -webkit-text-size-adjust: 100%; }
       document.getElementById('deleteModal').classList.remove('active')
       await loadBikes()
     } catch(e) {
-      alert('삭제 실패: ' + e.message)
+      toast('삭제 실패: ' + e.message, 'error')
     }
   }
 
@@ -647,7 +660,7 @@ body { -webkit-text-size-adjust: 100%; }
       document.getElementById('stolenModal').classList.remove('active')
       await loadBikes()
     } catch(e) {
-      alert(e.message)
+      toast(e.message, 'error')
     }
   }
 
@@ -668,7 +681,7 @@ body { -webkit-text-size-adjust: 100%; }
         is_read: false
       })
     } catch(e) {
-      alert(e.message)
+      toast(e.message, 'error')
     }
   }
 
@@ -685,7 +698,7 @@ body { -webkit-text-size-adjust: 100%; }
     document.getElementById('claimsBounty').innerHTML = claimsBountyAmt
       ? `현상금 <strong style="color:#5f8c0a;">₩${claimsBountyAmt.toLocaleString()}</strong>${bike?.bounty_paid ? ' · <span style="color:#5f8c0a;">지급 완료</span>' : ''}`
       : '현상금이 설정되지 않은 자전거입니다.'
-    document.getElementById('claimsList').innerHTML = '<div style="padding:24px; color:var(--muted); font-size:13px;">불러오는 중...</div>'
+    document.getElementById('claimsList').innerHTML = skeleton(2, 84)
     document.getElementById('claimsModal').classList.add('active')
     try {
       claimsData = await getBountyClaims(id)
@@ -700,7 +713,7 @@ body { -webkit-text-size-adjust: 100%; }
     const bike = currentBikes.find(b => b.id === claimsBikeId)
     const paid = bike?.bounty_paid
     if (!claimsData.length) {
-      list.innerHTML = '<div style="padding:24px; color:var(--muted); font-size:13px; text-align:center;">아직 제보가 없습니다.</div>'
+      list.innerHTML = '<div class="v-empty"><div class="v-empty-icon">📭</div><div class="v-empty-title">아직 제보가 없어요</div><div class="v-empty-desc">발견자가 제보하면 여기에 표시됩니다.</div></div>'
       updateShareInfo(); return
     }
     const pad = n => String(n).padStart(2,'0')
@@ -746,19 +759,19 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   window.rejectOneClaim = async function(claimId) {
-    if (!confirm('이 제보를 거절하시겠습니까?')) return
+    if (!(await confirmDialog({ title:'제보 거절', message:'이 제보를 거절하시겠습니까?', confirmText:'거절', danger:true }))) return
     try {
       await rejectClaim(claimId)
       claimsData = claimsData.map(c => c.id === claimId ? { ...c, status: 'rejected' } : c)
       renderClaims()
-    } catch(e) { alert('오류: ' + e.message) }
+    } catch(e) { toast('오류: ' + e.message, 'error') }
   }
 
   window.payToSelected = async function() {
     const checked = [...document.querySelectorAll('.claim-check:checked')].map(c => c.value)
-    if (!checked.length) { alert('지급할 제보자를 선택해주세요.'); return }
+    if (!checked.length) { toast('지급할 제보자를 선택해주세요.', 'error'); return }
     const share = claimsBountyAmt ? Math.floor(claimsBountyAmt / checked.length) : 0
-    if (!confirm(`${checked.length}명에게 각 ₩${share.toLocaleString()}씩 분할 지급 처리하시겠습니까?`)) return
+    if (!(await confirmDialog({ title:'현상금 분할 지급', message:`${checked.length}명에게 각 ₩${share.toLocaleString()}씩 지급 처리할까요?`, confirmText:'지급' }))) return
     const btn = document.getElementById('payBountyBtn')
     btn.disabled = true; btn.textContent = '처리 중...'
     try {
@@ -767,12 +780,12 @@ body { -webkit-text-size-adjust: 100%; }
         const { createNotification } = await import('/velo-supabase.js')
         await createNotification(currentUser.id, 'bounty', `현상금을 ${checked.length}명의 제보자에게 분할 지급 처리했습니다.`, claimsBikeId)
       } catch(e) {}
-      alert('현상금 지급 처리가 완료되었습니다.')
+      toast('현상금 지급 처리가 완료되었습니다.', 'success')
       document.getElementById('claimsModal').classList.remove('active')
       btn.textContent = '선택한 제보자에게 분할 지급'
       await loadBikes()
     } catch(e) {
-      alert('지급 실패: ' + e.message)
+      toast('지급 실패: ' + e.message, 'error')
       btn.disabled = false; btn.style.opacity = '1'; btn.textContent = '선택한 제보자에게 분할 지급'
     }
   }

@@ -62,3 +62,19 @@
 /* 스켈레톤(로딩) */
 .v-skel{background:linear-gradient(90deg,var(--sage) 25%,#eef4e6 37%,var(--sage) 63%);background-size:400% 100%;animation:vskel 1.4s ease infinite;border-radius:8px}
 @keyframes vskel{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+/* 확인 모달 (confirmDialog) */
+.v-modal-ov{position:fixed;inset:0;z-index:9999;background:rgba(20,24,15,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .2s}
+.v-modal-ov.show{opacity:1}
+.v-modal{background:#fff;border-radius:var(--r);box-shadow:0 24px 60px rgba(20,24,15,.25);width:100%;max-width:400px;padding:28px;transform:translateY(12px) scale(.98);transition:transform .2s}
+.v-modal-ov.show .v-modal{transform:none}
+.v-modal-title{font-size:18px;font-weight:800;letter-spacing:-.4px;color:var(--ink);margin-bottom:8px}
+.v-modal-msg{font-size:14px;color:var(--mut);line-height:1.6;margin-bottom:22px}
+.v-modal-actions{display:flex;gap:10px}
+.v-modal-actions .v-btn{flex:1}
+
+/* 빈 화면 (emptyState) */
+.v-empty{text-align:center;padding:64px 24px}
+.v-empty-icon{font-size:44px;margin-bottom:14px;opacity:.9}
+.v-empty-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.v-empty-desc{font-size:13.5px;color:var(--mut);line-height:1.7;max-width:360px;margin:0 auto}
