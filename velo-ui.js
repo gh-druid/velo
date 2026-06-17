@@ -41,6 +41,34 @@ export function confirmDialog(opts = {}) {
   })
 }
 
+// 입력 다이얼로그 (prompt 대체) → Promise<string|null>
+export function promptDialog(opts = {}) {
+  const { title = '입력', message = '', placeholder = '', confirmText = '확인', cancelText = '취소', multiline = false } = opts
+  return new Promise(resolve => {
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]))
+    const ov = document.createElement('div'); ov.className = 'v-modal-ov'
+    const field = multiline
+      ? `<textarea class="v-textarea" data-in rows="3" placeholder="${esc(placeholder)}"></textarea>`
+      : `<input class="v-input" data-in placeholder="${esc(placeholder)}">`
+    ov.innerHTML = `<div class="v-modal" role="dialog" aria-modal="true">
+        <div class="v-modal-title">${esc(title)}</div>
+        ${message ? `<div class="v-modal-msg">${esc(message)}</div>` : ''}
+        <div style="margin-bottom:18px">${field}</div>
+        <div class="v-modal-actions">
+          <button class="v-btn v-btn-out" data-x>${esc(cancelText)}</button>
+          <button class="v-btn v-btn-ink" data-ok>${esc(confirmText)}</button>
+        </div></div>`
+    document.body.appendChild(ov)
+    requestAnimationFrame(() => ov.classList.add('show'))
+    const inp = ov.querySelector('[data-in]')
+    setTimeout(() => inp.focus(), 50)
+    const close = v => { ov.classList.remove('show'); setTimeout(() => ov.remove(), 200); resolve(v) }
+    ov.addEventListener('click', e => { if (e.target === ov) close(null) })
+    ov.querySelector('[data-x]').onclick = () => close(null)
+    ov.querySelector('[data-ok]').onclick = () => { const v = (inp.value || '').trim(); close(v || null) }
+  })
+}
+
 // 스켈레톤 블록 n개 (로딩 표시)
 export function skeleton(n = 3, height = 116) {
   return Array.from({ length: n }, () =>

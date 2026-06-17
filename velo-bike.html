@@ -653,7 +653,7 @@ body { -webkit-text-size-adjust: 100%; }
   <!-- ACTIONS -->
   <div class="actions">
     <a class="btn-contact" id="contactBtn" href="mailto:?subject=벨로 자전거 문의" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">소유자에게 연락하기</a>
-    <button class="btn-report" id="reportBtn" onclick="alert('도난 의심 차량은 경찰청 112로 신고해주세요.\n\n이 자전거가 도난품으로 의심된다면\n가까운 경찰서에 신고 부탁드립니다.')">
+    <button class="btn-report" id="reportBtn" onclick="toast('도난 의심 차량은 경찰청 112로 신고해주세요. 도난품으로 의심되면 가까운 경찰서에 신고 부탁드립니다.')">
       🚨 도난 의심 신고
     </button>
     <button class="btn-outline" onclick="location.href='/'">벨로 서비스 알아보기</button>
@@ -683,6 +683,8 @@ body { -webkit-text-size-adjust: 100%; }
 
 <script type="module">
   import { getBikeBySerial, maskPhone, supabase, submitBountyClaim, uploadClaimPhotos, getBountyClaim, submitDispute, escapeHtml as esc } from '/velo-supabase.js'
+  import { toast, confirmDialog, promptDialog } from '/velo-ui.js'
+  window.toast = toast
 
   const pad = n => String(n).padStart(2, '0')
 
@@ -903,7 +905,7 @@ body { -webkit-text-size-adjust: 100%; }
             account = v('ffAccount'), location = v('ffLocation'), detail = v('ffDetail')
       const foundAtVal = document.getElementById('ffFoundAt').value
       if (!name || !phone || !bank || !account || !location) {
-        alert('이름, 연락처, 은행, 계좌번호, 발견 위치는 필수입니다.'); return
+        toast('이름·연락처·은행·계좌번호·발견 위치는 필수입니다.', 'error'); return
       }
       const btn = document.getElementById('submitFinderBtn')
       btn.disabled = true; btn.textContent = '제출 중...'
@@ -924,7 +926,7 @@ body { -webkit-text-size-adjust: 100%; }
         } catch (e) {}
         renderClaimStatus(claim)
       } catch (e) {
-        alert('제보 실패: ' + e.message)
+        toast('제보 실패: ' + e.message, 'error')
         btn.disabled = false; btn.textContent = '제보 제출하기'
       }
     })
@@ -959,14 +961,14 @@ body { -webkit-text-size-adjust: 100%; }
     card.innerHTML = html
     const db = document.getElementById('disputeBtn')
     if (db) db.addEventListener('click', async () => {
-      const reason = prompt('이의 제기 사유를 입력해주세요 (벨로가 검토합니다):')
+      const reason = await promptDialog({ title:'이의 제기', message:'사유를 적어주세요. 벨로가 검토 후 연락드립니다.', placeholder:'예: 제가 먼저 제보했는데 반영되지 않았어요', confirmText:'제출', multiline:true })
       if (!reason || !reason.trim()) return
       try {
         await submitDispute(claim.id, reason.trim())
-        alert('이의 제기가 접수되었습니다. 벨로가 검토 후 연락드립니다.')
+        toast('이의 제기가 접수되었습니다.', 'success')
         claim.status = 'disputed'
         renderClaimStatus(claim)
-      } catch (e) { alert('오류: ' + e.message) }
+      } catch (e) { toast('오류: ' + e.message, 'error') }
     })
   }
 
@@ -992,7 +994,7 @@ body { -webkit-text-size-adjust: 100%; }
     const msg = isLost
       ? `"${partName}" 분실 신고를 취소하시겠습니까?`
       : `"${partName}"을(를) 분실 신고하시겠습니까?`
-    if (!confirm(msg)) return
+    if (!(await confirmDialog({ title: isLost ? '분실 신고 취소' : '부품 분실 신고', message: msg, confirmText: isLost ? '취소하기' : '신고하기', danger: !isLost }))) return
 
     const newStatus = isLost ? 'normal' : 'lost'
     const { error } = await supabase
@@ -1000,8 +1002,8 @@ body { -webkit-text-size-adjust: 100%; }
       .update({ status: newStatus, lost_at: isLost ? null : new Date().toISOString() })
       .eq('id', partId)
 
-    if (error) { alert('오류: ' + error.message); return; }
-    alert(isLost ? '분실 신고가 취소되었습니다.' : '분실 신고가 완료되었습니다.')
+    if (error) { toast('오류: ' + error.message, 'error'); return; }
+    toast(isLost ? '분실 신고가 취소되었습니다.' : '분실 신고가 완료되었습니다.', 'success')
     location.reload()
   }
 

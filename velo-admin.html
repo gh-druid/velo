@@ -637,6 +637,7 @@ body { -webkit-text-size-adjust: 100%; }
 
 <script type="module">
   import { supabase, getUser, signOut, getAllBountyClaims, adminUpdateClaimStatus, adminAdjustBounty, adminWarnUser, adminSetSuspended, escapeHtml as esc } from '/velo-supabase.js'
+  import { confirmDialog } from '/velo-ui.js'
 
   // 관리자 이메일 (본인 이메일로 바꿔줘요)
   const ADMIN_EMAIL = 'velokr20@gmail.com'
@@ -845,7 +846,7 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   window.revokeLifetime = async function(id) {
-    if (!confirm('평생 무료를 해제하시겠습니까?')) return
+    if (!(await confirmDialog({ title:'평생무료 해제', message:'평생 무료를 해제하시겠습니까?', confirmText:'해제', danger:true }))) return
     await supabase.from('users').update({ lifetime_free: false, plan: 'free' }).eq('id', id)
     showToast('평생 무료 해제됨')
     await loadLifetime()
@@ -1097,7 +1098,7 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   window.deleteDiscount = async function(id) {
-    if (!confirm('정말 삭제하시겠습니까?')) return
+    if (!(await confirmDialog({ title:'할인코드 삭제', message:'정말 삭제하시겠습니까?', confirmText:'삭제', danger:true }))) return
     await supabase.from('discount_codes').delete().eq('id', id)
     showToast('삭제 완료!')
     await loadDiscounts()
@@ -1112,7 +1113,7 @@ body { -webkit-text-size-adjust: 100%; }
   // 토스트
   window.suspendUser = async function(id) {
     const name = (allUsers.find(u => u.id === id) || {}).name || ''
-    if (!confirm(`${name} 계정을 정지하시겠습니까?`)) return
+    if (!(await confirmDialog({ title:'계정 정지', message:`${name} 계정을 정지하시겠습니까?`, confirmText:'정지', danger:true }))) return
     await supabase.from('users').update({ is_suspended: true }).eq('id', id)
     showToast('계정이 정지되었습니다.')
     await loadUsers()
@@ -1299,7 +1300,7 @@ body { -webkit-text-size-adjust: 100%; }
   }
 
   window.completeWithdrawal = async function(id) {
-    if (!confirm('입금 완료 처리하시겠습니까?')) return
+    if (!(await confirmDialog({ title:'입금 완료', message:'입금 완료로 처리하시겠습니까?', confirmText:'입금완료' }))) return
     await supabase.from('referral_withdrawals').update({ status: 'completed' }).eq('id', id)
     showToast('✅ 입금 완료 처리됐습니다.')
     await loadReferral()
@@ -1386,11 +1387,11 @@ body { -webkit-text-size-adjust: 100%; }
     try { await adminAdjustBounty(bikeId, amt); showToast('현상금 금액 조정 완료'); loadBounty() } catch(e) { showToast('오류: ' + e.message) }
   }
   window.bAdminWarn = async function(userId) {
-    if (!confirm('이 소유자에게 경고를 부여하시겠습니까?\n(경고 3회 시 자동 정지됩니다)')) return
+    if (!(await confirmDialog({ title:'소유자 경고', message:'이 소유자에게 경고를 부여할까요? (경고 3회 시 자동 정지)', confirmText:'경고 부여', danger:true }))) return
     try { const r = await adminWarnUser(userId); showToast(r.suspended ? '⚠ 경고 3회 — 계정 정지됨' : `경고 부여 (${r.warningCount}회)`) } catch(e) { showToast('오류: ' + e.message) }
   }
   window.bAdminSuspend = async function(userId) {
-    if (!confirm('이 소유자 계정을 정지하시겠습니까?')) return
+    if (!(await confirmDialog({ title:'계정 정지', message:'이 소유자 계정을 정지하시겠습니까?', confirmText:'정지', danger:true }))) return
     try { await adminSetSuspended(userId, true); showToast('계정 정지 처리됨') } catch(e) { showToast('오류: ' + e.message) }
   }
   window.bResolveDispute = async function(claimId, status) {
