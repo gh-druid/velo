@@ -3,23 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/velo-theme.css">
 <title>벨로 (Vélo) — 대시보드</title>
 <link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --black: #0a0a0a;
-    --white: #f5f3ee;
+    --black: #faf8f0;
+    --white: #20251a;
     --accent: #c8f542;
-    --gray: #1a1a1a;
-    --mid: #2e2e2e;
-    --muted: #888;
-    --border: rgba(255,255,255,0.08);
+    --gray: #ffffff;
+    --mid: #eef2e6;
+    --muted: #5f6a59;
+    --border: rgba(20,24,15,0.08);
     --error: #ff4f4f;
     --warning: #f5a623;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+  body { background:#faf8f0; color:var(--white); font-family:'Pretendard',sans-serif; font-weight:300; min-height:100vh; }
 
   /* NAV */
   nav {
@@ -29,15 +30,15 @@
     border-bottom:1px solid var(--border);
     position:sticky; top:0; z-index:100;
   }
-  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
   .nav-links { display:flex; gap:4px; justify-content:center; }
   .nav-link {
     padding:8px 16px; font-size:13px; color:var(--muted);
-    background:none; border:none; font-family:'Noto Sans KR',sans-serif;
+    background:none; border:none; font-family:'Pretendard',sans-serif;
     cursor:pointer; transition:color 0.2s; border-radius:2px;
     letter-spacing:0.5px;
   }
-  .nav-link:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+  .nav-link:hover { color:var(--white); background:rgba(20,24,15,0.04); }
   .nav-link.active { color:var(--white); background:rgba(200,245,66,0.08); }
   .nav-right { display:flex; align-items:center; gap:16px; }
   .nav-user { font-size:13px; color:var(--muted); }
@@ -45,7 +46,7 @@
   .nav-avatar {
     width:32px; height:32px; background:var(--accent); border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-size:13px; font-weight:700; color:var(--black); cursor:pointer;
+    font-size:13px; font-weight:700; color:#14180f; cursor:pointer;
     position:relative;
   }
   .nav-dropdown { position:absolute; top:44px; right:0; background:var(--gray); border:1px solid var(--border); min-width:180px; display:none; z-index:300; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
@@ -53,13 +54,13 @@
   .nav-dropdown-item {
     padding:12px 16px; font-size:13px; color:var(--muted);
     cursor:pointer; transition:all 0.2s; display:block;
-    background:none; border:none; font-family:'Noto Sans KR',sans-serif;
+    background:none; border:none; font-family:'Pretendard',sans-serif;
     width:100%; text-align:left;
   }
-  .nav-dropdown-item:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+  .nav-dropdown-item:hover { color:var(--white); background:rgba(20,24,15,0.04); }
   .nav-dropdown-item.danger:hover { color:var(--error); }
 
-  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:8px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.5px; cursor:pointer; transition:opacity 0.2s; }
+  .btn-primary { background:var(--accent); color:#14180f; border:none; padding:8px 20px; font-family:'Pretendard',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.5px; cursor:pointer; transition:opacity 0.2s; }
   .btn-primary:hover { opacity:0.9; }
 
   /* CONTENT */
@@ -71,7 +72,7 @@
   .summary-card:last-child { border-right:none; }
   .summary-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
   .summary-num { font-family:'Bebas Neue',sans-serif; font-size:40px; line-height:1; }
-  .summary-num.accent { color:var(--accent); }
+  .summary-num.accent { color:#5f8c0a; }
   .summary-num.danger { color:var(--error); }
   .summary-sub { font-size:11px; color:var(--muted); margin-top:4px; }
 
@@ -80,9 +81,9 @@
   .section-title { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; }
 
   .filter-tabs { display:flex; border:1px solid var(--border); }
-  .filter-tab { padding:7px 18px; font-size:12px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Noto Sans KR',sans-serif; border-right:1px solid var(--border); transition:all 0.2s; letter-spacing:0.5px; }
+  .filter-tab { padding:7px 18px; font-size:12px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Pretendard',sans-serif; border-right:1px solid var(--border); transition:all 0.2s; letter-spacing:0.5px; }
   .filter-tab:last-child { border-right:none; }
-  .filter-tab.active { background:var(--accent); color:var(--black); font-weight:700; }
+  .filter-tab.active { background:var(--accent); color:#14180f; font-weight:700; }
   .filter-tab:hover:not(.active) { color:var(--white); }
 
   /* BIKES GRID */
@@ -93,7 +94,7 @@
 
   .bike-card-header { display:flex; justify-content:space-between; align-items:flex-start; padding:20px 20px 0; }
   .bike-status { font-size:10px; letter-spacing:2px; padding:3px 8px; border:1px solid; }
-  .bike-status.normal { color:var(--accent); border-color:rgba(200,245,66,0.3); background:rgba(200,245,66,0.06); }
+  .bike-status.normal { color:#5f8c0a; border-color:rgba(200,245,66,0.3); background:rgba(200,245,66,0.06); }
   .bike-status.stolen { color:var(--error); border-color:rgba(255,79,79,0.3); background:rgba(255,79,79,0.06); }
   .bike-status.pending { color:var(--warning); border-color:rgba(245,166,35,0.3); background:rgba(245,166,35,0.06); }
 
@@ -110,10 +111,10 @@
   .bike-meta { font-size:11px; color:var(--muted); }
   .bike-actions { display:flex; gap:6px; }
 
-  .bike-btn { font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.2s; }
-  .bike-btn:hover { color:var(--white); border-color:rgba(255,255,255,0.3); }
+  .bike-btn { font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Pretendard',sans-serif; transition:all 0.2s; }
+  .bike-btn:hover { color:var(--white); border-color:rgba(20,24,15,0.3); }
   .bike-btn.danger:hover { color:var(--error); border-color:rgba(255,79,79,0.4); }
-  .bike-btn.accent { background:var(--accent); color:var(--black); border-color:var(--accent); font-weight:700; }
+  .bike-btn.accent { background:var(--accent); color:#14180f; border-color:#5f8c0a; font-weight:700; }
   .bike-btn.accent:hover { opacity:0.9; }
 
   /* EMPTY */
@@ -133,20 +134,20 @@
   .modal-close { position:absolute; top:16px; right:20px; background:none; border:none; color:var(--muted); font-size:22px; cursor:pointer; }
   .modal-warn { background:rgba(255,79,79,0.08); border:1px solid rgba(255,79,79,0.2); padding:14px; font-size:13px; color:var(--error); line-height:1.7; margin-bottom:20px; }
   .modal-actions { display:flex; gap:10px; }
-  .btn-cancel { flex:1; background:transparent; border:1px solid var(--border); color:var(--muted); padding:12px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer; }
+  .btn-cancel { flex:1; background:transparent; border:1px solid var(--border); color:var(--muted); padding:12px; font-family:'Pretendard',sans-serif; font-size:13px; cursor:pointer; }
   .btn-cancel:hover { border-color:var(--white); color:var(--white); }
-  .btn-confirm-danger { flex:1; background:var(--error); border:none; color:var(--white); padding:12px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+  .btn-confirm-danger { flex:1; background:var(--error); border:none; color:var(--white); padding:12px; font-family:'Pretendard',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 
-  .transfer-code { background:var(--black); border:1px solid var(--border); padding:20px; text-align:center; margin-bottom:20px; }
+  .transfer-code { background:#faf8f0; border:1px solid var(--border); padding:20px; text-align:center; margin-bottom:20px; }
   .transfer-code-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:12px; }
-  .transfer-code-value { font-family:'Courier New',monospace; font-size:28px; letter-spacing:8px; color:var(--accent); font-weight:700; }
+  .transfer-code-value { font-family:'Courier New',monospace; font-size:28px; letter-spacing:8px; color:#5f8c0a; font-weight:700; }
   .transfer-code-exp { font-size:11px; color:var(--muted); margin-top:8px; }
   .transfer-notice { font-size:12px; color:var(--muted); line-height:1.8; list-style:none; }
   .transfer-notice li { padding-left:12px; position:relative; }
-  .transfer-notice li::before { content:"—"; position:absolute; left:0; color:var(--accent); }
+  .transfer-notice li::before { content:"—"; position:absolute; left:0; color:#5f8c0a; }
 
   /* PLAN BADGE */
-  .plan-badge { font-size:10px; letter-spacing:1px; padding:3px 8px; border:1px solid rgba(200,245,66,0.3); color:var(--accent); }
+  .plan-badge { font-size:10px; letter-spacing:1px; padding:3px 8px; border:1px solid rgba(200,245,66,0.3); color:#5f8c0a; }
 
   @media (max-width:600px) {
     nav { padding:0 16px; }
@@ -164,13 +165,13 @@ nav {
   align-items:center;
   padding:0 40px;
   height:70px;
-  background:#1a1a1a;
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  background:#ffffff;
+  border-bottom:1px solid rgba(20,24,15,0.08);
   position:sticky;
   top:0;
   z-index:100;
 }
-.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
 .nav-links {
   display:flex;
   gap:4px;
@@ -180,18 +181,18 @@ nav {
 .nav-link {
   padding:8px 14px;
   font-size:13px;
-  color:#888;
+  color:#5f6a59;
   background:none;
   border:none;
-  font-family:'Noto Sans KR',sans-serif;
+  font-family:'Pretendard',sans-serif;
   cursor:pointer;
   transition:color 0.2s;
   text-decoration:none;
   letter-spacing:0.5px;
   white-space:nowrap;
 }
-.nav-link:hover { color:#f5f3ee; }
-.nav-link.active { color:#f5f3ee; background:rgba(200,245,66,0.08); }
+.nav-link:hover { color:#20251a; }
+.nav-link.active { color:#20251a; background:rgba(200,245,66,0.08); }
 .nav-right {
   display:flex;
   align-items:center;
@@ -208,7 +209,7 @@ nav {
   justify-content:center;
   font-size:13px;
   font-weight:700;
-  color:#0a0a0a;
+  color:#14180f;
   cursor:pointer;
   flex-shrink:0;
 }
@@ -219,8 +220,8 @@ nav {
   position:absolute;
   top:44px;
   right:0;
-  background:#1a1a1a;
-  border:1px solid rgba(255,255,255,0.08);
+  background:#ffffff;
+  border:1px solid rgba(20,24,15,0.08);
   min-width:180px;
   display:none;
   z-index:9999;
@@ -230,25 +231,25 @@ nav {
 .nav-dropdown-item {
   padding:12px 16px;
   font-size:13px;
-  color:#888;
+  color:#5f6a59;
   cursor:pointer;
   display:block;
   background:none;
   border:none;
-  font-family:'Noto Sans KR',sans-serif;
+  font-family:'Pretendard',sans-serif;
   width:100%;
   text-align:left;
   transition:all 0.2s;
   white-space:nowrap;
 }
-.nav-dropdown-item:hover { color:#f5f3ee; background:rgba(255,255,255,0.04); }
+.nav-dropdown-item:hover { color:#20251a; background:rgba(20,24,15,0.04); }
 .nav-dropdown-item.danger:hover { color:#ff4f4f; }
 .btn-nav-primary {
   background:#c8f542;
-  color:#0a0a0a;
+  color:#14180f;
   border:none;
   padding:8px 20px;
-  font-family:'Noto Sans KR',sans-serif;
+  font-family:'Pretendard',sans-serif;
   font-size:13px;
   font-weight:700;
   cursor:pointer;
@@ -274,12 +275,12 @@ body { -webkit-text-size-adjust: 100%; }
 
   /* 햄버거 메뉴 */
   .hamburger-btn { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
-  .hamburger-btn span { width:22px; height:2px; background:#f5f3ee; display:block; }
-  .mobile-nav { display:none; position:fixed; top:60px; left:0; right:0; background:#1a1a1a; border-bottom:1px solid rgba(255,255,255,0.08); z-index:99; padding:8px 0; flex-direction:column; }
+  .hamburger-btn span { width:22px; height:2px; background:#20251a; display:block; }
+  .mobile-nav { display:none; position:fixed; top:60px; left:0; right:0; background:#ffffff; border-bottom:1px solid rgba(20,24,15,0.08); z-index:99; padding:8px 0; flex-direction:column; }
   .mobile-nav.open { display:flex; }
-  .mobile-nav a { color:#888; text-decoration:none; font-size:14px; padding:14px 24px; border-bottom:1px solid rgba(255,255,255,0.05); font-family:'Noto Sans KR',sans-serif; display:block; }
+  .mobile-nav a { color:#5f6a59; text-decoration:none; font-size:14px; padding:14px 24px; border-bottom:1px solid rgba(20,24,15,0.05); font-family:'Pretendard',sans-serif; display:block; }
   .mobile-nav a:last-child { border-bottom:none; }
-  .mobile-nav a.active { color:#c8f542; }
+  .mobile-nav a.active { color:#5f8c0a; }
   @media(max-width:768px) { .hamburger-btn { display:flex; } }
 </style>
 </head>
@@ -314,7 +315,7 @@ body { -webkit-text-size-adjust: 100%; }
   <a href="/notifications">🔔 알림</a>
   <a href="/referral">🔗 레퍼럴</a>
   <a href="/settings">⚙️ 설정</a>
-  <a href="/register" style="color:#c8f542;font-weight:700;">+ 자전거 등록</a>
+  <a href="/register" style="color:#5f8c0a;font-weight:700;">+ 자전거 등록</a>
 </div>
 
 <div class="content">
@@ -378,7 +379,7 @@ body { -webkit-text-size-adjust: 100%; }
       NFC 태그도 비활성화됩니다. 되돌릴 수 없습니다.<br><br>
       확인을 위해 아래에 <strong style="color:var(--white);">삭제하겠습니다</strong>를 입력해주세요.
     </div>
-    <input type="text" id="deleteConfirmInput" placeholder="삭제하겠습니다" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; width:100%; margin-bottom:16px;">
+    <input type="text" id="deleteConfirmInput" placeholder="삭제하겠습니다" style="background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Pretendard',sans-serif; font-size:14px; outline:none; width:100%; margin-bottom:16px;">
     <div class="modal-actions">
       <button class="btn-cancel" onclick="document.getElementById('deleteModal').classList.remove('active')">취소</button>
       <button class="btn-confirm-danger" onclick="confirmDelete()">삭제하기</button>
@@ -428,7 +429,7 @@ body { -webkit-text-size-adjust: 100%; }
     <button class="modal-close" onclick="document.getElementById('claimsModal').classList.remove('active')">×</button>
     <div class="modal-title">발견 제보</div>
     <div class="modal-sub" id="claimsSub">제보 목록</div>
-    <div id="claimsBounty" style="background:var(--black); border:1px solid var(--border); padding:14px 16px; font-size:14px; margin-bottom:16px;"></div>
+    <div id="claimsBounty" style="background:#faf8f0; border:1px solid var(--border); padding:14px 16px; font-size:14px; margin-bottom:16px;"></div>
     <div id="claimsList" style="max-height:46vh; overflow:auto; margin-bottom:16px;"></div>
     <div style="border-top:1px solid var(--border); padding-top:16px;">
       <div id="claimsShareInfo" style="font-size:13px; color:var(--muted); margin-bottom:12px;">제보자를 선택하면 현상금이 N분할됩니다.</div>
@@ -463,7 +464,7 @@ body { -webkit-text-size-adjust: 100%; }
         const adminBtn = document.createElement('a')
         adminBtn.href = '/admin'
         adminBtn.className = 'nav-link'
-        adminBtn.style = 'font-size:12px; color:var(--accent); border:1px solid rgba(200,245,66,0.3); padding:4px 10px; text-decoration:none;'
+        adminBtn.style = 'font-size:12px; color:#5f8c0a; border:1px solid rgba(200,245,66,0.3); padding:4px 10px; text-decoration:none;'
         adminBtn.textContent = '⚙ 관리자'
         document.querySelector('.nav-right').prepend(adminBtn)
       }
@@ -682,7 +683,7 @@ body { -webkit-text-size-adjust: 100%; }
     claimsBountyAmt = bike?.bounty || 0
     document.getElementById('claimsSub').textContent = `"${bike?.model || ''}" 도난 자전거 발견 제보`
     document.getElementById('claimsBounty').innerHTML = claimsBountyAmt
-      ? `현상금 <strong style="color:var(--accent);">₩${claimsBountyAmt.toLocaleString()}</strong>${bike?.bounty_paid ? ' · <span style="color:var(--accent);">지급 완료</span>' : ''}`
+      ? `현상금 <strong style="color:#5f8c0a;">₩${claimsBountyAmt.toLocaleString()}</strong>${bike?.bounty_paid ? ' · <span style="color:#5f8c0a;">지급 완료</span>' : ''}`
       : '현상금이 설정되지 않은 자전거입니다.'
     document.getElementById('claimsList').innerHTML = '<div style="padding:24px; color:var(--muted); font-size:13px;">불러오는 중...</div>'
     document.getElementById('claimsModal').classList.add('active')
@@ -740,7 +741,7 @@ body { -webkit-text-size-adjust: 100%; }
       btn.disabled = true; btn.style.opacity = '0.4'; return
     }
     const share = claimsBountyAmt ? Math.floor(claimsBountyAmt / n) : 0
-    info.innerHTML = `${n}명 선택 · 1인당 <strong style="color:var(--accent);">₩${share.toLocaleString()}</strong> 지급`
+    info.innerHTML = `${n}명 선택 · 1인당 <strong style="color:#5f8c0a;">₩${share.toLocaleString()}</strong> 지급`
     btn.disabled = false; btn.style.opacity = '1'
   }
 

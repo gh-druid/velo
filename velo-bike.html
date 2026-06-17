@@ -3,25 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/velo-theme.css">
 <title>벨로 (Vélo) — 자전거 소유자 확인</title>
 <link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --black: #0a0a0a;
-    --white: #f5f3ee;
+    --black: #faf8f0;
+    --white: #20251a;
     --accent: #c8f542;
-    --gray: #1a1a1a;
-    --mid: #2e2e2e;
-    --muted: #888;
-    --border: rgba(255,255,255,0.08);
+    --gray: #ffffff;
+    --mid: #eef2e6;
+    --muted: #5f6a59;
+    --border: rgba(20,24,15,0.08);
     --error: #ff4f4f;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    background: var(--black);
+    background:#faf8f0;
     color: var(--white);
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-weight: 300;
     min-height: 100vh;
     display: flex;
@@ -36,7 +37,7 @@
     padding: 20px 32px;
     border-bottom: 1px solid var(--border);
   }
-  .topbar-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+  .topbar-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
   .topbar-right {
     font-size: 11px;
     color: var(--muted);
@@ -74,7 +75,7 @@
   .status-banner.safe {
     background: rgba(200,245,66,0.08);
     border: 1px solid rgba(200,245,66,0.25);
-    color: var(--accent);
+    color:#5f8c0a;
   }
   .status-banner.stolen {
     background: rgba(255,79,79,0.1);
@@ -135,7 +136,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 22px;
     font-weight: 700;
-    color: var(--black);
+    color:#14180f;
     flex-shrink: 0;
   }
 
@@ -159,7 +160,7 @@
     letter-spacing: 1px;
     text-align: right;
   }
-  .info-value.accent { color: var(--accent); }
+  .info-value.accent { color:#5f8c0a; }
 
   /* BIKE CARD */
   .bike-card {
@@ -213,7 +214,7 @@
     align-items: center;
     gap: 10px;
     padding: 12px 16px;
-    background: var(--black);
+    background:#faf8f0;
     border: 1px solid var(--border);
     margin-bottom: 16px;
   }
@@ -229,7 +230,7 @@
     font-family: 'DM Mono', monospace;
     font-size: 14px;
     letter-spacing: 3px;
-    color: var(--accent);
+    color:#5f8c0a;
   }
 
   .bike-parts {
@@ -249,7 +250,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: var(--black);
+    background:#faf8f0;
     border: 1px solid var(--border);
     padding: 6px 12px;
     font-size: 12px;
@@ -293,7 +294,7 @@
   .history-dot.current { background: var(--accent); }
 
   .history-owner { flex: 1; font-weight: 400; }
-  .history-owner.current { color: var(--accent); font-weight: 500; }
+  .history-owner.current { color:#5f8c0a; font-weight: 500; }
   .history-date {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
@@ -306,7 +307,7 @@
     border: 1px solid var(--border);
     padding: 2px 8px;
   }
-  .history-tag.current { color: var(--accent); border-color: rgba(200,245,66,0.3); }
+  .history-tag.current { color:#5f8c0a; border-color: rgba(200,245,66,0.3); }
 
   /* STOLEN ALERT */
   .stolen-alert {
@@ -349,7 +350,7 @@
     color: var(--white);
     border: none;
     padding: 15px;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 1px;
@@ -361,10 +362,10 @@
 
   .btn-contact {
     background: var(--accent);
-    color: var(--black);
+    color:#14180f;
     border: none;
     padding: 15px;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 1px;
@@ -379,13 +380,13 @@
     color: var(--muted);
     border: 1px solid var(--border);
     padding: 13px;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     cursor: pointer;
     width: 100%;
     transition: all 0.2s;
   }
-  .btn-outline:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+  .btn-outline:hover { color: var(--white); border-color: rgba(20,24,15,0.3); }
 
   /* FOOTER */
   .page-footer {
@@ -396,11 +397,11 @@
     margin: 0 auto;
     width: 100%;
   }
-  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 4px; color: var(--accent); margin-bottom: 8px; }
+  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 4px; color:#5f8c0a; margin-bottom: 8px; }
   .footer-text { font-size: 11px; color: var(--muted); line-height: 1.7; letter-spacing: 0.5px; }
 
   /* STOLEN MODE */
-  body.is-stolen { background: #0f0505; }
+  body.is-stolen { background: #fff6f6; }
   body.is-stolen .topbar { border-bottom-color: rgba(255,79,79,0.15); }
 
   /* TOGGLE (데모용) */
@@ -417,12 +418,12 @@
     padding: 8px 14px;
     font-size: 11px;
     cursor: pointer;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     letter-spacing: 0.5px;
     transition: all 0.2s;
   }
   .demo-btn:hover { color: var(--white); }
-  .demo-btn.active { background: var(--accent); color: var(--black); border-color: var(--accent); font-weight: 700; }
+  .demo-btn.active { background: var(--accent); color:#14180f; border-color:#5f8c0a; font-weight: 700; }
 
   @media (max-width: 480px) {
     .main { padding: 32px 16px; }
@@ -445,23 +446,23 @@ body { -webkit-text-size-adjust: 100%; }
 <style id="bounty-css">
   .bounty-box { background:rgba(200,245,66,0.06); border:1px solid rgba(200,245,66,0.3); padding:22px 24px; margin-bottom:16px; }
   .bounty-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; gap:12px; }
-  .bounty-label { font-size:11px; letter-spacing:3px; color:var(--accent); }
-  .bounty-amount { font-family:'Bebas Neue',sans-serif; font-size:38px; color:var(--accent); line-height:1; }
+  .bounty-label { font-size:11px; letter-spacing:3px; color:#5f8c0a; }
+  .bounty-amount { font-family:'Bebas Neue',sans-serif; font-size:38px; color:#5f8c0a; line-height:1; }
   .bounty-desc { font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:16px; }
   .finder-form { background:var(--gray); border:1px solid var(--border); padding:22px 24px; margin-bottom:16px; }
   .finder-form .ff-title { font-size:13px; font-weight:500; letter-spacing:1px; margin-bottom:16px; }
   .ff-field { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
   .ff-field label { font-size:11px; letter-spacing:1px; color:var(--muted); }
   .ff-field input, .ff-field select, .ff-field textarea {
-    background:var(--black); border:1px solid var(--border); color:var(--white);
-    padding:12px 14px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; width:100%;
+    background:#faf8f0; border:1px solid var(--border); color:var(--white);
+    padding:12px 14px; font-family:'Pretendard',sans-serif; font-size:14px; outline:none; width:100%;
   }
-  .ff-field input:focus, .ff-field select:focus, .ff-field textarea:focus { border-color:var(--accent); }
+  .ff-field input:focus, .ff-field select:focus, .ff-field textarea:focus { border-color:#5f8c0a; }
   .ff-field textarea { resize:vertical; min-height:60px; }
   .ff-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .ff-photos-prev { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
   .ff-photos-prev img { width:60px; height:60px; object-fit:cover; border:1px solid var(--border); }
-  .btn-finder { background:var(--accent); color:var(--black); border:none; width:100%; padding:14px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:opacity 0.2s; }
+  .btn-finder { background:var(--accent); color:#14180f; border:none; width:100%; padding:14px; font-family:'Pretendard',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:opacity 0.2s; }
   .btn-finder:hover { opacity:0.9; }
   .btn-finder:disabled { opacity:0.4; cursor:not-allowed; }
   .claim-status { padding:20px 24px; border:1px solid var(--border); background:var(--gray); margin-bottom:16px; }
@@ -585,10 +586,10 @@ body { -webkit-text-size-adjust: 100%; }
   </div>
 
   <!-- 탭 -->
-  <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.08); margin:0 0 0 0;">
-    <button onclick="switchTab('info')" id="tabInfo" style="flex:1; padding:14px; font-size:13px; color:var(--white); background:none; border:none; border-bottom:2px solid var(--accent); cursor:pointer; font-family:'Noto Sans KR',sans-serif; letter-spacing:0.5px;">자전거 정보</button>
-    <button onclick="switchTab('parts')" id="tabParts" style="flex:1; padding:14px; font-size:13px; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:'Noto Sans KR',sans-serif; letter-spacing:0.5px;">부품 <span id="partsTabCount"></span></button>
-    <button onclick="switchTab('history')" id="tabHistory" style="flex:1; padding:14px; font-size:13px; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:'Noto Sans KR',sans-serif; letter-spacing:0.5px;">소유 이력</button>
+  <div style="display:flex; border-bottom:1px solid rgba(20,24,15,0.08); margin:0 0 0 0;">
+    <button onclick="switchTab('info')" id="tabInfo" style="flex:1; padding:14px; font-size:13px; color:var(--white); background:none; border:none; border-bottom:2px solid var(--accent); cursor:pointer; font-family:'Pretendard',sans-serif; letter-spacing:0.5px;">자전거 정보</button>
+    <button onclick="switchTab('parts')" id="tabParts" style="flex:1; padding:14px; font-size:13px; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:'Pretendard',sans-serif; letter-spacing:0.5px;">부품 <span id="partsTabCount"></span></button>
+    <button onclick="switchTab('history')" id="tabHistory" style="flex:1; padding:14px; font-size:13px; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:'Pretendard',sans-serif; letter-spacing:0.5px;">소유 이력</button>
   </div>
 
   <!-- 자전거 정보 탭 -->
@@ -782,7 +783,7 @@ body { -webkit-text-size-adjust: 100%; }
       partsDetailList.innerHTML = '<div style="padding:32px; text-align:center; color:var(--muted); font-size:13px;">등록된 부품이 없습니다.</div>'
     } else {
       partsDetailList.innerHTML = parts.map(p => `
-        <div style="padding:16px 24px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center;">
+        <div style="padding:16px 24px; border-bottom:1px solid rgba(20,24,15,0.05); display:flex; justify-content:space-between; align-items:center;">
           <div style="display:flex; align-items:center; gap:12px;">
             <span style="font-size:20px;">${icons[p.type] || '🔧'}</span>
             <div>
@@ -791,8 +792,8 @@ body { -webkit-text-size-adjust: 100%; }
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:10px; padding:3px 8px; border:1px solid; ${p.status === 'lost' ? 'color:#ff4f4f; border-color:rgba(255,79,79,0.3);' : 'color:#c8f542; border-color:rgba(200,245,66,0.3);'}">${p.status === 'lost' ? '분실' : '정상'}</span>
-            <button onclick="reportPartLost('${p.id}')" data-name="${esc(p.name)}" style="font-size:11px; padding:4px 10px; border:1px solid rgba(255,79,79,0.3); background:none; color:#ff4f4f; cursor:pointer; font-family:'Noto Sans KR',sans-serif;">${p.status === 'lost' ? '신고 취소' : '분실 신고'}</button>
+            <span style="font-size:10px; padding:3px 8px; border:1px solid; ${p.status === 'lost' ? 'color:#ff4f4f; border-color:rgba(255,79,79,0.3);' : 'color:#5f8c0a; border-color:rgba(200,245,66,0.3);'}">${p.status === 'lost' ? '분실' : '정상'}</span>
+            <button onclick="reportPartLost('${p.id}')" data-name="${esc(p.name)}" style="font-size:11px; padding:4px 10px; border:1px solid rgba(255,79,79,0.3); background:none; color:#ff4f4f; cursor:pointer; font-family:'Pretendard',sans-serif;">${p.status === 'lost' ? '신고 취소' : '분실 신고'}</button>
           </div>
         </div>
       `).join('')
@@ -953,7 +954,7 @@ body { -webkit-text-size-adjust: 100%; }
     let html = `<div style="font-size:15px; font-weight:500; margin-bottom:6px;">${s.t}</div>` +
                `<div style="font-size:13px; color:var(--muted); line-height:1.7;">${s.d}</div>`
     if (claim.status === 'rejected' || claim.status === 'paid') {
-      html += `<button id="disputeBtn" type="button" style="margin-top:14px; background:none; border:1px solid var(--border); color:var(--muted); padding:10px 18px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer;">⚖️ 이의 제기</button>`
+      html += `<button id="disputeBtn" type="button" style="margin-top:14px; background:none; border:1px solid var(--border); color:var(--muted); padding:10px 18px; font-family:'Pretendard',sans-serif; font-size:13px; cursor:pointer;">⚖️ 이의 제기</button>`
     }
     card.innerHTML = html
     const db = document.getElementById('disputeBtn')
@@ -1010,7 +1011,7 @@ body { -webkit-text-size-adjust: 100%; }
         <div style="font-size:48px; margin-bottom:16px;">🔍</div>
         <div style="font-size:18px; color:var(--white); margin-bottom:8px;">${msg}</div>
         <div style="font-size:13px; line-height:1.7;">벨로에 등록되지 않은 자전거입니다.<br>등록하시려면 아래 버튼을 눌러주세요.</div>
-        <a href="/" style="display:inline-block; margin-top:24px; background:var(--accent); color:var(--black); padding:12px 32px; font-weight:700; text-decoration:none; font-size:13px;">벨로 알아보기</a>
+        <a href="/" style="display:inline-block; margin-top:24px; background:var(--accent); color:#14180f; padding:12px 32px; font-weight:700; text-decoration:none; font-size:13px;">벨로 알아보기</a>
       </div>
     `
   }

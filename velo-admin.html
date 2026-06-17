@@ -3,24 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/velo-theme.css">
 <title>벨로 (Vélo) — 관리자</title>
 <link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --mid:#2e2e2e; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; --warning:#f5a623; }
+  :root { --black:#faf8f0; --white:#20251a; --accent:#c8f542; --gray:#ffffff; --mid:#eef2e6; --muted:#5f6a59; --border:rgba(20,24,15,0.08); --error:#ff4f4f; --warning:#f5a623; }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+  body { background:#faf8f0; color:var(--white); font-family:'Pretendard',sans-serif; font-weight:300; min-height:100vh; }
 
   nav { display:flex; justify-content:space-between; align-items:center; padding:0 40px; height:70px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
-  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
-  .nav-badge { font-size:10px; letter-spacing:2px; color:var(--black); background:var(--error); padding:3px 8px; margin-left:8px; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
+  .nav-badge { font-size:10px; letter-spacing:2px; color:#14180f; background:var(--error); padding:3px 8px; margin-left:8px; }
 
   .content { max-width:1200px; margin:0 auto; padding:40px; }
 
   /* 탭 */
   .tabs { display:flex; gap:2px; margin-bottom:32px; border-bottom:1px solid var(--border); }
-  .tab { padding:12px 20px; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Noto Sans KR',sans-serif; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.2s; letter-spacing:0.5px; }
-  .tab.active { color:var(--white); border-bottom-color:var(--accent); }
+  .tab { padding:12px 20px; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Pretendard',sans-serif; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.2s; letter-spacing:0.5px; }
+  .tab.active { color:var(--white); border-bottom-color:#5f8c0a; }
   .tab:hover:not(.active) { color:var(--white); }
 
   .tab-content { display:none; }
@@ -32,7 +33,7 @@
   .summary-card:last-child { border-right:none; }
   .summary-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
   .summary-num { font-family:'Bebas Neue',sans-serif; font-size:40px; line-height:1; }
-  .summary-num.accent { color:var(--accent); }
+  .summary-num.accent { color:#5f8c0a; }
   .summary-num.danger { color:var(--error); }
   .summary-num.warning { color:var(--warning); }
   .summary-sub { font-size:11px; color:var(--muted); margin-top:4px; }
@@ -42,36 +43,36 @@
   .table-header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
   .table-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; }
 
-  .search-input { background:var(--black); border:1px solid var(--border); color:var(--white); padding:8px 14px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:200px; }
-  .search-input:focus { border-color:var(--accent); }
-  .search-input::placeholder { color:rgba(255,255,255,0.2); }
+  .search-input { background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:8px 14px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:200px; }
+  .search-input:focus { border-color:#5f8c0a; }
+  .search-input::placeholder { color:rgba(20,24,15,0.2); }
 
   table { width:100%; border-collapse:collapse; }
-  th { padding:12px 20px; font-size:10px; letter-spacing:2px; color:var(--muted); text-align:left; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
-  td { padding:14px 20px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:middle; }
+  th { padding:12px 20px; font-size:10px; letter-spacing:2px; color:var(--muted); text-align:left; border-bottom:1px solid var(--border); background:rgba(20,24,15,0.02); }
+  td { padding:14px 20px; font-size:13px; border-bottom:1px solid rgba(20,24,15,0.04); vertical-align:middle; }
   tr:last-child td { border-bottom:none; }
-  tr:hover td { background:rgba(255,255,255,0.02); }
+  tr:hover td { background:rgba(20,24,15,0.02); }
 
   .badge { font-size:10px; letter-spacing:1px; padding:3px 8px; border:1px solid; }
-  .badge-normal { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+  .badge-normal { color:#5f8c0a; border-color:rgba(200,245,66,0.3); }
   .badge-stolen { color:var(--error); border-color:rgba(255,79,79,0.3); }
   .badge-pending { color:var(--warning); border-color:rgba(245,166,35,0.3); }
   .badge-free { color:var(--muted); border-color:var(--border); }
-  .badge-monthly { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+  .badge-monthly { color:#5f8c0a; border-color:rgba(200,245,66,0.3); }
   .badge-yearly { color:#88f542; border-color:rgba(136,245,66,0.3); }
 
-  .action-btn { font-size:11px; padding:4px 10px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.2s; margin-right:4px; }
-  .action-btn:hover { color:var(--white); border-color:rgba(255,255,255,0.3); }
+  .action-btn { font-size:11px; padding:4px 10px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Pretendard',sans-serif; transition:all 0.2s; margin-right:4px; }
+  .action-btn:hover { color:var(--white); border-color:rgba(20,24,15,0.3); }
   .action-btn.danger { color:var(--error); border-color:rgba(255,79,79,0.3); }
   .action-btn.danger:hover { background:rgba(255,79,79,0.1); }
-  .log-filter-btn { background:var(--gray); border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px; }
-  .log-filter-btn.active { background:var(--accent); color:var(--black); border-color:var(--accent); font-weight:700; }
+  .log-filter-btn { background:var(--gray); border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'Pretendard',sans-serif; font-size:12px; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px; }
+  .log-filter-btn.active { background:var(--accent); color:#14180f; border-color:#5f8c0a; font-weight:700; }
 
   /* 수익 차트 */
   .revenue-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:32px; }
   .revenue-card { background:var(--gray); border:1px solid var(--border); padding:28px; }
   .revenue-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px; }
-  .revenue-num { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; color:var(--accent); }
+  .revenue-num { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; color:#5f8c0a; }
   .revenue-sub { font-size:12px; color:var(--muted); margin-top:6px; }
 
   /* 월별 바 차트 */
@@ -89,11 +90,11 @@
   .modal-close { position:absolute; top:16px; right:20px; background:none; border:none; color:var(--muted); font-size:22px; cursor:pointer; }
   .modal-warn { background:rgba(255,79,79,0.08); border:1px solid rgba(255,79,79,0.2); padding:14px; font-size:13px; color:var(--error); line-height:1.7; margin-bottom:20px; }
   .modal-actions { display:flex; gap:10px; }
-  .btn-cancel { flex:1; background:transparent; border:1px solid var(--border); color:var(--muted); padding:12px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer; }
-  .btn-confirm-danger { flex:1; background:var(--error); border:none; color:var(--white); padding:12px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+  .btn-cancel { flex:1; background:transparent; border:1px solid var(--border); color:var(--muted); padding:12px; font-family:'Pretendard',sans-serif; font-size:13px; cursor:pointer; }
+  .btn-confirm-danger { flex:1; background:var(--error); border:none; color:var(--white); padding:12px; font-family:'Pretendard',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 
   /* 토스트 */
-  .toast { position:fixed; bottom:32px; right:32px; background:var(--accent); color:var(--black); padding:14px 24px; font-size:13px; font-weight:700; transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:999; }
+  .toast { position:fixed; bottom:32px; right:32px; background:var(--accent); color:#14180f; padding:14px 24px; font-size:13px; font-weight:700; transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:999; }
   .toast.show { transform:translateY(0); opacity:1; }
 
   /* 로딩 */
@@ -186,15 +187,15 @@ body { -webkit-text-size-adjust: 100%; }
           </div>
           <div style="display:flex; justify-content:space-between; font-size:13px;">
             <span style="color:var(--muted);">월 구독 (490원)</span>
-            <span id="monthlyPlan" style="color:var(--accent);">-명</span>
+            <span id="monthlyPlan" style="color:#5f8c0a;">-명</span>
           </div>
           <div style="display:flex; justify-content:space-between; font-size:13px;">
             <span style="color:var(--muted);">연간 구독 (4,900원)</span>
-            <span id="yearlyPlan" style="color:var(--accent);">-명</span>
+            <span id="yearlyPlan" style="color:#5f8c0a;">-명</span>
           </div>
           <div style="border-top:1px solid var(--border); padding-top:12px; display:flex; justify-content:space-between; font-size:14px; font-weight:500;">
             <span>월 구독 수익</span>
-            <span style="color:var(--accent);" id="subRevenue">-원</span>
+            <span style="color:#5f8c0a;" id="subRevenue">-원</span>
           </div>
         </div>
       </div>
@@ -235,7 +236,7 @@ body { -webkit-text-size-adjust: 100%; }
         <div class="table-title">자전거 목록</div>
         <div style="display:flex; gap:8px;">
           <input type="text" class="search-input" id="bikeSearchInput" placeholder="차대번호/모델/샵 검색" oninput="filterBikes(this.value)">
-          <select id="partnerFilter" onchange="filterByPartner(this.value)" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:8px 12px; font-family:'Noto Sans KR',sans-serif; font-size:12px; outline:none;">
+          <select id="partnerFilter" onchange="filterByPartner(this.value)" style="background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:8px 12px; font-family:'Pretendard',sans-serif; font-size:12px; outline:none;">
             <option value="">전체 샵</option>
           </select>
         </div>
@@ -287,12 +288,12 @@ body { -webkit-text-size-adjust: 100%; }
 
     <!-- 모달: 구매자 상세 -->
     <div id="orderModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:500; align-items:center; justify-content:center;">
-      <div style="background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); padding:32px; width:100%; max-width:480px; position:relative;">
+      <div style="background:#ffffff; border:1px solid rgba(20,24,15,0.08); padding:32px; width:100%; max-width:480px; position:relative;">
         <div style="font-size:16px; font-weight:700; margin-bottom:24px; letter-spacing:1px;">주문 상세</div>
         <div id="orderModalContent"></div>
         <div style="display:flex; gap:8px; margin-top:24px;">
           <button id="modalCompleteBtn" class="action-btn accent" style="padding:10px 24px; font-size:13px;">배송 완료</button>
-          <button onclick="document.getElementById('orderModal').style.display='none'" style="background:none; border:1px solid rgba(255,255,255,0.08); color:#888; padding:10px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer;">닫기</button>
+          <button onclick="document.getElementById('orderModal').style.display='none'" style="background:none; border:1px solid rgba(20,24,15,0.08); color:#5f6a59; padding:10px 20px; font-family:'Pretendard',sans-serif; font-size:13px; cursor:pointer;">닫기</button>
         </div>
       </div>
     </div>
@@ -301,7 +302,7 @@ body { -webkit-text-size-adjust: 100%; }
       <div class="table-header">
         <div class="table-title">결제 주문 목록</div>
         <div style="display:flex; gap:8px; align-items:center;">
-          <select id="deliveryFilter" style="background:#0a0a0a; border:1px solid rgba(255,255,255,0.08); color:#f5f3ee; padding:8px 12px; font-family:'Noto Sans KR',sans-serif; font-size:12px; outline:none;">
+          <select id="deliveryFilter" style="background:#faf8f0; border:1px solid rgba(20,24,15,0.08); color:#20251a; padding:8px 12px; font-family:'Pretendard',sans-serif; font-size:12px; outline:none;">
             <option value="all">전체</option>
             <option value="pending">배송 대기</option>
             <option value="shipped">배송 중</option>
@@ -362,10 +363,10 @@ body { -webkit-text-size-adjust: 100%; }
       <div class="table-header">
         <div class="table-title">파트너십 신청 목록</div>
         <div style="display:flex; gap:8px;">
-          <button onclick="filterPartners('all')" id="pf-all" style="font-size:11px; padding:5px 12px; border:1px solid var(--accent); background:var(--accent); color:var(--black); cursor:pointer; font-family:'Noto Sans KR',sans-serif;">전체</button>
-          <button onclick="filterPartners('pending')" id="pf-pending" style="font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif;">대기</button>
-          <button onclick="filterPartners('approved')" id="pf-approved" style="font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif;">승인</button>
-          <button onclick="filterPartners('rejected')" id="pf-rejected" style="font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Noto Sans KR',sans-serif;">거절</button>
+          <button onclick="filterPartners('all')" id="pf-all" style="font-size:11px; padding:5px 12px; border:1px solid var(--accent); background:var(--accent); color:#14180f; cursor:pointer; font-family:'Pretendard',sans-serif;">전체</button>
+          <button onclick="filterPartners('pending')" id="pf-pending" style="font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Pretendard',sans-serif;">대기</button>
+          <button onclick="filterPartners('approved')" id="pf-approved" style="font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Pretendard',sans-serif;">승인</button>
+          <button onclick="filterPartners('rejected')" id="pf-rejected" style="font-size:11px; padding:5px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; font-family:'Pretendard',sans-serif;">거절</button>
         </div>
       </div>
       <table>
@@ -399,11 +400,11 @@ body { -webkit-text-size-adjust: 100%; }
       <div style="padding:24px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
         <div>
           <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">코드 (영문/숫자)</div>
-          <input type="text" id="dcCode" placeholder="예: VELO2025" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'DM Mono',monospace; font-size:13px; outline:none; width:100%; letter-spacing:2px;" oninput="this.value=this.value.toUpperCase()">
+          <input type="text" id="dcCode" placeholder="예: VELO2025" style="background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'DM Mono',monospace; font-size:13px; outline:none; width:100%; letter-spacing:2px;" oninput="this.value=this.value.toUpperCase()">
         </div>
         <div>
           <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">쿠폰 타입</div>
-          <select id="dcType" onchange="handleCouponType(this.value)" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+          <select id="dcType" onchange="handleCouponType(this.value)" style="background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
             <option value="percent">퍼센트 할인 (%)</option>
             <option value="fixed">정액 할인 (원)</option>
             <option value="free_tag">태그 100% 무료</option>
@@ -416,11 +417,11 @@ body { -webkit-text-size-adjust: 100%; }
         </div>
         <div id="dcValueWrap">
           <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">할인 값</div>
-          <input type="number" id="dcValue" placeholder="예: 10 (10%) / 1000 (1,000원)" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+          <input type="number" id="dcValue" placeholder="예: 10 (10%) / 1000 (1,000원)" style="background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
         </div>
         <div>
           <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">적용 대상</div>
-          <select id="dcTarget" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+          <select id="dcTarget" style="background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
             <option value="all">전체 (태그+구독)</option>
             <option value="tag">태그 발급비만</option>
             <option value="subscription">구독료만</option>
@@ -428,23 +429,23 @@ body { -webkit-text-size-adjust: 100%; }
         </div>
         <div>
           <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">이용 가능 인원수 (빈칸=무제한)</div>
-          <input type="number" id="dcMaxUses" placeholder="예: 100" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+          <input type="number" id="dcMaxUses" placeholder="예: 100" style="background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
         </div>
         <div>
           <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">만료일 (빈칸=무기한)</div>
-          <input type="date" id="dcExpires" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+          <input type="date" id="dcExpires" style="background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
         </div>
         <div style="grid-column:span 3;">
           <div style="font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px;">설명 (내부용)</div>
-          <input type="text" id="dcDesc" placeholder="예: 베타 테스터 전용 1년 무료" style="background:var(--black); border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+          <input type="text" id="dcDesc" placeholder="예: 베타 테스터 전용 1년 무료" style="background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:10px 14px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
         </div>
         <div style="grid-column:span 3; display:flex; gap:10px;">
-          <button onclick="createDiscountCode()" style="background:var(--accent); color:var(--black); border:none; padding:12px 32px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer;">코드 생성</button>
-          <button onclick="generateRandomCode()" style="background:none; border:1px solid var(--border); color:var(--muted); padding:12px 24px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer;">랜덤 코드 생성</button>
+          <button onclick="createDiscountCode()" style="background:var(--accent); color:#14180f; border:none; padding:12px 32px; font-family:'Pretendard',sans-serif; font-size:13px; font-weight:700; cursor:pointer;">코드 생성</button>
+          <button onclick="generateRandomCode()" style="background:none; border:1px solid var(--border); color:var(--muted); padding:12px 24px; font-family:'Pretendard',sans-serif; font-size:13px; cursor:pointer;">랜덤 코드 생성</button>
           <!-- 빠른 생성 버튼들 -->
-          <button onclick="quickCreate('1년무료','free_months_12',1)" style="background:none; border:1px solid rgba(200,245,66,0.3); color:var(--accent); padding:12px 20px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer;">⚡ 1년무료</button>
-          <button onclick="quickCreate('태그무료','free_tag',1)" style="background:none; border:1px solid rgba(200,245,66,0.3); color:var(--accent); padding:12px 20px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer;">⚡ 태그무료</button>
-          <button onclick="quickCreate('10%할인','percent',10)" style="background:none; border:1px solid rgba(200,245,66,0.3); color:var(--accent); padding:12px 20px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer;">⚡ 10%할인</button>
+          <button onclick="quickCreate('1년무료','free_months_12',1)" style="background:none; border:1px solid rgba(200,245,66,0.3); color:#5f8c0a; padding:12px 20px; font-family:'Pretendard',sans-serif; font-size:12px; cursor:pointer;">⚡ 1년무료</button>
+          <button onclick="quickCreate('태그무료','free_tag',1)" style="background:none; border:1px solid rgba(200,245,66,0.3); color:#5f8c0a; padding:12px 20px; font-family:'Pretendard',sans-serif; font-size:12px; cursor:pointer;">⚡ 태그무료</button>
+          <button onclick="quickCreate('10%할인','percent',10)" style="background:none; border:1px solid rgba(200,245,66,0.3); color:#5f8c0a; padding:12px 20px; font-family:'Pretendard',sans-serif; font-size:12px; cursor:pointer;">⚡ 10%할인</button>
         </div>
       </div>
     </div>
@@ -782,7 +783,7 @@ body { -webkit-text-size-adjust: 100%; }
       <td>${esc(`${b.brand} ${b.model}`)}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;">${esc(b.serial||'-')}</td>
       <td>${esc(b.users?.name||'-')}</td>
-      <td>${b.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${esc(b.partner_code)}</span>`:'-'}</td>
+      <td>${b.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:#5f8c0a;">${esc(b.partner_code)}</span>`:'-'}</td>
       <td style="font-size:12px;color:var(--muted);">${esc(b.tag_location||'-')}</td>
       <td><span class="badge badge-${b.status==='normal'?'normal':'stolen'}">${b.status==='normal'?'정상':b.status==='stolen'?'도난':'배송중'}</span></td>
       <td style="font-size:11px;color:var(--muted);">${b.created_at?new Date(b.created_at).toLocaleDateString('ko-KR'):'-'}</td>
@@ -905,7 +906,7 @@ body { -webkit-text-size-adjust: 100%; }
         <td style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${fmtDate(o.created_at)}</td>
         <td>${esc(o.users?.name || '-')}<br><span style="font-size:11px;color:var(--muted);">${esc(emailById[o.user_id] || '')}</span></td>
         <td>${esc(o.product_name || '-')}</td>
-        <td style="color:var(--accent);">${o.amount?.toLocaleString() || 0}원</td>
+        <td style="color:#5f8c0a;">${o.amount?.toLocaleString() || 0}원</td>
         <td>${esc(o.ship_name || '-')}</td>
         <td style="font-family:'DM Mono',monospace; font-size:12px;">${esc(o.ship_phone || '-')}</td>
         <td><span class="badge ${statusClass[o.delivery_status] || 'badge-pending'}">${statusLabel[o.delivery_status] || '대기'}</span></td>
@@ -924,15 +925,15 @@ body { -webkit-text-size-adjust: 100%; }
     document.getElementById('orderModalContent').innerHTML = `
       <div style="display:flex; flex-direction:column; gap:12px; font-size:13px;">
         <div style="display:grid; grid-template-columns:120px 1fr; gap:8px;">
-          <span style="color:#888;">주문일</span><span>${new Date(o.created_at).toLocaleString('ko-KR')}</span>
-          <span style="color:#888;">상품</span><span>${esc(o.product_name || '-')}</span>
-          <span style="color:#888;">결제 금액</span><span style="color:#c8f542;">${o.amount?.toLocaleString() || 0}원</span>
-          <span style="color:#888;">결제 키</span><span style="font-family:'DM Mono',monospace; font-size:11px; word-break:break-all;">${esc(o.payment_key || '-')}</span>
-          <span style="color:#888;">받는 사람</span><span>${esc(o.ship_name || '-')}</span>
-          <span style="color:#888;">연락처</span><span>${esc(o.ship_phone || '-')}</span>
-          <span style="color:#888;">주소</span><span>${esc(o.ship_addr || '-')} ${esc(o.ship_addr_detail || '')}</span>
-          <span style="color:#888;">배송 상태</span><span>${statusLabel[o.delivery_status] || '대기'}</span>
-          <span style="color:#888;">구매자</span><span>${esc(o.users?.name || '-')} (${esc(emailById[o.user_id] || '-')})</span>
+          <span style="color:#5f6a59;">주문일</span><span>${new Date(o.created_at).toLocaleString('ko-KR')}</span>
+          <span style="color:#5f6a59;">상품</span><span>${esc(o.product_name || '-')}</span>
+          <span style="color:#5f6a59;">결제 금액</span><span style="color:#5f8c0a;">${o.amount?.toLocaleString() || 0}원</span>
+          <span style="color:#5f6a59;">결제 키</span><span style="font-family:'DM Mono',monospace; font-size:11px; word-break:break-all;">${esc(o.payment_key || '-')}</span>
+          <span style="color:#5f6a59;">받는 사람</span><span>${esc(o.ship_name || '-')}</span>
+          <span style="color:#5f6a59;">연락처</span><span>${esc(o.ship_phone || '-')}</span>
+          <span style="color:#5f6a59;">주소</span><span>${esc(o.ship_addr || '-')} ${esc(o.ship_addr_detail || '')}</span>
+          <span style="color:#5f6a59;">배송 상태</span><span>${statusLabel[o.delivery_status] || '대기'}</span>
+          <span style="color:#5f6a59;">구매자</span><span>${esc(o.users?.name || '-')} (${esc(emailById[o.user_id] || '-')})</span>
         </div>
       </div>
     `
@@ -1074,7 +1075,7 @@ body { -webkit-text-size-adjust: 100%; }
     const targetLabel = { all: '전체', tag: '태그', subscription: '구독' }
     tbody.innerHTML = data.map(d => `
       <tr>
-        <td style="font-family:'DM Mono',monospace; font-size:13px; letter-spacing:2px; color:var(--accent);">${esc(d.code)}</td>
+        <td style="font-family:'DM Mono',monospace; font-size:13px; letter-spacing:2px; color:#5f8c0a;">${esc(d.code)}</td>
         <td><strong>${esc(typeLabel(d))}</strong></td>
         <td>${targetLabel[d.target] || '전체'}</td>
         <td>${(d.max_uses === null || d.max_uses === -1) ? '무제한' : `${d.used_count} / ${d.max_uses}명`}</td>
@@ -1161,7 +1162,7 @@ body { -webkit-text-size-adjust: 100%; }
       <td style="font-size:11px;">${esc(p.email||'-')}</td>
       <td>${esc(p.region||'-')}</td>
       <td>${esc(p.monthly_sales||'-')}</td>
-      <td>${p.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${esc(p.partner_code)}</span>`:'-'}</td>
+      <td>${p.partner_code?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:#5f8c0a;">${esc(p.partner_code)}</span>`:'-'}</td>
       <td style="font-size:11px;color:var(--muted);">${p.created_at?fmtDate(p.created_at):'-'}</td>
       <td><span class="badge badge-${p.status==='approved'?'normal':p.status==='rejected'?'stolen':'pending'}">${p.status==='approved'?'승인':p.status==='rejected'?'거절':'대기'}</span></td>
       <td>${(!p.status||p.status==='pending')?`
@@ -1185,7 +1186,7 @@ body { -webkit-text-size-adjust: 100%; }
           <td>${esc(w.bank_name||'-')}</td>
           <td style="font-family:'DM Mono',monospace;font-size:12px;">${esc(w.account_number||'-')}</td>
           <td>${esc(w.account_holder||'-')}</td>
-          <td style="color:var(--accent);">${w.amount?.toLocaleString()||0}원</td>
+          <td style="color:#5f8c0a;">${w.amount?.toLocaleString()||0}원</td>
           <td style="font-size:11px;color:var(--muted);">${fmtDate(w.created_at)}</td>
           <td><span class="badge badge-${w.status==='completed'?'done':'pending'}">${w.status==='completed'?'입금완료':'처리중'}</span></td>
           <td>${w.status!=='completed'?`<button class="action-btn accent" onclick="completeWithdrawal('${w.id}')">입금완료</button>`:'-'}</td>
@@ -1197,11 +1198,11 @@ body { -webkit-text-size-adjust: 100%; }
       stbody.innerHTML = !referrals?.length ? '<tr class="loading-row"><td colspan="6">레퍼럴 유저가 없습니다.</td></tr>' :
         referrals.map(r => `<tr>
           <td>${esc(r.users?.name||'-')}<br><span style="font-size:11px;color:var(--muted);">${esc(emailById[r.user_id]||'')}</span></td>
-          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${esc(r.referral_code)}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;color:#5f8c0a;">${esc(r.referral_code)}</td>
           <td>${r.total_referred||0}명</td>
           <td>${r.total_earned?.toLocaleString()||0}원</td>
           <td>${r.total_withdrawn?.toLocaleString()||0}원</td>
-          <td style="color:var(--accent);">${((r.total_earned||0)-(r.total_withdrawn||0)).toLocaleString()}원</td>
+          <td style="color:#5f8c0a;">${((r.total_earned||0)-(r.total_withdrawn||0)).toLocaleString()}원</td>
         </tr>`).join('')
     }
   }
@@ -1290,7 +1291,7 @@ body { -webkit-text-size-adjust: 100%; }
       referralTbody.innerHTML = referrals.map(r => `<tr>
         <td>${esc(r.users?.name||'-')}</td>
         <td style="font-size:12px;">${esc(emailById[r.user_id]||'-')}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">${esc(r.referral_code||'-')}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;color:#5f8c0a;">${esc(r.referral_code||'-')}</td>
         <td style="font-size:12px;">${parseUA(r.user_agent)}<br><span style="font-size:10px;color:var(--muted);">${esc((r.user_agent||'').slice(0,60))}</span></td>
         <td style="font-size:11px;color:var(--muted);">${fmtDate(r.created_at)}</td>
       </tr>`).join('')
@@ -1340,7 +1341,7 @@ body { -webkit-text-size-adjust: 100%; }
         <td style="font-size:11px;">${esc(c.finder_phone||'-')}<br><span style="color:var(--muted);">${esc(c.finder_bank||'')} ${esc(c.finder_account||'')}</span></td>
         <td style="font-size:12px;">${b?esc(`${b.brand} ${b.model}`):'-'}<br><span style="font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);">${esc(b?.serial||'')}</span></td>
         <td style="font-size:12px;">${esc(owner?.name||'-')}</td>
-        <td style="color:var(--accent); white-space:nowrap;">${b?.bounty?('₩'+b.bounty.toLocaleString()):'-'}${b?.bounty_paid?'<br><span style="font-size:10px; color:var(--muted);">지급완료</span>':''}</td>
+        <td style="color:#5f8c0a; white-space:nowrap;">${b?.bounty?('₩'+b.bounty.toLocaleString()):'-'}${b?.bounty_paid?'<br><span style="font-size:10px; color:var(--muted);">지급완료</span>':''}</td>
         <td style="font-size:12px;">${esc(c.location||'-')}<br><span style="font-size:10px; color:var(--muted);">${_bfmt(c.found_at)}</span></td>
         <td><span class="badge badge-${c.status==='paid'?'normal':c.status==='rejected'?'stolen':'pending'}">${esc(_bStatus[c.status]||c.status)}</span></td>
         <td style="white-space:nowrap;">

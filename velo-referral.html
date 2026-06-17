@@ -3,23 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/velo-theme.css">
 <title>벨로 (Vélo) — 레퍼럴</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; }
+  :root { --black:#faf8f0; --white:#20251a; --accent:#c8f542; --gray:#ffffff; --muted:#5f6a59; --border:rgba(20,24,15,0.08); --error:#ff4f4f; }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+  body { background:#faf8f0; color:var(--white); font-family:'Pretendard',sans-serif; font-weight:300; min-height:100vh; }
   button, a, [onclick] { cursor:pointer; touch-action:manipulation; }
   input, select, textarea { font-size:16px !important; }
 
   nav { display:grid; grid-template-columns:auto 1fr auto; align-items:center; align-items:center; padding:0 40px; height:70px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
-  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
   .nav-links { display:flex; gap:4px; justify-content:center; }
-  .nav-link { padding:8px 14px; font-size:13px; color:var(--muted); background:none; border:none; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:color 0.2s; text-decoration:none; letter-spacing:0.5px; }
+  .nav-link { padding:8px 14px; font-size:13px; color:var(--muted); background:none; border:none; font-family:'Pretendard',sans-serif; cursor:pointer; transition:color 0.2s; text-decoration:none; letter-spacing:0.5px; }
   .nav-link:hover { color:var(--white); }
   .nav-link.active { color:var(--white); background:rgba(200,245,66,0.08); }
   .nav-right { display:flex; align-items:center; gap:12px; }
-  .nav-avatar { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--black); cursor:pointer; }
+  .nav-avatar { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#14180f; cursor:pointer; }
 
   .content { max-width:860px; margin:0 auto; padding:40px; }
   .page-title { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:2px; margin-bottom:6px; }
@@ -29,24 +30,24 @@
   .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:32px; }
   .summary-card { background:var(--gray); border:1px solid var(--border); padding:24px; }
   .summary-label { font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:12px; }
-  .summary-value { font-family:'Bebas Neue',sans-serif; font-size:42px; color:var(--accent); letter-spacing:1px; }
+  .summary-value { font-family:'Bebas Neue',sans-serif; font-size:42px; color:#5f8c0a; letter-spacing:1px; }
   .summary-unit { font-size:13px; color:var(--muted); margin-top:4px; }
 
   /* 코드 박스 */
   .code-box { background:var(--gray); border:1px solid var(--border); padding:28px; margin-bottom:24px; }
   .code-box-title { font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:16px; }
   .code-display { display:flex; align-items:center; gap:12px; }
-  .code-value { font-family:'DM Mono',monospace; font-size:28px; letter-spacing:6px; color:var(--accent); }
-  .btn-copy { background:none; border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer; transition:all 0.2s; }
-  .btn-copy:hover { border-color:var(--accent); color:var(--accent); }
+  .code-value { font-family:'DM Mono',monospace; font-size:28px; letter-spacing:6px; color:#5f8c0a; }
+  .btn-copy { background:none; border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'Pretendard',sans-serif; font-size:12px; cursor:pointer; transition:all 0.2s; }
+  .btn-copy:hover { border-color:#5f8c0a; color:#5f8c0a; }
   .code-link { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); margin-top:10px; }
 
   /* 섹션 */
   .section { background:var(--gray); border:1px solid var(--border); margin-bottom:16px; }
   .section-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
   .section-title { font-size:14px; font-weight:500; letter-spacing:1px; }
-  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:10px 24px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
-  .btn-sm { background:none; border:1px solid var(--border); color:var(--muted); padding:7px 16px; font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer; }
+  .btn-primary { background:var(--accent); color:#14180f; border:none; padding:10px 24px; font-family:'Pretendard',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+  .btn-sm { background:none; border:1px solid var(--border); color:var(--muted); padding:7px 16px; font-family:'Pretendard',sans-serif; font-size:12px; cursor:pointer; }
 
   table { width:100%; border-collapse:collapse; }
   th { padding:12px 20px; text-align:left; font-size:11px; color:var(--muted); letter-spacing:2px; font-weight:400; border-bottom:1px solid var(--border); }
@@ -56,7 +57,7 @@
   .badge { font-size:10px; letter-spacing:1px; padding:3px 8px; border:1px solid; }
   .badge-pending { color:#f5a623; border-color:rgba(245,166,35,0.3); }
   .badge-done { color:var(--muted); border-color:var(--border); }
-  .badge-normal { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+  .badge-normal { color:#5f8c0a; border-color:rgba(200,245,66,0.3); }
 
   /* 출금 모달 */
   .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:200; align-items:center; justify-content:center; }
@@ -65,7 +66,7 @@
   .modal-title { font-size:18px; font-weight:700; margin-bottom:24px; }
   .field { margin-bottom:16px; }
   .field label { font-size:11px; color:var(--muted); letter-spacing:2px; display:block; margin-bottom:8px; }
-  .field input { background:var(--black); border:1px solid var(--border); color:var(--white); padding:12px 14px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; width:100%; }
+  .field input { background:#faf8f0; border:1px solid var(--border); color:var(--white); padding:12px 14px; font-family:'Pretendard',sans-serif; font-size:14px; outline:none; width:100%; }
   .modal-btns { display:flex; gap:8px; margin-top:24px; }
 
   /* 진행 바 */
@@ -76,7 +77,7 @@
 
   /* 안내 박스 */
   .info-box { background:rgba(200,245,66,0.05); border:1px solid rgba(200,245,66,0.15); padding:16px 20px; margin-bottom:24px; font-size:13px; color:var(--muted); line-height:1.8; }
-  .info-box strong { color:var(--accent); }
+  .info-box strong { color:#5f8c0a; }
 
   @media(max-width:768px) {
     .content { padding:24px 16px; }
@@ -95,13 +96,13 @@ nav {
   align-items:center;
   padding:0 40px;
   height:70px;
-  background:#1a1a1a;
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  background:#ffffff;
+  border-bottom:1px solid rgba(20,24,15,0.08);
   position:sticky;
   top:0;
   z-index:100;
 }
-.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
 .nav-links {
   display:flex;
   gap:4px;
@@ -111,18 +112,18 @@ nav {
 .nav-link {
   padding:8px 14px;
   font-size:13px;
-  color:#888;
+  color:#5f6a59;
   background:none;
   border:none;
-  font-family:'Noto Sans KR',sans-serif;
+  font-family:'Pretendard',sans-serif;
   cursor:pointer;
   transition:color 0.2s;
   text-decoration:none;
   letter-spacing:0.5px;
   white-space:nowrap;
 }
-.nav-link:hover { color:#f5f3ee; }
-.nav-link.active { color:#f5f3ee; background:rgba(200,245,66,0.08); }
+.nav-link:hover { color:#20251a; }
+.nav-link.active { color:#20251a; background:rgba(200,245,66,0.08); }
 .nav-right {
   display:flex;
   align-items:center;
@@ -139,7 +140,7 @@ nav {
   justify-content:center;
   font-size:13px;
   font-weight:700;
-  color:#0a0a0a;
+  color:#14180f;
   cursor:pointer;
   flex-shrink:0;
 }
@@ -150,8 +151,8 @@ nav {
   position:absolute;
   top:44px;
   right:0;
-  background:#1a1a1a;
-  border:1px solid rgba(255,255,255,0.08);
+  background:#ffffff;
+  border:1px solid rgba(20,24,15,0.08);
   min-width:180px;
   display:none;
   z-index:9999;
@@ -161,25 +162,25 @@ nav {
 .nav-dropdown-item {
   padding:12px 16px;
   font-size:13px;
-  color:#888;
+  color:#5f6a59;
   cursor:pointer;
   display:block;
   background:none;
   border:none;
-  font-family:'Noto Sans KR',sans-serif;
+  font-family:'Pretendard',sans-serif;
   width:100%;
   text-align:left;
   transition:all 0.2s;
   white-space:nowrap;
 }
-.nav-dropdown-item:hover { color:#f5f3ee; background:rgba(255,255,255,0.04); }
+.nav-dropdown-item:hover { color:#20251a; background:rgba(20,24,15,0.04); }
 .nav-dropdown-item.danger:hover { color:#ff4f4f; }
 .btn-nav-primary {
   background:#c8f542;
-  color:#0a0a0a;
+  color:#14180f;
   border:none;
   padding:8px 20px;
-  font-family:'Noto Sans KR',sans-serif;
+  font-family:'Pretendard',sans-serif;
   font-size:13px;
   font-weight:700;
   cursor:pointer;
@@ -205,12 +206,12 @@ body { -webkit-text-size-adjust: 100%; }
 
   /* 햄버거 메뉴 */
   .hamburger-btn { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
-  .hamburger-btn span { width:22px; height:2px; background:#f5f3ee; display:block; }
-  .mobile-nav { display:none; position:fixed; top:60px; left:0; right:0; background:#1a1a1a; border-bottom:1px solid rgba(255,255,255,0.08); z-index:99; padding:8px 0; flex-direction:column; }
+  .hamburger-btn span { width:22px; height:2px; background:#20251a; display:block; }
+  .mobile-nav { display:none; position:fixed; top:60px; left:0; right:0; background:#ffffff; border-bottom:1px solid rgba(20,24,15,0.08); z-index:99; padding:8px 0; flex-direction:column; }
   .mobile-nav.open { display:flex; }
-  .mobile-nav a { color:#888; text-decoration:none; font-size:14px; padding:14px 24px; border-bottom:1px solid rgba(255,255,255,0.05); font-family:'Noto Sans KR',sans-serif; display:block; }
+  .mobile-nav a { color:#5f6a59; text-decoration:none; font-size:14px; padding:14px 24px; border-bottom:1px solid rgba(20,24,15,0.05); font-family:'Pretendard',sans-serif; display:block; }
   .mobile-nav a:last-child { border-bottom:none; }
-  .mobile-nav a.active { color:#c8f542; }
+  .mobile-nav a.active { color:#5f8c0a; }
   @media(max-width:768px) { .hamburger-btn { display:flex; } }
 </style>
 </head>
@@ -244,7 +245,7 @@ body { -webkit-text-size-adjust: 100%; }
   <a href="/notifications">🔔 알림</a>
   <a href="/referral" class="active">🔗 레퍼럴</a>
   <a href="/settings">⚙️ 설정</a>
-  <a href="/register" style="color:#c8f542;font-weight:700;">+ 자전거 등록</a>
+  <a href="/register" style="color:#5f8c0a;font-weight:700;">+ 자전거 등록</a>
 </div>
 
 <div class="content">
@@ -261,11 +262,11 @@ body { -webkit-text-size-adjust: 100%; }
   <div id="applySection">
     <div style="background:var(--gray); border:1px solid var(--border); padding:32px; margin-bottom:24px;">
       <div style="font-size:14px; font-weight:500; letter-spacing:1px; margin-bottom:20px;">레퍼럴 파트너 계약 내용</div>
-      <div style="font-size:13px; color:var(--muted); line-height:2; border:1px solid var(--border); padding:20px; background:var(--black); margin-bottom:20px;">
+      <div style="font-size:13px; color:var(--muted); line-height:2; border:1px solid var(--border); padding:20px; background:#faf8f0; margin-bottom:20px;">
         <strong style="color:var(--white);">제1조 (수익 공유)</strong><br>
-        레퍼럴 파트너는 본인의 추천 코드를 통해 가입한 유저의 결제 금액 중 <strong style="color:var(--accent);">15%</strong>를 수익으로 지급받습니다.<br><br>
+        레퍼럴 파트너는 본인의 추천 코드를 통해 가입한 유저의 결제 금액 중 <strong style="color:#5f8c0a;">15%</strong>를 수익으로 지급받습니다.<br><br>
         <strong style="color:var(--white);">제2조 (출금 조건)</strong><br>
-        출금 신청은 적립금이 <strong style="color:var(--accent);">10,000원 이상</strong>일 때 가능하며, 영업일 기준 3일 내 입금됩니다.<br><br>
+        출금 신청은 적립금이 <strong style="color:#5f8c0a;">10,000원 이상</strong>일 때 가능하며, 영업일 기준 3일 내 입금됩니다.<br><br>
         <strong style="color:var(--white);">제3조 (코드 사용)</strong><br>
         레퍼럴 코드는 본인 계정에만 사용 가능하며, 코드를 이용한 부정한 방법으로 수익을 취득할 경우 즉시 파트너 자격이 박탈됩니다.<br><br>
         <strong style="color:var(--white);">제4조 (정산 기준)</strong><br>
@@ -370,7 +371,7 @@ body { -webkit-text-size-adjust: 100%; }
       <label>예금주</label>
       <input type="text" id="accountHolder" placeholder="예금주명">
     </div>
-    <div style="font-size:12px; color:var(--muted); margin-top:8px;">출금 금액: <span id="withdrawAmount" style="color:var(--accent); font-weight:700;"></span>원</div>
+    <div style="font-size:12px; color:var(--muted); margin-top:8px;">출금 금액: <span id="withdrawAmount" style="color:#5f8c0a; font-weight:700;"></span>원</div>
     <div class="modal-btns">
       <button class="btn-primary" id="confirmWithdrawBtn">신청하기</button>
       <button class="btn-sm" id="cancelWithdrawBtn">취소</button>
@@ -448,7 +449,7 @@ body { -webkit-text-size-adjust: 100%; }
         <tr>
           <td style="font-family:'DM Mono',monospace; font-size:12px; color:var(--muted);">${fmtDate(l.created_at)}</td>
           <td>${l.amount.toLocaleString()}원</td>
-          <td style="color:var(--accent);">+${Math.floor(l.amount * 0.15).toLocaleString()}원</td>
+          <td style="color:#5f8c0a;">+${Math.floor(l.amount * 0.15).toLocaleString()}원</td>
           <td><span class="badge badge-${l.status === 'paid' ? 'done' : 'pending'}">${l.status === 'paid' ? '정산완료' : '정산예정'}</span></td>
         </tr>
       `).join('')
@@ -462,7 +463,7 @@ body { -webkit-text-size-adjust: 100%; }
             <div style="font-size:11px; color:var(--muted); margin-top:4px;">${fmtDate(w.created_at)}</div>
           </div>
           <div style="display:flex; align-items:center; gap:12px;">
-            <span style="font-family:'DM Mono',monospace; font-size:14px; color:var(--accent);">${w.amount.toLocaleString()}원</span>
+            <span style="font-family:'DM Mono',monospace; font-size:14px; color:#5f8c0a;">${w.amount.toLocaleString()}원</span>
             <span class="badge badge-${w.status === 'completed' ? 'done' : 'pending'}">${w.status === 'completed' ? '입금완료' : '처리중'}</span>
           </div>
         </div>

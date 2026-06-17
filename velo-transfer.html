@@ -3,25 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/velo-theme.css">
 <title>벨로 (Vélo) — 소유권 양도</title>
 <link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --black: #0a0a0a;
-    --white: #f5f3ee;
+    --black: #faf8f0;
+    --white: #20251a;
     --accent: #c8f542;
-    --gray: #1a1a1a;
-    --mid: #2e2e2e;
-    --muted: #888;
-    --border: rgba(255,255,255,0.08);
+    --gray: #ffffff;
+    --mid: #eef2e6;
+    --muted: #5f6a59;
+    --border: rgba(20,24,15,0.08);
     --error: #ff4f4f;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    background: var(--black);
+    background:#faf8f0;
     color: var(--white);
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-weight: 300;
     min-height: 100vh;
     display: flex;
@@ -35,7 +36,7 @@
     padding: 20px 32px;
     border-bottom: 1px solid var(--border);
   }
-  .topbar-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+  .topbar-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
   .topbar-right { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
 
   .main {
@@ -94,9 +95,9 @@
     text-transform: uppercase;
     transition: border-color 0.2s;
   }
-  .code-input:focus { border-color: var(--accent); }
+  .code-input:focus { border-color:#5f8c0a; }
   .code-input.error { border-color: var(--error); }
-  .code-input::placeholder { color: rgba(255,255,255,0.15); letter-spacing: 4px; font-size: 20px; }
+  .code-input::placeholder { color: rgba(20,24,15,0.15); letter-spacing: 4px; font-size: 20px; }
 
   .code-error {
     font-size: 12px;
@@ -115,10 +116,10 @@
 
   .btn-primary {
     background: var(--accent);
-    color: var(--black);
+    color:#14180f;
     border: none;
     padding: 16px;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-size: 14px;
     font-weight: 700;
     letter-spacing: 1px;
@@ -166,7 +167,7 @@
   .bike-confirm-tag {
     font-size: 10px;
     letter-spacing: 1px;
-    color: var(--accent);
+    color:#5f8c0a;
     border: 1px solid rgba(200,245,66,0.3);
     padding: 4px 10px;
   }
@@ -235,7 +236,7 @@
 
   .transfer-arrow-icon {
     font-size: 20px;
-    color: var(--accent);
+    color:#5f8c0a;
   }
 
   .transfer-fee {
@@ -245,7 +246,7 @@
     white-space: nowrap;
   }
 
-  .transfer-person.receiver .transfer-person-name { color: var(--accent); }
+  .transfer-person.receiver .transfer-person-name { color:#5f8c0a; }
 
   /* 주의사항 */
   .notice-box {
@@ -258,7 +259,7 @@
   .notice-title {
     font-size: 12px;
     letter-spacing: 2px;
-    color: var(--accent);
+    color:#5f8c0a;
     margin-bottom: 12px;
   }
 
@@ -281,7 +282,7 @@
     content: "—";
     position: absolute;
     left: 0;
-    color: var(--accent);
+    color:#5f8c0a;
     font-size: 10px;
   }
 
@@ -295,7 +296,7 @@
     margin-bottom: 20px;
     cursor: pointer;
   }
-  .confirm-agree input { accent-color: var(--accent); margin-top: 2px; flex-shrink: 0; }
+  .confirm-agree input { accent-color:#5f8c0a; margin-top: 2px; flex-shrink: 0; }
 
   .btn-row { display: flex; gap: 10px; }
 
@@ -304,7 +305,7 @@
     border: 1px solid var(--border);
     color: var(--muted);
     padding: 14px 24px;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     cursor: pointer;
     transition: all 0.2s;
@@ -350,7 +351,7 @@
   .complete-bike {
     font-family: 'DM Mono', monospace;
     font-size: 13px;
-    color: var(--accent);
+    color:#5f8c0a;
     letter-spacing: 2px;
     margin-bottom: 40px;
   }
@@ -388,20 +389,20 @@
     border: 1px solid var(--border);
     color: var(--muted);
     padding: 13px;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     cursor: pointer;
     width: 100%;
     transition: all 0.2s;
   }
-  .btn-outline:hover { color: var(--white); border-color: rgba(255,255,255,0.3); }
+  .btn-outline:hover { color: var(--white); border-color: rgba(20,24,15,0.3); }
 
   .page-footer {
     padding: 32px 24px;
     border-top: 1px solid var(--border);
     text-align: center;
   }
-  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 4px; color: var(--accent); margin-bottom: 6px; }
+  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 4px; color:#5f8c0a; margin-bottom: 6px; }
   .footer-text { font-size: 11px; color: var(--muted); line-height: 1.7; }
 
   @media (max-width: 480px) {
@@ -557,7 +558,7 @@ body { -webkit-text-size-adjust: 100%; }
         </div>
         <div class="complete-row">
           <span class="complete-row-key">새 소유자</span>
-          <span class="complete-row-val" style="color:var(--accent);">나</span>
+          <span class="complete-row-val" style="color:#5f8c0a;">나</span>
         </div>
         <div class="complete-row">
           <span class="complete-row-key">차대번호</span>

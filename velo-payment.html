@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/velo-theme.css">
 <title>벨로 (Vélo) — 결제</title>
 <link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -45,7 +46,7 @@
     position: relative;
   }
   .product-card:hover { border-color: rgba(200,245,66,0.3); }
-  .product-card.selected { border-color: var(--accent); background: rgba(200,245,66,0.05); }
+  .product-card.selected { border-color:#5f8c0a; background: rgba(200,245,66,0.05); }
 
   .product-name {
     font-size: 11px;
@@ -61,8 +62,8 @@
   .product-unit { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .product-desc { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
 
-  .product-card.selected .product-name { color: var(--accent); }
-  .product-card.selected .product-price { color: var(--accent); }
+  .product-card.selected .product-name { color:#5f8c0a; }
+  .product-card.selected .product-price { color:#5f8c0a; }
 
   /* 구독 옵션 */
   .sub-grid {
@@ -96,7 +97,7 @@
   }
   .order-row:last-child { border-bottom: none; }
   .order-row.total { font-size: 16px; font-weight: 700; padding-top: 16px; }
-  .order-row .price { color: var(--accent); }
+  .order-row .price { color:#5f8c0a; }
   .order-row.total .price { font-size: 20px; }
 
   /* 약관 */
@@ -110,16 +111,16 @@
     margin-bottom: 16px;
     cursor: pointer;
   }
-  .agree-row input { accent-color: var(--accent); margin-top: 2px; flex-shrink: 0; }
+  .agree-row input { accent-color:#5f8c0a; margin-top: 2px; flex-shrink: 0; }
 
   /* 결제 버튼 */
   .pay-btn {
     width: 100%;
     background: var(--accent);
-    color: var(--black);
+    color:#14180f;
     border: none;
     padding: 18px;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 1px;
@@ -256,10 +257,10 @@ body { -webkit-text-size-adjust: 100%; }
     <div style="margin-bottom:24px;">
       <div class="section-label">배송 정보</div>
       <div style="display:flex; flex-direction:column; gap:10px;">
-        <input type="text" id="shipName" placeholder="받는 사람 이름" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
-        <input type="tel" id="shipPhone" placeholder="연락처 (010-0000-0000)" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
-        <input type="text" id="shipAddr" placeholder="주소 (도로명)" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
-        <input type="text" id="shipAddrDetail" placeholder="상세 주소 (동/호수)" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; width:100%;">
+        <input type="text" id="shipName" placeholder="받는 사람 이름" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
+        <input type="tel" id="shipPhone" placeholder="연락처 (010-0000-0000)" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
+        <input type="text" id="shipAddr" placeholder="주소 (도로명)" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
+        <input type="text" id="shipAddrDetail" placeholder="상세 주소 (동/호수)" style="background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; width:100%;">
       </div>
       <div style="font-size:11px; color:var(--muted); margin-top:8px; letter-spacing:0.5px;">영업일 기준 3~5일 내 배송됩니다.</div>
     </div>
@@ -269,7 +270,7 @@ body { -webkit-text-size-adjust: 100%; }
       <div class="section-label">할인코드</div>
       <div style="display:flex; gap:8px;">
         <input type="text" id="discountInput" placeholder="할인코드 입력" style="flex:1; background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'DM Mono',monospace; font-size:13px; outline:none; letter-spacing:2px;" oninput="this.value=this.value.toUpperCase()">
-        <button onclick="applyDiscount()" style="background:var(--accent); color:var(--black); border:none; padding:12px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer;">적용</button>
+        <button onclick="applyDiscount()" style="background:var(--accent); color:#14180f; border:none; padding:12px 20px; font-family:'Pretendard',sans-serif; font-size:13px; font-weight:700; cursor:pointer;">적용</button>
       </div>
       <div id="discountMsg" style="font-size:12px; margin-top:6px;"></div>
     </div>
@@ -277,11 +278,11 @@ body { -webkit-text-size-adjust: 100%; }
     <!-- 약관 -->
     <label class="agree-row">
       <input type="checkbox" id="agreePayment">
-      <span><a href="/terms" target="_blank" style="color:var(--accent); text-decoration:none;">결제 및 환불 정책</a>에 동의합니다. 태그 발급 후에는 환불이 불가합니다.</span>
+      <span><a href="/terms" target="_blank" style="color:#5f8c0a; text-decoration:none;">결제 및 환불 정책</a>에 동의합니다. 태그 발급 후에는 환불이 불가합니다.</span>
     </label>
     <label class="agree-row">
       <input type="checkbox" id="agreeInfo">
-      <span><a href="/privacy" target="_blank" style="color:var(--accent); text-decoration:none;">개인정보 수집 및 이용</a>에 동의합니다. (배송을 위한 주소 수집)</span>
+      <span><a href="/privacy" target="_blank" style="color:#5f8c0a; text-decoration:none;">개인정보 수집 및 이용</a>에 동의합니다. (배송을 위한 주소 수집)</span>
     </label>
 
     <button class="pay-btn" id="payBtn" onclick="startPayment()">
@@ -362,7 +363,7 @@ body { -webkit-text-size-adjust: 100%; }
       if (bikes.length === 0) {
         wrap.innerHTML = `
           <div style="font-size:13px; color:var(--muted); padding:16px; background:var(--gray); border:1px solid var(--border);">
-            등록된 자전거가 없습니다. <a href="/register" style="color:var(--accent);">먼저 등록해주세요 →</a>
+            등록된 자전거가 없습니다. <a href="/register" style="color:#5f8c0a;">먼저 등록해주세요 →</a>
           </div>`
         return
       }

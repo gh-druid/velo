@@ -4,13 +4,13 @@
    ============================================= */
 
 :root {
-  --black: #0a0a0a;
-  --white: #f5f3ee;
+  --black: #faf8f0;
+  --white: #20251a;
   --accent: #c8f542;
-  --gray: #1a1a1a;
-  --mid: #2e2e2e;
-  --muted: #888;
-  --border: rgba(255,255,255,0.08);
+  --gray: #ffffff;
+  --mid: #eef2e6;
+  --muted: #5f6a59;
+  --border: rgba(20,24,15,0.08);
   --error: #ff4f4f;
   --warning: #f5a623;
 }
@@ -19,9 +19,9 @@
 html { scroll-behavior:smooth; }
 
 body {
-  background: var(--black);
+  background:#faf8f0;
   color: var(--white);
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   font-weight: 300;
   min-height: 100vh;
   overflow-x: hidden;
@@ -37,7 +37,7 @@ body {
   align-items: center;
   padding: 0 48px;
   height: 60px;
-  background: rgba(10,10,10,0.92);
+  background: rgba(255,255,255,0.92);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
@@ -65,7 +65,7 @@ body {
   color: var(--muted);
   background: none;
   border: none;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   cursor: pointer;
   transition: color 0.2s, background 0.2s;
   letter-spacing: 0.5px;
@@ -74,7 +74,7 @@ body {
   align-items: center;
   gap: 6px;
 }
-.velo-nav-link:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+.velo-nav-link:hover { color: var(--white); background: rgba(20,24,15,0.04); }
 .velo-nav-link.active { color: var(--white); background: rgba(200,245,66,0.08); }
 
 .velo-nav-right {
@@ -90,7 +90,7 @@ body {
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 700;
-  color: var(--black);
+  color:#14180f;
   cursor: pointer;
   position: relative;
   flex-shrink: 0;
@@ -117,12 +117,12 @@ body {
   display: block;
   background: none;
   border: none;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   width: 100%;
   text-align: left;
   letter-spacing: 0.3px;
 }
-.velo-dropdown-item:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+.velo-dropdown-item:hover { color: var(--white); background: rgba(20,24,15,0.04); }
 .velo-dropdown-item.danger:hover { color: var(--error); }
 
 /* =============================================
@@ -130,10 +130,10 @@ body {
    ============================================= */
 .btn-primary {
   background: var(--accent);
-  color: var(--black);
+  color:#14180f;
   border: none;
   padding: 10px 24px;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -147,9 +147,9 @@ body {
 .btn-secondary {
   background: transparent;
   color: var(--white);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(20,24,15,0.2);
   padding: 10px 24px;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   font-size: 13px;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -161,7 +161,7 @@ body {
   color: var(--white);
   border: none;
   padding: 10px 24px;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -177,7 +177,7 @@ body {
   border: 1px solid var(--border);
   color: var(--white);
   padding: 13px 16px;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Pretendard', sans-serif;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
@@ -185,7 +185,7 @@ body {
 }
 .velo-input:focus { border-color: var(--accent); }
 .velo-input.error { border-color: var(--error); }
-.velo-input::placeholder { color: rgba(255,255,255,0.2); }
+.velo-input::placeholder { color: rgba(20,24,15,0.2); }
 
 .velo-label {
   font-size: 11px;
@@ -242,7 +242,7 @@ body {
   position: fixed;
   bottom: 32px; right: 32px;
   background: var(--accent);
-  color: var(--black);
+  color:#14180f;
   padding: 14px 24px;
   font-size: 13px;
   font-weight: 700;

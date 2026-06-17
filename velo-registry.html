@@ -3,19 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/velo-theme.css">
 <title>벨로 (Vélo) — 전체 등록 현황</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; }
+  :root { --black:#faf8f0; --white:#20251a; --accent:#c8f542; --gray:#ffffff; --muted:#5f6a59; --border:rgba(20,24,15,0.08); --error:#ff4f4f; }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+  body { background:#faf8f0; color:var(--white); font-family:'Pretendard',sans-serif; font-weight:300; min-height:100vh; }
   button, a { cursor:pointer; touch-action:manipulation; }
   input, select { font-size:16px !important; }
 
   nav { display:flex; justify-content:space-between; align-items:center; padding:0 40px; height:70px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
-  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
   .nav-right { display:flex; align-items:center; gap:12px; }
-  .btn-nav { background:var(--accent); color:var(--black); border:none; padding:8px 20px; font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; }
+  .btn-nav { background:var(--accent); color:#14180f; border:none; padding:8px 20px; font-family:'Pretendard',sans-serif; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; }
   @media(max-width:768px) { nav { padding:0 16px; } }
 
   .content { max-width:1100px; margin:0 auto; padding:40px; }
@@ -23,26 +24,26 @@
   .page-sub { font-size:13px; color:var(--muted); margin-bottom:32px; }
 
   .search-bar { display:flex; gap:12px; margin-bottom:24px; }
-  .search-input { flex:1; background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; }
+  .search-input { flex:1; background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Pretendard',sans-serif; font-size:14px; outline:none; }
   .search-input::placeholder { color:var(--muted); }
-  .filter-select { background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; outline:none; }
+  .filter-select { background:var(--gray); border:1px solid var(--border); color:var(--white); padding:12px 16px; font-family:'Pretendard',sans-serif; font-size:13px; outline:none; }
 
   .stats-row { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
   .stat-box { background:var(--gray); border:1px solid var(--border); padding:16px 24px; flex:1; min-width:120px; }
   .stat-label { font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:8px; }
   .stat-num { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:1px; }
-  .stat-num.accent { color:var(--accent); }
+  .stat-num.accent { color:#5f8c0a; }
   .stat-num.red { color:var(--error); }
 
   .bike-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
   .bike-card { background:var(--gray); border:1px solid var(--border); padding:24px; transition:border-color 0.2s; text-decoration:none; display:block; cursor:pointer; }
-  .bike-card:hover { border-color:var(--accent); }
+  .bike-card:hover { border-color:#5f8c0a; }
   .bike-card.stolen { border-color:rgba(255,79,79,0.4); }
   .bike-brand { font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:6px; }
   .bike-model { font-size:18px; font-weight:500; color:var(--white); margin-bottom:12px; }
-  .bike-serial { font-family:'DM Mono',monospace; font-size:12px; color:var(--accent); letter-spacing:2px; margin-bottom:12px; }
+  .bike-serial { font-family:'DM Mono',monospace; font-size:12px; color:#5f8c0a; letter-spacing:2px; margin-bottom:12px; }
   .bike-status { display:inline-block; font-size:11px; letter-spacing:1px; padding:3px 10px; border:1px solid; }
-  .bike-status.normal { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+  .bike-status.normal { color:#5f8c0a; border-color:rgba(200,245,66,0.3); }
   .bike-status.stolen { color:var(--error); border-color:rgba(255,79,79,0.3); background:rgba(255,79,79,0.05); }
   .bike-date { font-size:11px; color:var(--muted); margin-top:10px; }
 
@@ -61,7 +62,7 @@
 <nav>
   <a href="/" class="nav-logo">VÉLO</a>
   <div class="nav-right">
-    <button onclick="history.back()" style="background:none; border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'Noto Sans KR',sans-serif; font-size:13px; cursor:pointer;">← 뒤로</button>
+    <button onclick="history.back()" style="background:none; border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'Pretendard',sans-serif; font-size:13px; cursor:pointer;">← 뒤로</button>
     <a href="/login" id="authBtn" class="btn-nav">로그인</a>
   </div>
 </nav>

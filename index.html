@@ -3,25 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/velo-theme.css">
 <title>벨로 (Vélo) — 내 자전거를 증명하다</title>
 <link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --black: #0a0a0a;
-    --white: #f5f3ee;
+    --black: #faf8f0;
+    --white: #20251a;
     --accent: #c8f542;
-    --gray: #1a1a1a;
-    --mid: #2e2e2e;
-    --text-muted: #888;
+    --gray: #ffffff;
+    --mid: #eef2e6;
+    --text-muted: #5f6a59;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
-  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; overflow-x:hidden; }
+  body { background:#faf8f0; color:var(--white); font-family:'Pretendard',sans-serif; font-weight:300; overflow-x:hidden; }
 
   /* NAV */
-  nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:24px 48px; background:rgba(10,10,10,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.05); }
-  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:24px 48px; background:rgba(255,255,255,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(20,24,15,0.05); }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
   .nav-links { display:flex; gap:40px; list-style:none; }
   .nav-links a { color:var(--white); text-decoration:none; font-size:13px; letter-spacing:1px; opacity:0.7; transition:opacity 0.2s; }
   .nav-links a:hover { opacity:1; }
@@ -35,34 +36,34 @@
   .mobile-menu a { color:var(--muted); text-decoration:none; font-size:14px; padding:12px 0; border-bottom:1px solid var(--border); letter-spacing:0.5px; }
   .mobile-menu a:last-child { border-bottom:none; }
   .mobile-menu a:hover { color:var(--white); }
-  .nav-cta { background:var(--accent); color:var(--black)!important; padding:10px 24px; font-weight:700!important; opacity:1!important; letter-spacing:0.5px!important; }
+  .nav-cta { background:var(--accent); color:#14180f!important; padding:10px 24px; font-weight:700!important; opacity:1!important; letter-spacing:0.5px!important; }
 
   /* HERO */
   .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px 80px; position:relative; overflow:hidden; }
   .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 60% 50% at 70% 40%,rgba(200,245,66,0.07) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 20% 80%,rgba(200,245,66,0.04) 0%,transparent 60%); }
-  .hero-tag { font-size:12px; letter-spacing:4px; color:var(--accent); margin-bottom:24px; opacity:0; animation:fadeUp 0.8s 0.2s forwards; }
+  .hero-tag { font-size:12px; letter-spacing:4px; color:#5f8c0a; margin-bottom:24px; opacity:0; animation:fadeUp 0.8s 0.2s forwards; }
   .hero-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(72px,12vw,160px); line-height:0.9; letter-spacing:2px; opacity:0; animation:fadeUp 0.8s 0.4s forwards; }
-  .hero-title span { color:var(--accent); display:block; }
+  .hero-title span { color:#5f8c0a; display:block; }
   .hero-sub { margin-top:32px; font-size:16px; color:var(--text-muted); max-width:480px; line-height:1.7; opacity:0; animation:fadeUp 0.8s 0.6s forwards; }
   .hero-actions { margin-top:48px; display:flex; gap:16px; align-items:center; opacity:0; animation:fadeUp 0.8s 0.8s forwards; }
-  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:16px 40px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
+  .btn-primary { background:var(--accent); color:#14180f; border:none; padding:16px 40px; font-family:'Pretendard',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
   .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(200,245,66,0.3); }
-  .btn-secondary { background:transparent; color:var(--white); border:1px solid rgba(255,255,255,0.2); padding:16px 40px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:300; letter-spacing:1px; cursor:pointer; transition:border-color 0.2s; }
+  .btn-secondary { background:transparent; color:var(--white); border:1px solid rgba(20,24,15,0.2); padding:16px 40px; font-family:'Pretendard',sans-serif; font-size:14px; font-weight:300; letter-spacing:1px; cursor:pointer; transition:border-color 0.2s; }
   .btn-secondary:hover { border-color:var(--white); }
   .hero-scroll { position:absolute; right:48px; bottom:80px; writing-mode:vertical-rl; font-size:11px; letter-spacing:3px; color:var(--text-muted); opacity:0; animation:fadeUp 0.8s 1.2s forwards; }
   @media(max-width:768px) { .hero-scroll { display:none; } }
   @media(max-width:768px) { .referral-grid { grid-template-columns:1fr !important; gap:32px !important; } }
 
   /* STATS */
-  .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(255,255,255,0.08); border-bottom:1px solid rgba(255,255,255,0.08); }
-  .stat { padding:48px; border-right:1px solid rgba(255,255,255,0.08); }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid rgba(20,24,15,0.08); border-bottom:1px solid rgba(20,24,15,0.08); }
+  .stat { padding:48px; border-right:1px solid rgba(20,24,15,0.08); }
   .stat:last-child { border-right:none; }
-  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:56px; color:var(--accent); line-height:1; }
+  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:56px; color:#5f8c0a; line-height:1; }
   .stat-label { font-size:13px; color:var(--text-muted); margin-top:8px; letter-spacing:1px; }
 
   /* LIVE REGISTRATIONS */
   .live-section { padding:80px 48px; }
-  .live-label { font-size:11px; letter-spacing:4px; color:var(--accent); margin-bottom:12px; }
+  .live-label { font-size:11px; letter-spacing:4px; color:#5f8c0a; margin-bottom:12px; }
   .live-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(36px,5vw,56px); margin-bottom:8px; }
   .live-sub { font-size:13px; color:var(--text-muted); margin-bottom:40px; }
 
@@ -88,7 +89,7 @@
 
   .slider-card {
     background:var(--gray);
-    border:1px solid rgba(255,255,255,0.06);
+    border:1px solid rgba(20,24,15,0.06);
     padding:16px 20px;
     display:flex;
     align-items:center;
@@ -112,16 +113,16 @@
   .slider-info { flex:1; min-width:0; }
   .slider-name { font-size:13px; font-weight:500; margin-bottom:2px; }
   .slider-bike { font-size:11px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .slider-date { font-size:10px; color:rgba(255,255,255,0.2); letter-spacing:1px; margin-top:2px; }
+  .slider-date { font-size:10px; color:rgba(20,24,15,0.2); letter-spacing:1px; margin-top:2px; }
   .slider-dot { width:6px; height:6px; background:var(--accent); border-radius:50%; flex-shrink:0; box-shadow:0 0 6px rgba(200,245,66,0.5); }
 
   /* REGISTRY */
   .registry-btn {
     display:flex; align-items:center; gap:12px;
     background:var(--gray);
-    border:1px solid rgba(255,255,255,0.08);
+    border:1px solid rgba(20,24,15,0.08);
     padding:16px 24px;
-    font-family:'Noto Sans KR',sans-serif;
+    font-family:'Pretendard',sans-serif;
     font-size:13px; color:var(--text-muted);
     cursor:pointer; transition:all 0.2s;
     width:100%;
@@ -134,7 +135,7 @@
   .registry-list {
     display:none;
     background:var(--gray);
-    border:1px solid rgba(255,255,255,0.08);
+    border:1px solid rgba(20,24,15,0.08);
     border-top:none;
     max-height:400px;
     overflow-y:auto;
@@ -150,23 +151,23 @@
     gap:16px;
     align-items:center;
     padding:14px 24px;
-    border-bottom:1px solid rgba(255,255,255,0.04);
+    border-bottom:1px solid rgba(20,24,15,0.04);
     font-size:13px;
     transition:background 0.2s;
   }
-  .registry-item:hover { background:rgba(255,255,255,0.02); }
+  .registry-item:hover { background:rgba(20,24,15,0.02); }
   .registry-item:last-child { border-bottom:none; }
-  .registry-item-num { font-size:11px; color:rgba(255,255,255,0.2); font-family:'Courier New',monospace; }
+  .registry-item-num { font-size:11px; color:rgba(20,24,15,0.2); font-family:'Courier New',monospace; }
   .registry-item-name { font-weight:500; }
   .registry-item-bike { font-size:12px; color:var(--text-muted); }
-  .registry-item-date { font-size:11px; color:rgba(255,255,255,0.2); text-align:right; font-family:'Courier New',monospace; }
+  .registry-item-date { font-size:11px; color:rgba(20,24,15,0.2); text-align:right; font-family:'Courier New',monospace; }
 
   .registry-header {
     display:grid;
     grid-template-columns:32px 1fr 1fr 80px;
     gap:16px;
     padding:10px 24px;
-    border-bottom:1px solid rgba(255,255,255,0.08);
+    border-bottom:1px solid rgba(20,24,15,0.08);
     font-size:10px;
     letter-spacing:2px;
     color:var(--text-muted);
@@ -174,7 +175,7 @@
 
   /* HOW */
   .section { padding:120px 48px; }
-  .section-tag { font-size:11px; letter-spacing:4px; color:var(--accent); margin-bottom:16px; }
+  .section-tag { font-size:11px; letter-spacing:4px; color:#5f8c0a; margin-bottom:16px; }
   .section-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,6vw,72px); line-height:1; margin-bottom:64px; }
   .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; }
   .step { background:var(--gray); padding:40px 32px; transition:background 0.3s; }
@@ -186,8 +187,8 @@
   /* FEATURES */
   .features { background:var(--gray); padding:120px 48px; }
   .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:64px; }
-  .feature { background:var(--black); padding:48px 40px; transition:background 0.3s; }
-  .feature:hover { background:#111; }
+  .feature { background:#faf8f0; padding:48px 40px; transition:background 0.3s; }
+  .feature:hover { background:#ffffff; }
   .feature-icon { font-size:32px; margin-bottom:24px; }
   .feature-title { font-size:18px; font-weight:700; margin-bottom:12px; }
   .feature-desc { font-size:13px; color:var(--text-muted); line-height:1.8; }
@@ -196,31 +197,31 @@
   .pricing { padding:120px 48px; }
   .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:64px; }
   .price-card { background:var(--gray); padding:48px 40px; }
-  .price-card.featured { background:var(--accent); color:var(--black); }
+  .price-card.featured { background:var(--accent); color:#14180f; }
   .price-label { font-size:11px; letter-spacing:3px; opacity:0.6; margin-bottom:24px; }
   .price-amount { font-family:'Bebas Neue',sans-serif; font-size:56px; line-height:1; }
   .price-unit { font-size:14px; opacity:0.6; margin-top:4px; }
-  .price-divider { height:1px; background:rgba(255,255,255,0.1); margin:32px 0; }
+  .price-divider { height:1px; background:rgba(20,24,15,0.1); margin:32px 0; }
   .price-card.featured .price-divider { background:rgba(0,0,0,0.15); }
   .price-features { list-style:none; display:flex; flex-direction:column; gap:12px; }
   .price-features li { font-size:13px; display:flex; align-items:center; gap:10px; }
-  .price-features li::before { content:"→"; color:var(--accent); font-size:12px; }
-  .price-card.featured .price-features li::before { color:var(--black); }
-  .price-card.featured .price-features li { color:var(--black); }
-  .price-cta { margin-top:40px; width:100%; padding:14px; background:transparent; border:1px solid rgba(255,255,255,0.2); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all 0.2s; }
-  .price-cta:hover { background:var(--white); color:var(--black); }
-  .price-card.featured .price-cta { background:var(--black); border-color:var(--black); color:var(--white); }
+  .price-features li::before { content:"→"; color:#5f8c0a; font-size:12px; }
+  .price-card.featured .price-features li::before { color:#14180f; }
+  .price-card.featured .price-features li { color:#14180f; }
+  .price-cta { margin-top:40px; width:100%; padding:14px; background:transparent; border:1px solid rgba(20,24,15,0.2); color:var(--white); font-family:'Pretendard',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all 0.2s; }
+  .price-cta:hover { background:var(--white); color:#14180f; }
+  .price-card.featured .price-cta { background:#faf8f0; border-color:#14180f; color:var(--white); }
 
   /* CTA */
   .cta-section { background:var(--accent); padding:120px 48px; display:flex; justify-content:space-between; align-items:center; }
-  .cta-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(48px,7vw,96px); color:var(--black); line-height:0.95; }
+  .cta-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(48px,7vw,96px); color:#14180f; line-height:0.95; }
   .cta-right { display:flex; flex-direction:column; align-items:flex-end; gap:24px; }
   .cta-desc { font-size:14px; color:rgba(0,0,0,0.6); text-align:right; max-width:300px; line-height:1.7; }
-  .btn-dark { background:var(--black); color:var(--accent); border:none; padding:18px 48px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:transform 0.2s; }
+  .btn-dark { background:#faf8f0; color:#5f8c0a; border:none; padding:18px 48px; font-family:'Pretendard',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:transform 0.2s; }
   .btn-dark:hover { transform:translateY(-2px); }
 
-  footer { padding:48px; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; }
-  .footer-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:var(--accent); }
+  footer { padding:48px; border-top:1px solid rgba(20,24,15,0.08); display:flex; justify-content:space-between; align-items:center; }
+  .footer-logo { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:4px; color:#5f8c0a; }
   .footer-text { font-size:12px; color:var(--text-muted); }
 
   /* MODAL */
@@ -232,9 +233,9 @@
   .modal-sub { font-size:13px; color:var(--text-muted); margin-bottom:32px; }
   .form-group { margin-bottom:20px; }
   .form-label { font-size:11px; letter-spacing:2px; color:var(--text-muted); margin-bottom:8px; display:block; }
-  .form-input { width:100%; background:var(--black); border:1px solid rgba(255,255,255,0.1); color:var(--white); padding:14px 16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
-  .form-input:focus { border-color:var(--accent); }
-  .form-submit { width:100%; background:var(--accent); color:var(--black); border:none; padding:16px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; margin-top:8px; }
+  .form-input { width:100%; background:#faf8f0; border:1px solid rgba(20,24,15,0.1); color:var(--white); padding:14px 16px; font-family:'Pretendard',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
+  .form-input:focus { border-color:#5f8c0a; }
+  .form-submit { width:100%; background:var(--accent); color:#14180f; border:none; padding:16px; font-family:'Pretendard',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; margin-top:8px; }
   .modal-close { position:absolute; top:20px; right:24px; background:none; border:none; color:var(--text-muted); font-size:24px; cursor:pointer; line-height:1; }
 
   @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
@@ -247,7 +248,7 @@
     .hamburger { display:flex; }
     .hero { padding:0 24px 64px; }
     .stats { grid-template-columns:1fr; }
-    .stat { border-right:none; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .stat { border-right:none; border-bottom:1px solid rgba(20,24,15,0.08); }
     .section,.features,.pricing,.live-section { padding:80px 24px; }
     .steps,.features-grid,.pricing-grid { grid-template-columns:1fr; }
     .cta-section { flex-direction:column; gap:40px; padding:80px 24px; }
@@ -297,7 +298,7 @@ body { -webkit-text-size-adjust: 100%; }
   <a href="/notifications" id="mobileNotifBtn" style="display:none;">🔔 알림</a>
   <a href="/referral" id="mobileReferralBtn" style="display:none;">🔗 레퍼럴</a>
   <a href="/login" id="mobileAuthBtn">로그인</a>
-  <a href="#" onclick="_goPayment();return false;" style="color:var(--accent); font-weight:700;">등록 신청 →</a>
+  <a href="#" onclick="_goPayment();return false;" style="color:#5f8c0a; font-weight:700;">등록 신청 →</a>
 </div>
 <script type="module">
   import { getUser } from '/velo-supabase.js'
@@ -373,7 +374,7 @@ body { -webkit-text-size-adjust: 100%; }
   <button class="registry-btn" id="registryBtn" onclick="location.href='/registry'">
     <span>📋</span>
     <span>전체 등록 현황 보기</span>
-    <span style="font-size:11px; color:var(--accent); letter-spacing:1px;" id="registryCount"></span>
+    <span style="font-size:11px; color:#5f8c0a; letter-spacing:1px;" id="registryCount"></span>
     <span class="registry-btn-arrow">▾</span>
   </button>
 
@@ -464,29 +465,29 @@ body { -webkit-text-size-adjust: 100%; }
     <div>
       <div class="section-tag">REFERRAL</div>
       <h2 style="font-family:'Bebas Neue',sans-serif; font-size:52px; letter-spacing:2px; line-height:1.1; margin-bottom:20px;">
-        홍보하고<br><span style="color:var(--accent);">수익 내세요</span>
+        홍보하고<br><span style="color:#5f8c0a;">수익 내세요</span>
       </h2>
       <p style="font-size:15px; color:var(--muted); line-height:1.8; margin-bottom:32px;">
         내 레퍼럴 코드로 가입한 유저가 결제하면<br>
         결제 금액의 <strong style="color:var(--white);">15%</strong>가 내 계좌로 들어옵니다.<br>
         10,000원 쌓이면 바로 출금 가능.
       </p>
-      <a href="/referral" style="display:inline-block; background:var(--accent); color:var(--black); padding:14px 36px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; text-decoration:none; letter-spacing:1px;">레퍼럴 시작하기 →</a>
+      <a href="/referral" style="display:inline-block; background:var(--accent); color:#14180f; padding:14px 36px; font-family:'Pretendard',sans-serif; font-size:14px; font-weight:700; text-decoration:none; letter-spacing:1px;">레퍼럴 시작하기 →</a>
     </div>
     <div style="display:flex; flex-direction:column; gap:16px;">
-      <div style="background:var(--black); border:1px solid var(--border); padding:24px;">
+      <div style="background:#faf8f0; border:1px solid var(--border); padding:24px;">
         <div style="font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:10px;">수익 구조</div>
-        <div style="font-size:22px; font-weight:700; color:var(--white);">결제 금액의 <span style="color:var(--accent);">15%</span></div>
+        <div style="font-size:22px; font-weight:700; color:var(--white);">결제 금액의 <span style="color:#5f8c0a;">15%</span></div>
         <div style="font-size:13px; color:var(--muted); margin-top:6px;">태그 7,900원 → 내 수익 1,185원</div>
       </div>
-      <div style="background:var(--black); border:1px solid var(--border); padding:24px;">
+      <div style="background:#faf8f0; border:1px solid var(--border); padding:24px;">
         <div style="font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:10px;">출금 조건</div>
-        <div style="font-size:22px; font-weight:700; color:var(--white);">10,000원 <span style="color:var(--accent);">이상</span></div>
+        <div style="font-size:22px; font-weight:700; color:var(--white);">10,000원 <span style="color:#5f8c0a;">이상</span></div>
         <div style="font-size:13px; color:var(--muted); margin-top:6px;">영업일 3일 내 계좌 입금</div>
       </div>
       <div style="background:var(--accent); padding:24px;">
-        <div style="font-size:11px; color:var(--black); letter-spacing:2px; margin-bottom:10px; font-weight:700;">예시 수익</div>
-        <div style="font-size:22px; font-weight:700; color:var(--black);">월 10명 추천 시</div>
+        <div style="font-size:11px; color:#14180f; letter-spacing:2px; margin-bottom:10px; font-weight:700;">예시 수익</div>
+        <div style="font-size:22px; font-weight:700; color:#14180f;">월 10명 추천 시</div>
         <div style="font-size:13px; color:#333; margin-top:6px;">→ 약 11,850원 수익</div>
       </div>
     </div>

@@ -3,19 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/velo-theme.css">
 <title>벨로 (Vélo) — 파트너 대시보드</title>
 <link rel="stylesheet" href="/velo-common.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  :root { --black:#0a0a0a; --white:#f5f3ee; --accent:#c8f542; --gray:#1a1a1a; --mid:#2e2e2e; --muted:#888; --border:rgba(255,255,255,0.08); --error:#ff4f4f; --warning:#f5a623; }
+  :root { --black:#faf8f0; --white:#20251a; --accent:#c8f542; --gray:#ffffff; --mid:#eef2e6; --muted:#5f6a59; --border:rgba(20,24,15,0.08); --error:#ff4f4f; --warning:#f5a623; }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--black); color:var(--white); font-family:'Noto Sans KR',sans-serif; font-weight:300; min-height:100vh; }
+  body { background:#faf8f0; color:var(--white); font-family:'Pretendard',sans-serif; font-weight:300; min-height:100vh; }
 
   nav { display:grid; grid-template-columns:auto 1fr auto; align-items:center; align-items:center; padding:0 40px; height:70px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
-  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
-  .nav-badge { font-size:10px; letter-spacing:2px; color:var(--black); background:var(--accent); padding:3px 8px; margin-left:8px; }
+  .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
+  .nav-badge { font-size:10px; letter-spacing:2px; color:#14180f; background:var(--accent); padding:3px 8px; margin-left:8px; }
   .nav-right { display:flex; gap:16px; align-items:center; }
-  .nav-link { font-size:13px; color:var(--muted); text-decoration:none; cursor:pointer; background:none; border:none; font-family:'Noto Sans KR',sans-serif; }
+  .nav-link { font-size:13px; color:var(--muted); text-decoration:none; cursor:pointer; background:none; border:none; font-family:'Pretendard',sans-serif; }
   .nav-link:hover { color:var(--white); }
 
   .content { max-width:1100px; margin:0 auto; padding:40px; }
@@ -35,13 +36,13 @@
   .summary-card:last-child { border-right:none; }
   .summary-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
   .summary-num { font-family:'Bebas Neue',sans-serif; font-size:40px; line-height:1; }
-  .summary-num.accent { color:var(--accent); }
+  .summary-num.accent { color:#5f8c0a; }
   .summary-sub { font-size:11px; color:var(--muted); margin-top:4px; }
 
   /* 탭 */
   .tabs { display:flex; gap:2px; margin-bottom:24px; border-bottom:1px solid var(--border); }
-  .tab { padding:12px 20px; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Noto Sans KR',sans-serif; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.2s; letter-spacing:0.5px; }
-  .tab.active { color:var(--white); border-bottom-color:var(--accent); }
+  .tab { padding:12px 20px; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Pretendard',sans-serif; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.2s; letter-spacing:0.5px; }
+  .tab.active { color:var(--white); border-bottom-color:#5f8c0a; }
 
   .tab-content { display:none; }
   .tab-content.active { display:block; }
@@ -51,12 +52,12 @@
   .table-header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
   .table-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; }
   table { width:100%; border-collapse:collapse; }
-  th { padding:12px 20px; font-size:10px; letter-spacing:2px; color:var(--muted); text-align:left; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
-  td { padding:14px 20px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:middle; }
+  th { padding:12px 20px; font-size:10px; letter-spacing:2px; color:var(--muted); text-align:left; border-bottom:1px solid var(--border); background:rgba(20,24,15,0.02); }
+  td { padding:14px 20px; font-size:13px; border-bottom:1px solid rgba(20,24,15,0.04); vertical-align:middle; }
   tr:last-child td { border-bottom:none; }
 
   .badge { font-size:10px; letter-spacing:1px; padding:3px 8px; border:1px solid; }
-  .badge-normal { color:var(--accent); border-color:rgba(200,245,66,0.3); }
+  .badge-normal { color:#5f8c0a; border-color:rgba(200,245,66,0.3); }
   .badge-pending { color:var(--warning); border-color:rgba(245,166,35,0.3); }
   .badge-stolen { color:var(--error); border-color:rgba(255,79,79,0.3); }
 
@@ -64,7 +65,7 @@
   .revenue-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:24px; }
   .revenue-card { background:var(--gray); border:1px solid var(--border); padding:28px; }
   .revenue-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px; }
-  .revenue-num { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; color:var(--accent); }
+  .revenue-num { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; color:#5f8c0a; }
   .revenue-sub { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.7; }
 
   /* 신청 없을 때 */
@@ -72,15 +73,15 @@
   .empty-icon { font-size:48px; margin-bottom:16px; }
   .empty-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; margin-bottom:8px; }
   .empty-desc { font-size:13px; color:var(--muted); line-height:1.8; margin-bottom:24px; }
-  .btn-primary { background:var(--accent); color:var(--black); border:none; padding:14px 32px; font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
+  .btn-primary { background:var(--accent); color:#14180f; border:none; padding:14px 32px; font-family:'Pretendard',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
 
   /* 태그 재고 */
   .stock-card { background:var(--gray); border:1px solid var(--border); padding:28px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
   .stock-info h3 { font-size:16px; font-weight:500; margin-bottom:4px; }
   .stock-info p { font-size:13px; color:var(--muted); }
-  .stock-num { font-family:'Bebas Neue',sans-serif; font-size:48px; color:var(--accent); }
+  .stock-num { font-family:'Bebas Neue',sans-serif; font-size:48px; color:#5f8c0a; }
 
-  .toast { position:fixed; bottom:32px; right:32px; background:var(--accent); color:var(--black); padding:14px 24px; font-size:13px; font-weight:700; transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:999; }
+  .toast { position:fixed; bottom:32px; right:32px; background:var(--accent); color:#14180f; padding:14px 24px; font-size:13px; font-weight:700; transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:999; }
   .toast.show { transform:translateY(0); opacity:1; }
 
   @media(max-width:768px) {
@@ -92,8 +93,8 @@
 
   .nav-dropdown { position:absolute; top:44px; right:0; background:var(--gray); border:1px solid var(--border); min-width:180px; display:none; z-index:300; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
   .nav-dropdown.show { display:block; }
-  .nav-dropdown-item { padding:12px 16px; font-size:13px; color:#888; cursor:pointer; display:block; background:none; border:none; font-family:'Noto Sans KR',sans-serif; width:100%; text-align:left; transition:all 0.2s; }
-  .nav-dropdown-item:hover { color:#f5f3ee; background:rgba(255,255,255,0.04); }
+  .nav-dropdown-item { padding:12px 16px; font-size:13px; color:#5f6a59; cursor:pointer; display:block; background:none; border:none; font-family:'Pretendard',sans-serif; width:100%; text-align:left; transition:all 0.2s; }
+  .nav-dropdown-item:hover { color:#20251a; background:rgba(20,24,15,0.04); }
   .nav-dropdown-item.danger:hover { color:#ff4f4f; }
 </style>
 
@@ -105,13 +106,13 @@ nav {
   align-items:center;
   padding:0 40px;
   height:70px;
-  background:#1a1a1a;
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  background:#ffffff;
+  border-bottom:1px solid rgba(20,24,15,0.08);
   position:sticky;
   top:0;
   z-index:100;
 }
-.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#c8f542; text-decoration:none; display:flex; align-items:center; line-height:1; }
+.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
 .nav-links {
   display:flex;
   gap:4px;
@@ -121,18 +122,18 @@ nav {
 .nav-link {
   padding:8px 14px;
   font-size:13px;
-  color:#888;
+  color:#5f6a59;
   background:none;
   border:none;
-  font-family:'Noto Sans KR',sans-serif;
+  font-family:'Pretendard',sans-serif;
   cursor:pointer;
   transition:color 0.2s;
   text-decoration:none;
   letter-spacing:0.5px;
   white-space:nowrap;
 }
-.nav-link:hover { color:#f5f3ee; }
-.nav-link.active { color:#f5f3ee; background:rgba(200,245,66,0.08); }
+.nav-link:hover { color:#20251a; }
+.nav-link.active { color:#20251a; background:rgba(200,245,66,0.08); }
 .nav-right {
   display:flex;
   align-items:center;
@@ -149,7 +150,7 @@ nav {
   justify-content:center;
   font-size:13px;
   font-weight:700;
-  color:#0a0a0a;
+  color:#14180f;
   cursor:pointer;
   flex-shrink:0;
 }
@@ -160,8 +161,8 @@ nav {
   position:absolute;
   top:44px;
   right:0;
-  background:#1a1a1a;
-  border:1px solid rgba(255,255,255,0.08);
+  background:#ffffff;
+  border:1px solid rgba(20,24,15,0.08);
   min-width:180px;
   display:none;
   z-index:9999;
@@ -171,25 +172,25 @@ nav {
 .nav-dropdown-item {
   padding:12px 16px;
   font-size:13px;
-  color:#888;
+  color:#5f6a59;
   cursor:pointer;
   display:block;
   background:none;
   border:none;
-  font-family:'Noto Sans KR',sans-serif;
+  font-family:'Pretendard',sans-serif;
   width:100%;
   text-align:left;
   transition:all 0.2s;
   white-space:nowrap;
 }
-.nav-dropdown-item:hover { color:#f5f3ee; background:rgba(255,255,255,0.04); }
+.nav-dropdown-item:hover { color:#20251a; background:rgba(20,24,15,0.04); }
 .nav-dropdown-item.danger:hover { color:#ff4f4f; }
 .btn-nav-primary {
   background:#c8f542;
-  color:#0a0a0a;
+  color:#14180f;
   border:none;
   padding:8px 20px;
-  font-family:'Noto Sans KR',sans-serif;
+  font-family:'Pretendard',sans-serif;
   font-size:13px;
   font-weight:700;
   cursor:pointer;
@@ -215,12 +216,12 @@ body { -webkit-text-size-adjust: 100%; }
 
   /* 햄버거 메뉴 */
   .hamburger-btn { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
-  .hamburger-btn span { width:22px; height:2px; background:#f5f3ee; display:block; }
-  .mobile-nav { display:none; position:fixed; top:60px; left:0; right:0; background:#1a1a1a; border-bottom:1px solid rgba(255,255,255,0.08); z-index:99; padding:8px 0; flex-direction:column; }
+  .hamburger-btn span { width:22px; height:2px; background:#20251a; display:block; }
+  .mobile-nav { display:none; position:fixed; top:60px; left:0; right:0; background:#ffffff; border-bottom:1px solid rgba(20,24,15,0.08); z-index:99; padding:8px 0; flex-direction:column; }
   .mobile-nav.open { display:flex; }
-  .mobile-nav a { color:#888; text-decoration:none; font-size:14px; padding:14px 24px; border-bottom:1px solid rgba(255,255,255,0.05); font-family:'Noto Sans KR',sans-serif; display:block; }
+  .mobile-nav a { color:#5f6a59; text-decoration:none; font-size:14px; padding:14px 24px; border-bottom:1px solid rgba(20,24,15,0.05); font-family:'Pretendard',sans-serif; display:block; }
   .mobile-nav a:last-child { border-bottom:none; }
-  .mobile-nav a.active { color:#c8f542; }
+  .mobile-nav a.active { color:#5f8c0a; }
   @media(max-width:768px) { .hamburger-btn { display:flex; } }
 </style>
 </head>
@@ -254,7 +255,7 @@ body { -webkit-text-size-adjust: 100%; }
   <a href="/notifications">🔔 알림</a>
   <a href="/referral">🔗 레퍼럴</a>
   <a href="/settings">⚙️ 설정</a>
-  <a href="/register" style="color:#c8f542;font-weight:700;">+ 자전거 등록</a>
+  <a href="/register" style="color:#5f8c0a;font-weight:700;">+ 자전거 등록</a>
 </div>
 
 <div class="content">
@@ -329,11 +330,11 @@ body { -webkit-text-size-adjust: 100%; }
             <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
               <div style="display:flex; justify-content:space-between; font-size:13px;">
                 <span style="color:var(--muted);">칩 2개 기본 (7,900원)</span>
-                <span style="color:var(--accent);">+2,370원</span>
+                <span style="color:#5f8c0a;">+2,370원</span>
               </div>
               <div style="display:flex; justify-content:space-between; font-size:13px;">
                 <span style="color:var(--muted);">칩 2개 + 카드 (9,900원)</span>
-                <span style="color:var(--accent);">+2,970원</span>
+                <span style="color:#5f8c0a;">+2,970원</span>
               </div>
               <div style="border-top:1px solid var(--border); padding-top:12px; font-size:12px; color:var(--muted);">
                 * 수익은 매월 말일 정산 후 익월 10일 이내 지급
@@ -525,7 +526,7 @@ body { -webkit-text-size-adjust: 100%; }
           <td style="font-family:'DM Mono',monospace; font-size:12px;">${esc(b.serial || '-')}</td>
           <td>${esc(b.users?.name || '-')}</td>
           <td style="font-size:12px; color:var(--muted);">${fmtDate(b.created_at)}</td>
-          <td style="color:var(--accent);">+${Math.floor(7900*0.3).toLocaleString()}원</td>
+          <td style="color:#5f8c0a;">+${Math.floor(7900*0.3).toLocaleString()}원</td>
         </tr>
       `).join('')
 
@@ -543,7 +544,7 @@ body { -webkit-text-size-adjust: 100%; }
         <tr>
           <td>태그 발급 — ${esc(`${b.brand} ${b.model}`)}</td>
           <td>7,900원</td>
-          <td style="color:var(--accent);">+${Math.floor(7900*0.3).toLocaleString()}원</td>
+          <td style="color:#5f8c0a;">+${Math.floor(7900*0.3).toLocaleString()}원</td>
           <td style="font-size:12px; color:var(--muted);">${fmtDate(b.created_at)}</td>
           <td><span class="badge badge-normal">정산 예정</span></td>
         </tr>
