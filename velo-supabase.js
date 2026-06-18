@@ -111,6 +111,17 @@ export async function getMyBikes() {
 }
 
 // 차대번호로 자전거 조회 (NFC 스캔용 — 비로그인 가능)
+// id로 자전거 조회 (소유자 대시보드 → 상세). 스캔 로그/알림 없음.
+export async function getBikeById(id) {
+  const { data, error } = await supabase
+    .from('bikes')
+    .select(`*, parts(*), users(name, phone)`)
+    .eq('id', id)
+    .single()
+  if (error) throw error
+  return data
+}
+
 export async function getBikeBySerial(serial) {
   const { data, error } = await supabase
     .from('bikes')

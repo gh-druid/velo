@@ -589,10 +589,10 @@ body { -webkit-text-size-adjust: 100%; }
           </div>
           <div class="bike-status ${bike.status}">${bike.status === 'pending' ? '배송 중' : bike.status === 'stolen' ? '도난' : '정상'}</div>
         </div>
-        <div class="bike-card-body">
+        <div class="bike-card-body" style="cursor:pointer" onclick="location.href='/bike?id=${bike.id}'">
           <div class="bike-brand">${esc((bike.brand||'').toUpperCase())}</div>
           <div class="bike-model">${esc(bike.model)}</div>
-          <div class="bike-serial">${esc(bike.serial)}</div>
+          <div class="bike-serial">${esc(bike.serial || '차대번호 미등록')}</div>
         </div>
         <div class="bike-card-footer">
           <div class="bike-meta">${new Date(bike.created_at).toLocaleDateString('ko-KR')} · 부품 ${bike.parts?.length || 0}개</div>
@@ -604,7 +604,7 @@ body { -webkit-text-size-adjust: 100%; }
             ${!hasSubscription ? `<button class="bike-btn accent" onclick="location.href='/payment'">구독 시작 →</button>` : ''}
             ${bike.status === 'stolen' ? `<button class="bike-btn accent" onclick="openClaims('${bike.id}')">🎯 제보 확인</button>` : ''}
             ${bike.bounty_status === 'held' && bike.status !== 'stolen' ? `<button class="bike-btn" onclick="refundBikeBounty('${bike.id}')">현상금 환급</button>` : ''}
-            <button class="bike-btn accent" onclick="location.href='/bike/${encodeURIComponent(bike.serial)}'">상세 →</button>
+            <button class="bike-btn accent" onclick="location.href='/bike?id=${bike.id}'">상세 →</button>
             <button class="bike-btn danger" onclick="openDelete('${bike.id}')">삭제</button>
           </div>
         </div>

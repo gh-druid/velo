@@ -711,27 +711,33 @@ body { -webkit-text-size-adjust: 100%; }
 </script>
 
 <script type="module">
-  import { getBikeBySerial, maskPhone, supabase, submitBountyClaim, uploadClaimPhotos, getBountyClaim, submitDispute, escapeHtml as esc } from '/velo-supabase.js'
+  import { getBikeBySerial, getBikeById, maskPhone, supabase, submitBountyClaim, uploadClaimPhotos, getBountyClaim, submitDispute, escapeHtml as esc } from '/velo-supabase.js'
   import { toast, confirmDialog, promptDialog } from '/velo-ui.js'
   window.toast = toast
 
   const pad = n => String(n).padStart(2, '0')
 
   async function init() {
-    // URL에서 차대번호 읽기 (/bike/WTU123 또는 ?serial=WTU123)
+    // URL에서 식별자 읽기 (/bike/WTU123 · ?serial=WTU123 · ?id=UUID(소유자 상세))
     const params = new URLSearchParams(location.search)
-    const serial = params.get('serial') || location.pathname.split('/').filter(Boolean).pop()
-
+    const id = params.get('id')
+    let serial = params.get('serial')
     if (!serial) {
-      showError('차대번호가 없습니다.')
+      const last = location.pathname.split('/').filter(Boolean).pop()
+      if (last && last !== 'bike' && last !== 'velo-bike.html') serial = last
+    }
+
+    if (!id && !serial) {
+      showError('자전거 정보가 없습니다.')
       return
     }
 
     try {
-      const bike = await getBikeBySerial(serial)
+      // id 접근 = 소유자 상세(스캔 아님), serial 접근 = 공개 스캔
+      const bike = id ? await getBikeById(id) : await getBikeBySerial(serial)
 
-      // 소유자에게 스캔 알림
-      if (bike && bike.user_id) {
+      // 공개 스캔(serial)일 때만 소유자에게 스캔 알림
+      if (!id && bike && bike.user_id) {
         try {
           const { createNotification } = await import('/velo-supabase.js')
           await createNotification(bike.user_id, 'scan', `누군가 ${bike.brand} ${bike.model} 태그를 스캔했습니다.`, bike.id)
