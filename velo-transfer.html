@@ -21,12 +21,13 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     background:#faf8f0;
-    color: var(--white);
+    color: #14180f;
     font-family: 'Pretendard', sans-serif;
-    font-weight: 300;
+    font-weight: 400;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-font-smoothing: antialiased;
   }
 
   .topbar {
@@ -53,10 +54,11 @@
 
   /* STEP 1 — 코드 입력 */
   .step-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 40px;
-    letter-spacing: 2px;
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: -0.8px;
     margin-bottom: 8px;
+    color: #14180f;
   }
   .step-sub {
     font-size: 13px;
@@ -74,6 +76,7 @@
   .code-prefix {
     background: var(--mid);
     border: 1px solid var(--border);
+    border-radius: 12px;
     padding: 18px 20px;
     font-family: 'DM Mono', monospace;
     font-size: 18px;
@@ -86,16 +89,17 @@
     flex: 1;
     background: var(--gray);
     border: 1px solid var(--border);
-    color: var(--white);
+    color: #14180f;
     padding: 18px 20px;
+    border-radius: 12px;
     font-family: 'DM Mono', monospace;
     font-size: 24px;
     letter-spacing: 8px;
     outline: none;
     text-transform: uppercase;
-    transition: border-color 0.2s;
+    transition: border-color 0.18s, box-shadow 0.18s;
   }
-  .code-input:focus { border-color:#5f8c0a; }
+  .code-input:focus { border-color:#5f8c0a; box-shadow:0 0 0 3px rgba(200,245,66,0.25); }
   .code-input.error { border-color: var(--error); }
   .code-input::placeholder { color: rgba(20,24,15,0.15); letter-spacing: 4px; font-size: 20px; }
 
@@ -115,19 +119,19 @@
   }
 
   .btn-primary {
-    background: var(--accent);
-    color:#14180f;
+    background:#14180f;
+    color:#fff;
     border: none;
     padding: 16px;
     font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: 1px;
+    border-radius: 12px;
     cursor: pointer;
     width: 100%;
-    transition: opacity 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
   }
-  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow:0 12px 26px rgba(20,24,15,.25); }
   .btn-primary.loading { opacity: 0.6; pointer-events: none; }
 
   /* STEP 2 — 자전거 확인 */
@@ -141,6 +145,9 @@
   .bike-confirm-card {
     background: var(--gray);
     border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05);
+    overflow: hidden;
     margin-bottom: 20px;
   }
 
@@ -166,10 +173,12 @@
 
   .bike-confirm-tag {
     font-size: 10px;
-    letter-spacing: 1px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
     color:#5f8c0a;
-    border: 1px solid rgba(200,245,66,0.3);
-    padding: 4px 10px;
+    background: rgba(200,245,66,0.22);
+    border-radius: 999px;
+    padding: 4px 11px;
   }
 
   .bike-confirm-body { padding: 16px 24px; }
@@ -198,6 +207,8 @@
     margin-bottom: 20px;
     background: var(--gray);
     border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05);
     overflow: hidden;
   }
 
@@ -250,15 +261,17 @@
 
   /* 주의사항 */
   .notice-box {
-    background: rgba(200,245,66,0.05);
-    border: 1px solid rgba(200,245,66,0.15);
+    background: rgba(200,245,66,0.1);
+    border: 1px solid rgba(95,140,10,0.18);
+    border-radius: 14px;
     padding: 20px 24px;
     margin-bottom: 24px;
   }
 
   .notice-title {
-    font-size: 12px;
-    letter-spacing: 2px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
     color:#5f8c0a;
     margin-bottom: 12px;
   }
@@ -301,17 +314,19 @@
   .btn-row { display: flex; gap: 10px; }
 
   .btn-back {
-    background: transparent;
+    background: #fff;
     border: 1px solid var(--border);
     color: var(--muted);
     padding: 14px 24px;
     font-family: 'Pretendard', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s;
     flex-shrink: 0;
   }
-  .btn-back:hover { border-color: var(--white); color: var(--white); }
+  .btn-back:hover { border-color:#14180f; color:#14180f; }
 
   /* STEP 3 — 완료 */
   .complete-wrap {
@@ -335,10 +350,11 @@
   }
 
   .complete-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 48px;
-    letter-spacing: 2px;
+    font-weight: 800;
+    font-size: 34px;
+    letter-spacing: -1px;
     margin-bottom: 16px;
+    color: #14180f;
   }
 
   .complete-desc {
@@ -359,6 +375,8 @@
   .complete-card {
     background: var(--gray);
     border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05);
     padding: 24px;
     margin-bottom: 24px;
     text-align: left;
