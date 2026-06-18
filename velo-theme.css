@@ -101,6 +101,14 @@ nav{background:rgba(255,255,255,.82)!important;backdrop-filter:blur(12px)}
 .v-foot .links a{color:var(--mut);font-size:13px;margin-left:18px;text-decoration:none}
 .v-foot .links a:hover{color:var(--ink)}
 
+/* 좁은 화면에서 잘리는 것 — 부드러운 가로 스와이프(모멘텀 스크롤) */
+.table-wrap{overflow-x:auto !important;overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+.table-wrap th,.table-wrap td{white-space:nowrap}
+/* 표가 화면보다 넓을 때만 살짝 보이는 그라데이션 힌트(스크롤 가능 표시) */
+.tabs,.setting-tabs,.filter-tabs{max-width:100%;flex-wrap:nowrap !important;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none}
+.tabs::-webkit-scrollbar,.setting-tabs::-webkit-scrollbar,.filter-tabs::-webkit-scrollbar{display:none}
+.tabs>*,.setting-tabs>*,.filter-tabs>*{flex-shrink:0;white-space:nowrap}
+
 /* 빈 화면 (emptyState) */
 .v-empty{text-align:center;padding:64px 24px}
 .v-empty-icon{font-size:44px;margin-bottom:14px;opacity:.9}
