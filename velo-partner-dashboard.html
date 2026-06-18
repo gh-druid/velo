@@ -10,11 +10,11 @@
 <style>
   :root { --black:#faf8f0; --white:#20251a; --accent:#c8f542; --gray:#ffffff; --mid:#eef2e6; --muted:#5f6a59; --border:rgba(20,24,15,0.08); --error:#ff4f4f; --warning:#f5a623; }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#faf8f0; color:var(--white); font-family:'Pretendard',sans-serif; font-weight:300; min-height:100vh; }
+  body { background:#faf8f0; color:#14180f; font-family:'Pretendard',sans-serif; font-weight:400; min-height:100vh; -webkit-font-smoothing:antialiased; }
 
   nav { display:grid; grid-template-columns:auto 1fr auto; align-items:center; align-items:center; padding:0 40px; height:70px; background:var(--gray); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
   .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
-  .nav-badge { font-size:10px; letter-spacing:2px; color:#14180f; background:var(--accent); padding:3px 8px; margin-left:8px; }
+  .nav-badge { font-size:10px; font-weight:700; letter-spacing:0.5px; color:#14180f; background:var(--accent); border-radius:999px; padding:3px 10px; margin-left:8px; }
   .nav-right { display:flex; gap:16px; align-items:center; }
   .nav-link { font-size:13px; color:var(--muted); text-decoration:none; cursor:pointer; background:none; border:none; font-family:'Pretendard',sans-serif; }
   .nav-link:hover { color:var(--white); }
@@ -22,66 +22,67 @@
   .content { max-width:1100px; margin:0 auto; padding:40px; }
 
   /* 상태 배너 */
-  .status-banner { padding:20px 28px; margin-bottom:32px; display:flex; align-items:center; gap:16px; }
-  .status-banner.pending { background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.2); }
-  .status-banner.approved { background:rgba(200,245,66,0.08); border:1px solid rgba(200,245,66,0.2); }
-  .status-banner.rejected { background:rgba(255,79,79,0.08); border:1px solid rgba(255,79,79,0.2); }
+  .status-banner { padding:20px 26px; margin-bottom:32px; display:flex; align-items:center; gap:16px; border-radius:16px; }
+  .status-banner.pending { background:rgba(224,146,42,0.1); border:1px solid rgba(224,146,42,0.22); }
+  .status-banner.approved { background:rgba(200,245,66,0.14); border:1px solid rgba(95,140,10,0.2); }
+  .status-banner.rejected { background:rgba(216,69,63,0.08); border:1px solid rgba(216,69,63,0.22); }
   .status-icon { font-size:28px; }
-  .status-text h3 { font-size:16px; font-weight:500; margin-bottom:4px; }
+  .status-text h3 { font-size:16px; font-weight:700; margin-bottom:4px; }
   .status-text p { font-size:13px; color:var(--muted); line-height:1.6; }
 
   /* 요약 카드 */
-  .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-bottom:32px; border:1px solid var(--border); }
-  .summary-card { background:var(--gray); padding:24px; border-right:1px solid var(--border); }
-  .summary-card:last-child { border-right:none; }
-  .summary-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:10px; }
-  .summary-num { font-family:'Bebas Neue',sans-serif; font-size:40px; line-height:1; }
+  .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:32px; }
+  .summary-card { background:var(--gray); border:1px solid var(--border); border-radius:16px; box-shadow:0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05); padding:22px; }
+  .summary-label { font-size:12.5px; font-weight:600; color:var(--muted); margin-bottom:10px; }
+  .summary-num { font-weight:800; font-size:34px; letter-spacing:-1px; line-height:1; color:#14180f; }
   .summary-num.accent { color:#5f8c0a; }
-  .summary-sub { font-size:11px; color:var(--muted); margin-top:4px; }
+  .summary-sub { font-size:12px; color:var(--muted); margin-top:5px; }
 
   /* 탭 */
-  .tabs { display:flex; gap:2px; margin-bottom:24px; border-bottom:1px solid var(--border); }
-  .tab { padding:12px 20px; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:none; font-family:'Pretendard',sans-serif; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.2s; letter-spacing:0.5px; }
-  .tab.active { color:var(--white); border-bottom-color:#5f8c0a; }
+  .tabs { display:inline-flex; gap:2px; margin-bottom:24px; background:#fff; border:1px solid var(--border); border-radius:999px; padding:3px; }
+  .tab { padding:8px 18px; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:none; border-radius:999px; font-family:'Pretendard',sans-serif; font-weight:600; transition:all 0.2s; }
+  .tab.active { color:#fff; background:#14180f; font-weight:700; }
+  .tab:hover:not(.active) { color:#14180f; background:rgba(20,24,15,0.05); }
 
   .tab-content { display:none; }
   .tab-content.active { display:block; }
 
   /* 테이블 */
-  .table-wrap { background:var(--gray); border:1px solid var(--border); overflow:hidden; }
+  .table-wrap { background:var(--gray); border:1px solid var(--border); border-radius:16px; box-shadow:0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05); overflow:hidden; }
   .table-header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-  .table-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; }
+  .table-title { font-weight:800; font-size:16px; letter-spacing:-0.3px; }
   table { width:100%; border-collapse:collapse; }
-  th { padding:12px 20px; font-size:10px; letter-spacing:2px; color:var(--muted); text-align:left; border-bottom:1px solid var(--border); background:rgba(20,24,15,0.02); }
-  td { padding:14px 20px; font-size:13px; border-bottom:1px solid rgba(20,24,15,0.04); vertical-align:middle; }
+  th { padding:12px 20px; font-size:10px; font-weight:700; letter-spacing:0.5px; color:var(--muted); text-align:left; border-bottom:1px solid var(--border); background:#faf8f0; }
+  td { padding:14px 20px; font-size:13.5px; border-bottom:1px solid rgba(20,24,15,0.05); vertical-align:middle; }
   tr:last-child td { border-bottom:none; }
 
-  .badge { font-size:10px; letter-spacing:1px; padding:3px 8px; border:1px solid; }
-  .badge-normal { color:#5f8c0a; border-color:rgba(200,245,66,0.3); }
-  .badge-pending { color:var(--warning); border-color:rgba(245,166,35,0.3); }
-  .badge-stolen { color:var(--error); border-color:rgba(255,79,79,0.3); }
+  .badge { font-size:10px; font-weight:700; letter-spacing:0.3px; padding:3px 10px; border-radius:999px; }
+  .badge-normal { color:#5f8c0a; background:rgba(200,245,66,0.22); }
+  .badge-pending { color:var(--warning); background:rgba(224,146,42,0.15); }
+  .badge-stolen { color:var(--error); background:rgba(216,69,63,0.12); }
 
   /* 수익 */
-  .revenue-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:24px; }
-  .revenue-card { background:var(--gray); border:1px solid var(--border); padding:28px; }
-  .revenue-label { font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:8px; }
-  .revenue-num { font-family:'Bebas Neue',sans-serif; font-size:48px; line-height:1; color:#5f8c0a; }
+  .revenue-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px; }
+  .revenue-card { background:var(--gray); border:1px solid var(--border); border-radius:16px; box-shadow:0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05); padding:28px; }
+  .revenue-label { font-size:12.5px; font-weight:600; color:var(--muted); margin-bottom:8px; }
+  .revenue-num { font-weight:800; font-size:40px; letter-spacing:-1.5px; line-height:1; color:#5f8c0a; }
   .revenue-sub { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.7; }
 
   /* 신청 없을 때 */
   .empty-state { text-align:center; padding:80px 0; }
   .empty-icon { font-size:48px; margin-bottom:16px; }
-  .empty-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; margin-bottom:8px; }
-  .empty-desc { font-size:13px; color:var(--muted); line-height:1.8; margin-bottom:24px; }
-  .btn-primary { background:var(--accent); color:#14180f; border:none; padding:14px 32px; font-family:'Pretendard',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
+  .empty-title { font-weight:800; font-size:24px; letter-spacing:-0.6px; margin-bottom:8px; color:#14180f; }
+  .empty-desc { font-size:13.5px; color:var(--muted); line-height:1.8; margin-bottom:24px; }
+  .btn-primary { background:#14180f; color:#fff; border:none; padding:14px 30px; border-radius:11px; font-family:'Pretendard',sans-serif; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; transition:transform .2s, box-shadow .2s; }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(20,24,15,.25); }
 
   /* 태그 재고 */
-  .stock-card { background:var(--gray); border:1px solid var(--border); padding:28px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
-  .stock-info h3 { font-size:16px; font-weight:500; margin-bottom:4px; }
+  .stock-card { background:var(--gray); border:1px solid var(--border); border-radius:16px; box-shadow:0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05); padding:28px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
+  .stock-info h3 { font-size:16px; font-weight:700; margin-bottom:4px; }
   .stock-info p { font-size:13px; color:var(--muted); }
-  .stock-num { font-family:'Bebas Neue',sans-serif; font-size:48px; color:#5f8c0a; }
+  .stock-num { font-weight:800; font-size:40px; letter-spacing:-1.5px; color:#5f8c0a; }
 
-  .toast { position:fixed; bottom:32px; right:32px; background:var(--accent); color:#14180f; padding:14px 24px; font-size:13px; font-weight:700; transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:999; }
+  .toast { position:fixed; bottom:32px; right:32px; background:#14180f; color:#fff; padding:14px 24px; border-radius:12px; box-shadow:0 12px 30px rgba(20,24,15,.25); font-size:13px; font-weight:600; transform:translateY(80px); opacity:0; transition:all 0.3s; z-index:999; }
   .toast.show { transform:translateY(0); opacity:1; }
 
   @media(max-width:768px) {
