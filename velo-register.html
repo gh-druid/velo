@@ -548,8 +548,10 @@ body { -webkit-text-size-adjust: 100%; }
 
       <div class="field span2">
         <label>현상금 / 바운티 (선택)</label>
-        <input type="number" id="bounty" placeholder="예: 50000" min="10000" step="1000" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-        <div class="field-hint">도난 시 자전거를 찾아준 제보자에게 지급할 현상금입니다. 설정 시 최소 10,000원 이상. 도난 신고 시 스캔 화면에 노출됩니다.</div>
+        <input type="number" id="bounty" placeholder="예: 50000" min="10000" step="1000" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,''); if(window.updateSummary)window.updateSummary()">
+        <div class="field-hint">도난 시 자전거를 찾아준 제보자에게 지급할 현상금입니다. (최소 10,000원, 도난 신고 시 스캔 화면에 노출)<br>
+          <strong style="color:#5f8c0a;">현상금을 걸지 않으면 발견자의 적극적인 제보가 줄어 회수 가능성이 낮아질 수 있어요.</strong><br>
+          현상금은 등록 시 함께 결제되어 <strong>벨로가 안전하게 보관</strong>하다가, 자전거를 되찾았을 때 제보자에게만 지급됩니다. 사용되지 않으면 전액 환급됩니다.</div>
         <div class="field-error" id="bountyErr">현상금은 최소 10,000원 이상이어야 합니다.</div>
       </div>
     </div>
@@ -658,6 +660,10 @@ body { -webkit-text-size-adjust: 100%; }
         <span id="summaryPlanLabel">월 구독료</span>
         <span class="price" id="summaryPlan">490원/월</span>
       </div>
+      <div class="pricing-row" id="bountyRow" style="display:none;">
+        <span>현상금 예치 <span style="color:var(--muted); font-size:11px;">(벨로 안전 보관 · 환급 가능)</span></span>
+        <span class="price" id="summaryBounty">0원</span>
+      </div>
       <div class="pricing-row total">
         <span>오늘 결제 금액</span>
         <span class="price" id="summaryTotal">10,890원</span>
@@ -666,6 +672,7 @@ body { -webkit-text-size-adjust: 100%; }
 
     <div style="margin-top:16px; font-size:12px; color:var(--muted); line-height:1.7;">
       * 태그 발급비는 1회 결제 / 구독료는 매월 자동 결제<br>
+      * 현상금은 등록 시 함께 결제되어 벨로가 안전하게 보관하며, 자전거를 되찾았을 때 제보자에게 지급 · 미사용 시 전액 환급<br>
       * 구독은 마이페이지에서 언제든 해지 가능<br>
       * 양도 시 건당 수수료 490원 별도
     </div>
@@ -835,17 +842,25 @@ body { -webkit-text-size-adjust: 100%; }
       { label: '연간 구독료', price: `${yearlyTotal.toLocaleString()}원/년`, monthly: yearlyTotal },
     ]
     const plan = plans[window.selectedPlan]
+    // 현상금(예치) — 등록 시 함께 결제, 안전 보관
+    const bountyVal = parseInt((document.getElementById('bounty')?.value || '0').replace(/[^0-9]/g,'')) || 0
+    const bountyHeld = bountyVal >= 10000 ? bountyVal : 0
+    const bountyRow = document.getElementById('bountyRow')
+    const sb = document.getElementById('summaryBounty')
+    if (bountyRow) bountyRow.style.display = bountyHeld ? 'flex' : 'none'
+    if (sb) sb.textContent = bountyHeld.toLocaleString() + '원'
     const sl = document.getElementById('summaryPlanLabel')
     const sp = document.getElementById('summaryPlan')
     const st = document.getElementById('summaryTotal')
     if (sl) sl.textContent = plan.label
     if (sp) sp.textContent = plan.price
-    if (st) st.textContent = (tagPrice + plan.monthly).toLocaleString() + '원'
+    if (st) st.textContent = (tagPrice + plan.monthly + bountyHeld).toLocaleString() + '원'
     const p1 = document.getElementById('plan1Price')
     const p2 = document.getElementById('plan2Price')
     if (p1) p1.textContent = monthlyTotal.toLocaleString()
     if (p2) p2.textContent = yearlyTotal.toLocaleString()
   }
+  window.updateSummary = updateSummary
 
   // 차대번호 토글
   let serialEnabled = true
@@ -895,7 +910,7 @@ body { -webkit-text-size-adjust: 100%; }
   // 4단계 완료 처리
   const _baseGoStep = window.goStep
   window.goStep = async function(n) {
-    if (n !== 4) { _baseGoStep(n); return }
+    if (n !== 4) { _baseGoStep(n); if (n === 3) window.updateSummary?.(); return }
     if (n === 4) {
       const serial = document.getElementById('serial').value.trim()
       const brandSelect = document.getElementById('brand').value
