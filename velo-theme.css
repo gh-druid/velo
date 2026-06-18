@@ -108,6 +108,10 @@ nav{background:rgba(255,255,255,.82)!important;backdrop-filter:blur(12px)}
 .tabs,.setting-tabs,.filter-tabs{max-width:100%;flex-wrap:nowrap !important;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none}
 .tabs::-webkit-scrollbar,.setting-tabs::-webkit-scrollbar,.filter-tabs::-webkit-scrollbar{display:none}
 .tabs>*,.setting-tabs>*,.filter-tabs>*{flex-shrink:0;white-space:nowrap}
+/* 스와이프 가능 힌트 (velo-hints.js가 .swipe-x 로 감쌈) */
+.swipe-x{position:relative}
+.swipe-x.can-swipe:not(.at-end)::after{content:"";position:absolute;top:0;right:0;bottom:0;width:48px;pointer-events:none;z-index:4;border-radius:0 14px 14px 0;background:linear-gradient(to left,#fff 12%,rgba(255,255,255,0))}
+.swipe-x.is-table.can-swipe:not(.at-end)::before{content:"밀어서 더 보기 →";position:absolute;top:10px;right:12px;z-index:5;pointer-events:none;background:rgba(20,24,15,.72);color:#fff;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:999px;box-shadow:0 4px 12px rgba(20,24,15,.2)}
 
 /* 빈 화면 (emptyState) */
 .v-empty{text-align:center;padding:64px 24px}
