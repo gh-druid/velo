@@ -154,25 +154,30 @@ export async function registerBike({ serial, brand, model, year, color, memo, pa
   const user = await getUser()
   if (!user) throw new Error('로그인이 필요합니다')
 
+  const row = {
+    user_id: user.id,
+    serial: serial ? serial.toUpperCase() : null,
+    brand,
+    model,
+    year,
+    color,
+    memo,
+    photos,
+    status: 'normal',
+    partner_code: partnerCode || null,
+    bounty: bounty || null,
+    bounty_paid: false
+  }
+  // 현상금이 설정되면 등록 결제와 함께 예치(held) — 벨로가 안전 보관
+  // (bounty-escrow.sql 미적용 시 컬럼이 없으므로, 바운티가 있을 때만 포함)
+  if (bounty && bounty >= 10000) {
+    row.bounty_status = 'held'
+    row.bounty_held_at = new Date().toISOString()
+  }
+
   const { data, error } = await supabase
     .from('bikes')
-    .insert({
-      user_id: user.id,
-      serial: serial ? serial.toUpperCase() : null,
-      brand,
-      model,
-      year,
-      color,
-      memo,
-      photos,
-      status: 'normal',
-      partner_code: partnerCode || null,
-      bounty: bounty || null,
-      bounty_paid: false,
-      // 현상금이 설정되면 등록 결제와 함께 예치(held) — 벨로가 안전 보관
-      bounty_status: bounty && bounty >= 10000 ? 'held' : 'none',
-      bounty_held_at: bounty && bounty >= 10000 ? new Date().toISOString() : null
-    })
+    .insert(row)
     .select()
     .single()
   if (error) throw error
