@@ -18,10 +18,11 @@
   }
 
   .page-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 36px;
-    letter-spacing: 2px;
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: -0.8px;
     margin-bottom: 8px;
+    color: #14180f;
   }
 
   .page-sub {
@@ -40,24 +41,28 @@
 
   .product-card {
     border: 1px solid var(--border);
+    border-radius: 14px;
     padding: 20px;
     cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     position: relative;
   }
-  .product-card:hover { border-color: rgba(200,245,66,0.3); }
-  .product-card.selected { border-color:#5f8c0a; background: rgba(200,245,66,0.05); }
+  .product-card:hover { border-color: rgba(95,140,10,0.4); box-shadow:0 8px 20px rgba(20,24,15,.06); }
+  .product-card.selected { border-color:#5f8c0a; background: rgba(200,245,66,0.08); box-shadow:0 0 0 3px rgba(200,245,66,0.25); }
 
   .product-name {
-    font-size: 11px;
-    letter-spacing: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
     color: var(--muted);
     margin-bottom: 8px;
   }
   .product-price {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 32px;
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: -1px;
     line-height: 1;
+    color: #14180f;
   }
   .product-unit { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .product-desc { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
@@ -77,13 +82,16 @@
   .order-summary {
     background: var(--gray);
     border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05);
     padding: 24px;
     margin-bottom: 24px;
   }
 
   .order-title {
-    font-size: 11px;
-    letter-spacing: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
     color: var(--muted);
     margin-bottom: 16px;
   }
@@ -116,20 +124,20 @@
   /* 결제 버튼 */
   .pay-btn {
     width: 100%;
-    background: var(--accent);
-    color:#14180f;
+    background:#14180f;
+    color:#fff;
     border: none;
     padding: 18px;
     font-family: 'Pretendard', sans-serif;
     font-size: 16px;
     font-weight: 700;
-    letter-spacing: 1px;
+    border-radius: 13px;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
     margin-top: 8px;
   }
-  .pay-btn:hover { opacity: 0.9; }
-  .pay-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .pay-btn:hover { transform: translateY(-2px); box-shadow:0 14px 30px rgba(20,24,15,.25); }
+  .pay-btn:disabled { opacity: 0.4; cursor: not-allowed; transform:none; box-shadow:none; }
 
   .pay-info {
     font-size: 11px;
@@ -147,7 +155,7 @@
   }
   .result-box.show { display: block; }
   .result-icon { font-size: 56px; margin-bottom: 24px; }
-  .result-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 2px; margin-bottom: 12px; }
+  .result-title { font-weight: 800; font-size: 30px; letter-spacing: -1px; margin-bottom: 12px; color:#14180f; }
   .result-desc { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 32px; }
 
   .section-label {
@@ -187,7 +195,7 @@ body { -webkit-text-size-adjust: 100%; }
     <!-- 자전거 선택 -->
     <div class="section-label">등록할 자전거</div>
     <div id="bikeSelectWrap" style="margin-bottom:24px;">
-      <div style="font-size:13px; color:var(--muted); padding:16px; background:var(--gray); border:1px solid var(--border);">불러오는 중...</div>
+      <div style="font-size:13px; color:var(--muted); padding:16px; background:var(--gray); border:1px solid var(--border); border-radius:12px;">불러오는 중...</div>
     </div>
 
     <!-- 태그 발급 -->
