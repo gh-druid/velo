@@ -71,10 +71,10 @@
   .scr-row:last-child{border-bottom:none}.scr-row .v{color:#bcc7b8;font-family:'DM Mono',monospace}
   .scr-tag{margin-top:auto;text-align:center;font-size:10px;color:#5e6b58;font-family:'DM Mono',monospace;letter-spacing:1px}
 
-  .proof{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sage)}
+  .proof{background:#fff;border-bottom:1px solid var(--line)}
   .proof-in{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:24px 0;flex-wrap:wrap}
   .proof .lab{font-size:14px;color:var(--mut)}
-  .proof .reg-num{font-weight:800;color:var(--ink);font-size:19px;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+  .reg-num{font-variant-numeric:tabular-nums}
   .proof .brands{display:flex;gap:26px;flex-wrap:wrap;font-weight:700;color:#9aa691;font-size:17px;letter-spacing:.5px}
 
   section{padding:92px 0}
@@ -217,14 +217,14 @@
 </div></header>
 
 <div class="proof"><div class="wrap proof-in">
-  <div class="lab">지금까지 <b class="reg-num" id="regCount">0</b>대가 벨로에 등록됐어요 — 로그인 없이 확인하세요</div>
+  <div class="lab">이미 다양한 브랜드가 벨로에 등록되고 있어요</div>
   <div class="brands"><span>TREK</span><span>GIANT</span><span>SPECIALIZED</span><span>CERVÉLO</span><span>PINARELLO</span></div>
 </div></div>
 
 <section class="live" id="live"><div class="wrap">
   <div class="eyebrow"><span class="dot"></span> 실시간 등록</div>
-  <h2 class="lead-h">지금 이 순간에도 <span class="hl">등록되고 있어요.</span></h2>
-  <p class="lead-p">최근 벨로에 등록된 자전거들 — 로그인 없이 확인하세요.</p>
+  <h2 class="lead-h">지금까지 <span class="hl reg-num" id="regCount">0</span>대가 등록됐어요.</h2>
+  <p class="lead-p">지금 이 순간에도 새 자전거가 등록되고 있어요 — 로그인 없이 차대번호로 확인하세요.</p>
   <div class="slider-wrap"><div class="slider-track" id="sliderTrack"></div></div>
 </div></section>
 
