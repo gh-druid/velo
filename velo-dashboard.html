@@ -64,7 +64,22 @@
   .btn-primary:hover { opacity:0.9; }
 
   /* CONTENT */
-  .content { max-width:1120px; margin:0 auto; padding:38px 32px 64px; }
+  .content { max-width:1140px; margin:0 auto; padding:38px 28px 56px; }
+
+  /* B 페이지 헤더 */
+  .page-head { margin-bottom:34px; }
+  .eyebrow { display:inline-flex; align-items:center; gap:9px; font-size:13px; color:#5f8c0a; font-weight:600; background:rgba(200,245,66,.16); border:1px solid rgba(200,245,66,.4); padding:6px 14px; border-radius:999px; margin-bottom:18px; }
+  .eyebrow .dot { width:7px; height:7px; border-radius:50%; background:#5f8c0a; }
+  .lead-h { font-size:clamp(28px,4vw,40px); font-weight:800; letter-spacing:-1.4px; line-height:1.12; color:#14180f; }
+  .lead-h .hl { background:linear-gradient(180deg,transparent 56%,#c8f542 56%); padding:0 3px; border-radius:2px; }
+  .lead-p { font-size:16px; color:#5f6a59; margin-top:12px; }
+
+  /* B 푸터 */
+  .v-foot { max-width:1140px; margin:40px auto 0; padding:32px 28px 48px; }
+  .v-foot-in { display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap; border-top:1px solid #e7ebdf; padding-top:28px; }
+  .v-foot .logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; color:#14180f; }
+  .v-foot .links a { color:#5f6a59; font-size:13px; margin-left:18px; text-decoration:none; }
+  .v-foot .links a:hover { color:#14180f; }
 
   /* SUMMARY */
   .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:38px; }
@@ -157,29 +172,32 @@
 </style>
 
 <style id="nav-common-css">
-/* ===== 공통 네비 ===== */
+/* ===== 공통 네비 (B 형식) ===== */
 nav {
   display:grid;
   grid-template-columns:auto 1fr auto;
   align-items:center;
-  padding:0 40px;
-  height:70px;
-  background:#ffffff;
-  border-bottom:1px solid rgba(20,24,15,0.08);
+  padding:0 28px;
+  height:62px;
+  background:rgba(255,255,255,.82);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid #e7ebdf;
   position:sticky;
   top:0;
   z-index:100;
 }
-.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:4px; color:#5f8c0a; text-decoration:none; display:flex; align-items:center; line-height:1; }
+.nav-logo { font-family:'Bebas Neue',sans-serif; font-size:27px; letter-spacing:3px; color:#14180f; text-decoration:none; display:flex; align-items:center; gap:8px; line-height:1; }
+.nav-logo::before { content:""; width:9px; height:9px; border-radius:50%; background:#c8f542; box-shadow:0 0 0 3px rgba(200,245,66,.25); display:inline-block; }
 .nav-links {
   display:flex;
-  gap:4px;
+  gap:8px;
   justify-content:center;
   align-items:center;
 }
 .nav-link {
-  padding:8px 14px;
-  font-size:13px;
+  padding:8px 12px;
+  font-size:14px;
+  font-weight:500;
   color:#5f6a59;
   background:none;
   border:none;
@@ -187,11 +205,11 @@ nav {
   cursor:pointer;
   transition:color 0.2s;
   text-decoration:none;
-  letter-spacing:0.5px;
+  border-radius:8px;
   white-space:nowrap;
 }
-.nav-link:hover { color:#20251a; }
-.nav-link.active { color:#20251a; background:rgba(200,245,66,0.08); }
+.nav-link:hover { color:#14180f; }
+.nav-link.active { color:#14180f; font-weight:600; }
 .nav-right {
   display:flex;
   align-items:center;
@@ -244,17 +262,20 @@ nav {
 .nav-dropdown-item:hover { color:#20251a; background:rgba(20,24,15,0.04); }
 .nav-dropdown-item.danger:hover { color:#ff4f4f; }
 .btn-nav-primary {
-  background:#c8f542;
-  color:#14180f;
+  background:#14180f;
+  color:#fff;
   border:none;
-  padding:8px 20px;
+  padding:9px 18px;
+  border-radius:10px;
   font-family:'Pretendard',sans-serif;
   font-size:13px;
-  font-weight:700;
+  font-weight:600;
   cursor:pointer;
   text-decoration:none;
   white-space:nowrap;
+  transition:transform .18s, box-shadow .18s;
 }
+.btn-nav-primary:hover { transform:translateY(-2px); box-shadow:0 10px 22px rgba(20,24,15,.22); }
 @media(min-width:769px) { .hamburger-btn { display:none !important; } }
 @media(max-width:768px) {
   nav { padding:0 16px; grid-template-columns:auto auto; }
@@ -272,12 +293,15 @@ input, select, textarea { font-size: 16px !important; }
 body { -webkit-text-size-adjust: 100%; }
 /* ===== 끝 ===== */
 
-  /* 햄버거 메뉴 */
-  .hamburger-btn { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
-  .hamburger-btn span { width:22px; height:2px; background:#20251a; display:block; }
-  .mobile-nav { display:none; position:fixed; top:60px; left:0; right:0; background:#ffffff; border-bottom:1px solid rgba(20,24,15,0.08); z-index:99; padding:8px 0; flex-direction:column; }
+  /* 햄버거 메뉴 (B 형식) */
+  .hamburger-btn { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:8px; background:none; border:none; }
+  .hamburger-btn span { width:22px; height:2px; background:#14180f; display:block; border-radius:2px; transition:.25s; }
+  .hamburger-btn.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+  .hamburger-btn.open span:nth-child(2) { opacity:0; }
+  .hamburger-btn.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+  .mobile-nav { display:none; position:fixed; top:55px; left:0; right:0; background:#fff; border-bottom:1px solid #e7ebdf; box-shadow:0 20px 40px rgba(20,24,15,.08); z-index:99; padding:14px 22px 20px; flex-direction:column; gap:2px; }
   .mobile-nav.open { display:flex; }
-  .mobile-nav a { color:#5f6a59; text-decoration:none; font-size:14px; padding:14px 24px; border-bottom:1px solid rgba(20,24,15,0.05); font-family:'Pretendard',sans-serif; display:block; }
+  .mobile-nav a { color:#262b1f; text-decoration:none; font-size:15.5px; font-weight:500; padding:14px 6px; border-bottom:1px solid #e7ebdf; font-family:'Pretendard',sans-serif; display:block; }
   .mobile-nav a:last-child { border-bottom:none; }
   .mobile-nav a.active { color:#5f8c0a; }
   @media(max-width:768px) { .hamburger-btn { display:flex; } }
@@ -318,6 +342,13 @@ body { -webkit-text-size-adjust: 100%; }
 </div>
 
 <div class="content">
+
+  <!-- B 형식 페이지 헤더 -->
+  <div class="page-head">
+    <div class="eyebrow"><span class="dot"></span> 내 차고</div>
+    <h1 class="lead-h">내 자전거, <span class="hl">한눈에</span> 관리하세요.</h1>
+    <p class="lead-p">등록·도난 신고·양도·현상금까지 여기서 전부 처리됩니다.</p>
+  </div>
 
   <!-- 요약 -->
   <div class="summary-grid">
@@ -374,6 +405,17 @@ body { -webkit-text-size-adjust: 100%; }
   </div>
 
 </div>
+
+<!-- B 형식 푸터 -->
+<footer class="v-foot"><div class="v-foot-in">
+  <div class="logo">VÉLO</div>
+  <div class="links">
+    <a href="/registry">등록 현황</a>
+    <a href="/partner">샵 파트너십</a>
+    <a href="/terms">이용약관</a>
+    <a href="/privacy">개인정보</a>
+  </div>
+</div></footer>
 
 <!-- 삭제 모달 -->
 <div class="modal-overlay" id="deleteModal" onclick="closeModal('deleteModal',event)">
@@ -854,10 +896,12 @@ body { -webkit-text-size-adjust: 100%; }
       btn.addEventListener('click', function(e) {
         e.stopPropagation()
         nav.classList.toggle('open')
+        btn.classList.toggle('open')
       })
       document.addEventListener('click', function(e) {
         if (!nav.contains(e.target) && !btn.contains(e.target)) {
           nav.classList.remove('open')
+          btn.classList.remove('open')
         }
       })
     }
