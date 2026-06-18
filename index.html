@@ -73,7 +73,8 @@
 
   .proof{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sage)}
   .proof-in{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:24px 0;flex-wrap:wrap}
-  .proof .lab{font-size:13px;color:var(--mut)}
+  .proof .lab{font-size:14px;color:var(--mut)}
+  .proof .reg-num{font-weight:800;color:var(--ink);font-size:19px;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
   .proof .brands{display:flex;gap:26px;flex-wrap:wrap;font-weight:700;color:#9aa691;font-size:17px;letter-spacing:.5px}
 
   section{padding:92px 0}
@@ -147,7 +148,7 @@
 <body>
 
 <nav><div class="nav-in">
-  <a href="#" class="logo"><span class="pin"></span>VÉLO</a>
+  <a href="#" class="logo">VÉLO</a>
   <div class="nav-links">
     <a href="#how">기능</a><a href="#pricing">가격</a><a href="#faq">자주 묻는 질문</a>
     <a href="/partner">샵 파트너십</a>
@@ -198,7 +199,7 @@
 </div></header>
 
 <div class="proof"><div class="wrap proof-in">
-  <div class="lab">전국 라이더들이 등록 중<span id="regCount"></span> — 로그인 없이 확인하세요</div>
+  <div class="lab">지금까지 <b class="reg-num" id="regCount">0</b>대가 벨로에 등록됐어요 — 로그인 없이 확인하세요</div>
   <div class="brands"><span>TREK</span><span>GIANT</span><span>SPECIALIZED</span><span>CERVÉLO</span><span>PINARELLO</span></div>
 </div></div>
 
@@ -313,11 +314,20 @@
       document.getElementById('mHist').style.display='block'
     }
   } catch(e) {}
-  // 실시간 등록 수 (소셜 프루프)
+  // 실시간 등록 수 (소셜 프루프) — 숫자 카운트업 애니메이션
   try {
     const data = await getPublicRegistry(100)
-    if (data && data.length) {
-      const el=document.getElementById('regCount'); if(el) el.textContent = ` · 현재 ${data.length.toLocaleString()}대`
+    const target = (data && data.length) ? data.length : 0
+    const el = document.getElementById('regCount')
+    if (el) {
+      const dur = 1200, t0 = performance.now()
+      const tick = t => {
+        const p = Math.min(1, (t - t0) / dur)
+        const n = Math.round(target * (1 - Math.pow(1 - p, 3)))
+        el.textContent = n.toLocaleString()
+        if (p < 1) requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
     }
   } catch(e) {}
 </script>

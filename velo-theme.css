@@ -76,12 +76,10 @@
 /* B 형식 — 기존 네비 로고를 전역으로 B화 (잉크색 + 라임 핀) */
 nav{background:rgba(255,255,255,.82)!important;backdrop-filter:blur(12px)}
 .nav-logo,.topbar-logo,.velo-nav-logo{color:var(--ink)!important;display:inline-flex;align-items:center;gap:8px}
-.nav-logo::before,.topbar-logo::before,.velo-nav-logo::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px rgba(200,245,66,.25);display:inline-block;flex-shrink:0}
 
 /* B 형식 — 네비 */
 .vb-nav{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:0 28px;height:62px;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:100}
 .vb-logo{font-family:'Bebas Neue',sans-serif;font-size:27px;letter-spacing:3px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px;line-height:1}
-.vb-logo::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px rgba(200,245,66,.25);display:inline-block}
 .vb-hamb{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px}
 .vb-hamb span{width:22px;height:2px;background:var(--ink);display:block;border-radius:2px;transition:.25s}
 .vb-hamb.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
