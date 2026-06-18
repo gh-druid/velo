@@ -242,8 +242,11 @@ body { -webkit-text-size-adjust: 100%; }
 </div>
 
 <div class="content">
-  <div class="page-title">등록 내역</div>
-  <div class="page-sub">자전거 등록, 결제, 배송 현황을 확인하세요.</div>
+  <div class="page-head">
+    <div class="eyebrow"><span class="dot"></span> 내역</div>
+    <h1 class="lead-h">내 기록을 <span class="hl">한 곳에서</span> 봐요.</h1>
+    <p class="lead-p">자전거 등록, 결제, 배송 현황을 확인하세요.</p>
+  </div>
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('bikes', this)">🚲 자전거 등록</button>
@@ -502,5 +505,15 @@ body { -webkit-text-size-adjust: 100%; }
   })
 })()
 </script>
+<footer class="v-foot"><div class="v-foot-in">
+  <div class="logo">VÉLO</div>
+  <div class="links">
+    <a href="/registry">등록 현황</a>
+    <a href="/partner">샵 파트너십</a>
+    <a href="/terms">이용약관</a>
+    <a href="/privacy">개인정보</a>
+  </div>
+</div></footer>
+
 </body>
 </html>
