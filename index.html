@@ -3,10 +3,323 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>벨로 (Vélo)</title>
-<link rel="canonical" href="https://velokr.com/">
-<meta http-equiv="refresh" content="0; url=/">
-<script>location.replace('/')</script>
+<title>벨로 (Vélo) — 내 자전거를 증명하다</title>
+<meta name="description" content="NFC 칩 하나로 자전거 소유권을 등록하고, 도난을 막고, 중고거래에서 신뢰를 만드세요. 방수 칩 2개 7,900원.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --cream:#faf8f0; --sage:#e9f1df; --mint:#d9efe4;
+    --ink:#14180f; --forest:#1c3a2a; --forest-s:#16291e;
+    --tx:#262b1f; --mut:#5f6a59; --line:#e7ebdf;
+    --lime:#c8f542; --lime-d:#5f8c0a;
+    --r:16px; --sh:0 1px 2px rgba(20,24,15,.04),0 16px 38px rgba(20,24,15,.07);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--tx);font-family:'Pretendard',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+  .hl{background:linear-gradient(180deg,transparent 56%,var(--lime) 56%);padding:0 3px;border-radius:2px}
+  .mono{font-family:'DM Mono',monospace}
+
+  nav{position:fixed;inset:0 0 auto 0;z-index:100;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1140px;margin:0 auto;padding:13px 28px;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:27px;letter-spacing:3px;color:var(--ink);display:flex;align-items:center;gap:7px}
+  .logo .pin{width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px rgba(200,245,66,.25)}
+  .nav-links{display:flex;gap:28px;align-items:center;font-size:14px;color:var(--mut);font-weight:500}
+  .nav-links a:hover{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-family:'Pretendard';font-weight:600;font-size:14px;border:none;cursor:pointer;border-radius:11px;padding:12px 22px;transition:transform .18s,box-shadow .18s,background .2s,opacity .2s}
+  .btn-ink{background:var(--ink);color:#fff}.btn-ink:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(20,24,15,.25)}
+  .btn-lime{background:var(--lime);color:var(--ink)}.btn-lime:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(200,245,66,.4)}
+  .btn-out{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn-out:hover{border-color:var(--ink)}
+  .btn-sm{padding:9px 17px;font-size:13px;border-radius:10px}
+
+  .hamb{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px}
+  .hamb span{width:22px;height:2px;background:var(--ink);display:block;border-radius:2px;transition:.25s}
+  .hamb.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamb.open span:nth-child(2){opacity:0}
+  .hamb.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .mmenu{position:fixed;top:55px;left:0;right:0;z-index:99;background:#fff;border-bottom:1px solid var(--line);padding:14px 28px 22px;display:none;flex-direction:column;gap:2px;box-shadow:0 20px 40px rgba(20,24,15,.08)}
+  .mmenu.show{display:flex}
+  .mmenu a{padding:14px 6px;font-size:15.5px;font-weight:500;color:var(--tx);border-bottom:1px solid var(--line)}
+  .mmenu .mrow{display:flex;gap:10px;margin-top:14px}
+  .mmenu .mrow .btn{flex:1;justify-content:center}
+
+  .hero{padding:120px 0 72px;background:
+    radial-gradient(60% 70% at 88% 8%,rgba(200,245,66,.22),transparent 60%),
+    radial-gradient(50% 60% at 8% 30%,rgba(120,200,150,.12),transparent 60%),
+    linear-gradient(180deg,var(--cream),#fff 70%)}
+  .hero-in{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;color:var(--lime-d);font-weight:600;background:rgba(200,245,66,.16);border:1px solid rgba(200,245,66,.4);padding:6px 14px;border-radius:999px;margin-bottom:22px}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--lime-d)}
+  h1{font-size:clamp(38px,5.4vw,62px);font-weight:800;letter-spacing:-1.8px;line-height:1.08;color:var(--ink)}
+  .hero p.sub{margin-top:22px;font-size:18px;color:var(--mut);max-width:480px}
+  .hero-cta{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+  .hero-meta{margin-top:24px;font-size:13.5px;color:var(--mut)}
+  .hero-meta b{color:var(--ink)}
+
+  .phone{justify-self:center;width:300px;height:600px;background:#0c100b;border-radius:42px;padding:11px;box-shadow:0 4px 8px rgba(0,0,0,.1),0 40px 80px rgba(28,58,42,.28);position:relative;transform:rotate(2.5deg)}
+  .phone::before{content:"";position:absolute;top:20px;left:50%;transform:translateX(-50%);width:88px;height:7px;background:#2a2f26;border-radius:99px;z-index:3}
+  .screen{width:100%;height:100%;background:linear-gradient(180deg,var(--forest-s),#0f1b14);border-radius:32px;overflow:hidden;color:#eef3ea;padding:30px 20px 20px;display:flex;flex-direction:column;gap:13px}
+  .scr-bar{display:flex;justify-content:space-between;font-size:10px;color:#7e9082;font-family:'DM Mono',monospace;letter-spacing:.5px}
+  .scr-ok{display:flex;align-items:center;gap:8px;background:rgba(200,245,66,.12);border:1px solid rgba(200,245,66,.3);color:var(--lime);padding:11px 13px;border-radius:11px;font-size:12.5px;font-weight:600}
+  .scr-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:16px}
+  .scr-k{font-size:9.5px;letter-spacing:2px;color:#7e9082;margin-bottom:5px}
+  .scr-name{font-size:20px;font-weight:800;color:#fff}
+  .scr-row{display:flex;justify-content:space-between;font-size:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+  .scr-row:last-child{border-bottom:none}.scr-row .v{color:#bcc7b8;font-family:'DM Mono',monospace}
+  .scr-tag{margin-top:auto;text-align:center;font-size:10px;color:#5e6b58;font-family:'DM Mono',monospace;letter-spacing:1px}
+
+  .proof{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sage)}
+  .proof-in{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:24px 0;flex-wrap:wrap}
+  .proof .lab{font-size:13px;color:var(--mut)}
+  .proof .brands{display:flex;gap:26px;flex-wrap:wrap;font-weight:700;color:#9aa691;font-size:17px;letter-spacing:.5px}
+
+  section{padding:92px 0}
+  .lead-h{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-1.2px;line-height:1.15;color:var(--ink);max-width:680px}
+  .lead-p{font-size:16.5px;color:var(--mut);margin-top:15px;max-width:560px}
+
+  .feat{display:grid;grid-template-columns:1fr 1fr;gap:58px;align-items:center;padding:52px 0;border-top:1px solid var(--line)}
+  .feat:nth-child(even) .feat-media{order:-1}
+  .feat h3{font-size:26px;font-weight:800;letter-spacing:-.8px;color:var(--ink);line-height:1.22}
+  .feat p{font-size:15.5px;color:var(--mut);margin-top:14px}
+  .feat ul{list-style:none;margin-top:18px;display:flex;flex-direction:column;gap:9px}
+  .feat li{font-size:14.5px;color:var(--tx);display:flex;gap:9px}
+  .feat li::before{content:"✓";color:var(--lime-d);font-weight:800}
+  .mock{border-radius:var(--r);padding:26px;box-shadow:var(--sh)}
+  .mock.s1{background:var(--mint)}.mock.s2{background:var(--cream)}.mock.s3{background:var(--sage)}
+  .m-scan{display:flex;flex-direction:column;gap:8px}
+  .m-scan .ok{display:flex;align-items:center;gap:8px;color:var(--lime-d);font-weight:700;font-size:14px;margin-bottom:4px}
+  .m-line{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);padding:9px 0;border-bottom:1px solid rgba(20,24,15,.07)}
+  .m-line .v{color:var(--ink);font-family:'DM Mono',monospace}
+  .m-alert{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #f0d4d2;border-left:3px solid #df5b54;border-radius:12px;padding:16px}
+  .m-alert .em{font-size:20px}.m-alert .t{font-weight:700;color:#c0322c}.m-alert .s{font-size:13px;color:#9a6360;margin-top:3px}
+  .m-bounty{margin-top:12px;background:var(--forest);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+  .m-bounty .k{font-size:11px;color:#9fb6a6;letter-spacing:1px}.m-bounty .v{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--lime)}
+  .m-code{text-align:center}.m-code .k{font-size:11px;color:var(--mut);letter-spacing:2px}
+  .m-code .c{font-family:'DM Mono',monospace;font-size:34px;font-weight:500;letter-spacing:10px;color:var(--ink);margin:10px 0}
+  .m-code .e{font-size:12px;color:var(--mut)}
+
+  .price-wrap{background:var(--cream);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
+  .price{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:34px 28px;box-shadow:var(--sh);position:relative}
+  .price.feat2{background:var(--forest);color:#fff;border-color:var(--forest)}
+  .price .badge{position:absolute;top:-11px;left:28px;background:var(--lime);color:var(--ink);font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px}
+  .price .lab{font-size:12.5px;color:var(--mut);font-weight:600;margin-bottom:14px}.price.feat2 .lab{color:#a9c2b1}
+  .price .amt{font-size:48px;font-weight:800;letter-spacing:-1.5px;line-height:1;color:var(--ink)}.price.feat2 .amt{color:#fff}
+  .price .amt small{font-size:15px;font-weight:400;color:var(--mut)}.price.feat2 .amt small{color:#a9c2b1}
+  .price ul{list-style:none;margin:22px 0;display:flex;flex-direction:column;gap:11px}
+  .price li{font-size:14px;display:flex;gap:9px;color:var(--tx)}.price.feat2 li{color:#dbe7da}
+  .price li::before{content:"✓";color:var(--lime-d);font-weight:800}.price.feat2 li::before{color:var(--lime)}
+  .price .btn{width:100%;justify-content:center}
+  .price.feat2 .btn-out{background:transparent;color:#fff;border-color:rgba(255,255,255,.22)}
+
+  .faq{max-width:760px;margin:38px auto 0}
+  details{border-bottom:1px solid var(--line)}
+  summary{list-style:none;cursor:pointer;padding:22px 4px;font-size:16.5px;font-weight:600;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font-size:22px;color:var(--lime-d);font-weight:400}
+  details[open] summary::after{content:"−"}
+  details p{padding:0 4px 22px;color:var(--mut);font-size:14.5px;line-height:1.7}
+
+  .cta-block{background:linear-gradient(135deg,var(--lime),#a6e84f);border-radius:26px;padding:62px 40px;text-align:center;margin:0 28px;box-shadow:0 30px 60px rgba(200,245,66,.22)}
+  .cta-block h2{font-size:clamp(30px,4.5vw,52px);font-weight:800;letter-spacing:-1.5px;color:var(--ink);line-height:1.1}
+  .cta-block p{color:#3c4d0a;font-size:16px;margin:14px auto 28px;max-width:420px}
+
+  footer{padding:42px 0}
+  .foot-in{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:32px}
+  .foot-in .links a{color:var(--mut);font-size:13px;margin-left:18px}.foot-in .links a:hover{color:var(--ink)}
+
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}.reveal.in{opacity:1;transform:none}
+
+  @media(max-width:860px){
+    .nav-links{display:none}.hamb{display:flex}
+    .hero-in{grid-template-columns:1fr;gap:42px}.phone{transform:none;width:280px;height:560px}
+    .feat{grid-template-columns:1fr;gap:26px;padding:38px 0}
+    .feat:nth-child(even) .feat-media{order:0}
+    .pgrid{grid-template-columns:1fr}
+    .proof-in{justify-content:flex-start}
+    section{padding:60px 0}
+  }
+</style>
 </head>
-<body></body>
+<body>
+
+<nav><div class="nav-in">
+  <a href="#" class="logo"><span class="pin"></span>VÉLO</a>
+  <div class="nav-links">
+    <a href="#how">기능</a><a href="#pricing">가격</a><a href="#faq">자주 묻는 질문</a>
+    <a href="/partner">샵 파트너십</a>
+    <a href="/login" id="navAuth">로그인</a>
+    <a href="/register" class="btn btn-ink btn-sm" id="navCta">등록 신청</a>
+  </div>
+  <button class="hamb" id="hamb" aria-label="메뉴"><span></span><span></span><span></span></button>
+</div></nav>
+
+<div class="mmenu" id="mmenu">
+  <a href="#how">기능</a>
+  <a href="#pricing">가격</a>
+  <a href="#faq">자주 묻는 질문</a>
+  <a href="/partner">샵 파트너십</a>
+  <a href="/dashboard" id="mDash" style="display:none">🚲 내 자전거</a>
+  <a href="/history" id="mHist" style="display:none">📋 등록 내역</a>
+  <div class="mrow">
+    <a href="/login" id="mAuth" class="btn btn-out">로그인</a>
+    <a href="/register" class="btn btn-ink">등록 신청</a>
+  </div>
+</div>
+
+<header class="hero"><div class="wrap hero-in">
+  <div>
+    <div class="eyebrow"><span class="dot"></span> 이미 자전거 소유자들이 쓰고 있어요</div>
+    <h1>내 자전거,<br>이제 <span class="hl">내 거라고</span><br>증명하세요.</h1>
+    <p class="sub">NFC 칩 하나 붙이면 끝. 스캔하면 소유자가 뜨고, 도난당하면 바로 드러나고, 팔 때는 코드로 넘깁니다.</p>
+    <div class="hero-cta">
+      <a href="/register" class="btn btn-ink" id="heroCta">7,900원으로 시작하기</a>
+      <a href="/registry" class="btn btn-out">등록된 자전거 보기</a>
+    </div>
+    <div class="hero-meta">앱 설치 없이 · 스캔 <b>3초</b> · 방수 칩 2개 <b>7,900원</b></div>
+  </div>
+  <div class="feat-media">
+    <div class="phone"><div class="screen">
+      <div class="scr-bar"><span>velo.kr/bike</span><span>9:41</span></div>
+      <div class="scr-ok">✓ 벨로에 등록된 자전거입니다</div>
+      <div class="scr-card"><div class="scr-k">소유자</div><div class="scr-name">홍길동</div></div>
+      <div class="scr-card">
+        <div class="scr-row"><span>브랜드 / 모델</span><span class="v">Trek Émonda</span></div>
+        <div class="scr-row"><span>차대번호</span><span class="v">WTU72…</span></div>
+        <div class="scr-row"><span>등록일</span><span class="v">2025.06</span></div>
+        <div class="scr-row"><span>상태</span><span class="v" style="color:var(--lime)">정상</span></div>
+      </div>
+      <div class="scr-tag">SCANNED · NFC OWNERSHIP</div>
+    </div></div>
+  </div>
+</div></header>
+
+<div class="proof"><div class="wrap proof-in">
+  <div class="lab">전국 라이더들이 등록 중<span id="regCount"></span> — 로그인 없이 확인하세요</div>
+  <div class="brands"><span>TREK</span><span>GIANT</span><span>SPECIALIZED</span><span>CERVÉLO</span><span>PINARELLO</span></div>
+</div></div>
+
+<section id="how"><div class="wrap">
+  <h2 class="lead-h reveal">자전거 한 대에 필요한 건, 결국 세 가지예요.</h2>
+  <p class="lead-p reveal">증명하고, 지키고, 넘기고. 벨로가 그걸 칩 하나로 해결합니다.</p>
+
+  <div class="feat reveal">
+    <div>
+      <h3>중고로 살 때, <span class="hl">3초면 진짜인지</span> 알 수 있어요.</h3>
+      <p>거래 전에 칩만 스캔하면 소유자와 등록 정보가 그대로 떠요. 도난품인지, 명의가 맞는지 그 자리에서 확인됩니다.</p>
+      <ul><li>앱 설치 불필요 — 브라우저에서 바로</li><li>소유자·등록일·부품까지 한눈에</li></ul>
+    </div>
+    <div class="feat-media"><div class="mock s1">
+      <div class="m-scan">
+        <div class="ok">✓ 정상 등록 차량</div>
+        <div class="m-line"><span>소유자</span><span class="v">홍*동</span></div>
+        <div class="m-line"><span>모델</span><span class="v">Giant TCR</span></div>
+        <div class="m-line"><span>최초 등록</span><span class="v">2024.08</span></div>
+        <div class="m-line" style="border:none"><span>소유 이력</span><span class="v">2명</span></div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="feat reveal">
+    <div>
+      <h3>도난당해도, <span class="hl">스캔하는 순간 드러나요.</span></h3>
+      <p>버튼 하나로 도난 신고하면, 그 뒤로 누가 칩을 스캔하든 빨간 경고가 뜹니다. 현상금을 걸면 발견자가 직접 제보할 수도 있어요.</p>
+      <ul><li>전국 도난 DB에 즉시 등록</li><li>현상금 · 발견 제보 기능</li></ul>
+    </div>
+    <div class="feat-media"><div class="mock s2">
+      <div class="m-alert"><span class="em">🚨</span><div><div class="t">도난 신고된 자전거입니다</div><div class="s">구매·거래를 즉시 중단하세요</div></div></div>
+      <div class="m-bounty"><span class="k">현상금</span><span class="v">₩200,000</span></div>
+    </div></div>
+  </div>
+
+  <div class="feat reveal">
+    <div>
+      <h3>팔 때는 <span class="hl">코드 하나로</span> 넘기면 돼요.</h3>
+      <p>양도 코드를 만들어 구매자에게 주면 소유자만 바뀝니다. 칩은 그대로, 거래 이력은 전부 남아요. 도난 상태에선 양도가 막힙니다.</p>
+      <ul><li>1시간 한정 일회용 코드</li><li>전체 거래 이력 보존</li></ul>
+    </div>
+    <div class="feat-media"><div class="mock s3">
+      <div class="m-code"><div class="k">양도 코드</div><div class="c">A3K9P2</div><div class="e">1시간 후 만료 · 1회용</div></div>
+    </div></div>
+  </div>
+</div></section>
+
+<div class="price-wrap"><section id="pricing"><div class="wrap">
+  <h2 class="lead-h reveal">가격은 단순합니다.</h2>
+  <p class="lead-p reveal">칩은 한 번만 사면 평생. 도난 신고 기능만 월 구독이에요.</p>
+  <div class="pgrid">
+    <div class="price reveal">
+      <div class="lab">칩 2개 · 기본</div><div class="amt">7,900<small>원</small></div>
+      <ul><li>NFC 방수 칩 2개</li><li>차대번호 등록</li><li>소유자 확인 페이지</li><li>도난품 조회</li></ul>
+      <a href="/register" class="btn btn-out">신청하기</a>
+    </div>
+    <div class="price feat2 reveal">
+      <div class="badge">가장 인기</div>
+      <div class="lab">칩 2개 + 카드</div><div class="amt">9,900<small>원</small></div>
+      <ul><li>NFC 방수 칩 2개</li><li>실물 NFC 카드 1장</li><li>소유자 확인 페이지</li><li>도난품 조회</li></ul>
+      <a href="/register" class="btn btn-lime">신청하기</a>
+    </div>
+    <div class="price reveal">
+      <div class="lab">도난 신고 구독</div><div class="amt">490<small>원/월</small></div>
+      <ul><li>도난 신고 기능</li><li>실시간 도난 DB</li><li>이의제기 우선 처리</li><li>연 결제 시 2개월 무료</li></ul>
+      <a href="/payment" class="btn btn-out">구독 시작</a>
+    </div>
+  </div>
+  <p style="margin-top:20px;font-size:13px;color:var(--mut)">양도 수수료 건당 490원 · 칩 재발급 50% 할인</p>
+</div></section></div>
+
+<section id="faq"><div class="wrap">
+  <h2 class="lead-h reveal" style="text-align:center;margin:0 auto">궁금한 점이 있으세요?</h2>
+  <div class="faq reveal">
+    <details><summary>NFC 칩은 어디에 붙이나요?</summary><p>프레임 안쪽, 시트포스트, 스템 등 원하는 곳에 붙이면 됩니다. 방수 처리되어 있어 비를 맞아도 괜찮아요. 눈에 잘 안 띄는 곳을 추천합니다.</p></details>
+    <details><summary>앱을 깔아야 스캔되나요?</summary><p>아니요. 요즘 스마트폰은 대부분 NFC를 기본 지원해서, 칩에 폰을 갖다 대면 브라우저로 소유자 페이지가 바로 열립니다. 앱 설치가 필요 없어요.</p></details>
+    <details><summary>도난 신고는 어떻게 하나요?</summary><p>구독 후 대시보드에서 버튼 한 번이면 됩니다. 신고 즉시 전국 도난 DB에 등록되고, 이후 누가 칩을 스캔하면 도난 경고가 표시됩니다. 현상금을 걸어 발견자 제보를 받을 수도 있어요.</p></details>
+    <details><summary>자전거를 팔면 정보는 어떻게 되나요?</summary><p>양도 코드를 만들어 구매자에게 전달하면 소유자 정보만 바뀝니다. 칩은 떼지 않아도 되고, 지금까지의 거래 이력은 모두 보존돼 신뢰를 더해줍니다.</p></details>
+    <details><summary>칩을 잃어버리거나 떨어지면요?</summary><p>재발급을 50% 할인된 가격에 받을 수 있습니다. 등록 정보는 계정에 남아있어 새 칩만 연결하면 그대로 이어집니다.</p></details>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="cta-block">
+  <h2 class="reveal">5분이면 등록 끝.<br>오늘부터 내 자전거를 증명하세요.</h2>
+  <p class="reveal">비싼 자전거일수록 더 필요합니다.</p>
+  <a href="/register" class="btn btn-ink reveal">7,900원으로 시작하기 →</a>
+</div></section>
+
+<footer><div class="wrap foot-in">
+  <div class="logo"><span class="pin"></span>VÉLO</div>
+  <div class="links">© 2025 Vélo<a href="/terms">이용약관</a><a href="/privacy">개인정보처리방침</a></div>
+</div></footer>
+
+<script>
+  const hamb=document.getElementById('hamb'), mmenu=document.getElementById('mmenu');
+  hamb.addEventListener('click',()=>{hamb.classList.toggle('open');mmenu.classList.toggle('show')});
+  mmenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{hamb.classList.remove('open');mmenu.classList.remove('show')}));
+  const io=new IntersectionObserver(es=>es.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('in'),i*50);io.unobserve(e.target)}}),{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+
+<script type="module">
+  import { getUser, getPublicRegistry } from '/velo-supabase.js'
+  // 로그인 상태면 바로 대시보드로
+  try {
+    const user = await getUser()
+    if (user) {
+      const navAuth=document.getElementById('navAuth'); if(navAuth){navAuth.textContent='대시보드';navAuth.href='/dashboard'}
+      const mAuth=document.getElementById('mAuth'); if(mAuth){mAuth.textContent='대시보드';mAuth.href='/dashboard'}
+      document.getElementById('mDash').style.display='block'
+      document.getElementById('mHist').style.display='block'
+    }
+  } catch(e) {}
+  // 실시간 등록 수 (소셜 프루프)
+  try {
+    const data = await getPublicRegistry(100)
+    if (data && data.length) {
+      const el=document.getElementById('regCount'); if(el) el.textContent = ` · 현재 ${data.length.toLocaleString()}대`
+    }
+  } catch(e) {}
+</script>
+</body>
 </html>
