@@ -102,6 +102,23 @@
   .m-code .c{font-family:'DM Mono',monospace;font-size:34px;font-weight:500;letter-spacing:10px;color:var(--ink);margin:10px 0}
   .m-code .e{font-size:12px;color:var(--mut)}
 
+  /* 실시간 등록 슬라이더 (돌아가는 카드) */
+  .live{padding:74px 0 18px}
+  .live .slider-wrap{overflow:hidden;position:relative;margin-top:32px}
+  .live .slider-wrap::before,.live .slider-wrap::after{content:'';position:absolute;top:0;bottom:0;width:90px;z-index:2;pointer-events:none}
+  .live .slider-wrap::before{left:0;background:linear-gradient(to right,#fff,transparent)}
+  .live .slider-wrap::after{right:0;background:linear-gradient(to left,#fff,transparent)}
+  .slider-track{display:flex;gap:14px;width:max-content;animation:slideLeft 38s linear infinite}
+  .slider-track:hover{animation-play-state:paused}
+  @keyframes slideLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .slider-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05);padding:14px 18px;display:flex;align-items:center;gap:13px;flex-shrink:0;width:258px}
+  .slider-avatar{width:40px;height:40px;background:var(--sage);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .slider-info{flex:1;min-width:0}
+  .slider-name{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:2px}
+  .slider-bike{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slider-date{font-size:10.5px;color:#9aa691;margin-top:2px}
+  .slider-dot{width:7px;height:7px;background:var(--lime-d);border-radius:50%;flex-shrink:0;box-shadow:0 0 0 3px rgba(200,245,66,.2)}
+
   .price-wrap{background:var(--cream);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
   .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
   .price{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:34px 28px;box-shadow:var(--sh);position:relative}
@@ -203,6 +220,13 @@
   <div class="brands"><span>TREK</span><span>GIANT</span><span>SPECIALIZED</span><span>CERVÉLO</span><span>PINARELLO</span></div>
 </div></div>
 
+<section class="live" id="live"><div class="wrap">
+  <div class="eyebrow"><span class="dot"></span> 실시간 등록</div>
+  <h2 class="lead-h">지금 이 순간에도 <span class="hl">등록되고 있어요.</span></h2>
+  <p class="lead-p">최근 벨로에 등록된 자전거들 — 로그인 없이 확인하세요.</p>
+  <div class="slider-wrap"><div class="slider-track" id="sliderTrack"></div></div>
+</div></section>
+
 <section id="how"><div class="wrap">
   <h2 class="lead-h reveal">자전거 한 대에 필요한 건, 결국 세 가지예요.</h2>
   <p class="lead-p reveal">증명하고, 지키고, 넘기고. 벨로가 그걸 칩 하나로 해결합니다.</p>
@@ -303,7 +327,7 @@
 </script>
 
 <script type="module">
-  import { getUser, getPublicRegistry } from '/velo-supabase.js'
+  import { getUser, getPublicRegistry, escapeHtml as esc } from '/velo-supabase.js'
   // 로그인 상태면 바로 대시보드로
   try {
     const user = await getUser()
@@ -314,20 +338,41 @@
       document.getElementById('mHist').style.display='block'
     }
   } catch(e) {}
-  // 실시간 등록 수 (소셜 프루프) — 숫자 카운트업 애니메이션
+  // 실시간 등록 (소셜 프루프) — 카운트업 + 돌아가는 슬라이더
   try {
-    const data = await getPublicRegistry(100)
+    const data = await getPublicRegistry(50)
     const target = (data && data.length) ? data.length : 0
+
+    // 숫자 카운트업
     const el = document.getElementById('regCount')
     if (el) {
       const dur = 1200, t0 = performance.now()
       const tick = t => {
         const p = Math.min(1, (t - t0) / dur)
-        const n = Math.round(target * (1 - Math.pow(1 - p, 3)))
-        el.textContent = n.toLocaleString()
+        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString()
         if (p < 1) requestAnimationFrame(tick)
       }
       requestAnimationFrame(tick)
+    }
+
+    // 돌아가는 슬라이더 (최근 등록)
+    const track = document.getElementById('sliderTrack')
+    if (track && data && data.length) {
+      const emojis = ['🚴','🚲','🚵','🛴','🏍️']
+      const fmt = d => { const t = new Date(d); return isNaN(t) ? '' : `${t.getFullYear()}.${String(t.getMonth()+1).padStart(2,'0')}` }
+      const rows = data.length < 6 ? [...data, ...data, ...data, ...data] : [...data, ...data]
+      track.innerHTML = rows.map((d, i) => `
+        <div class="slider-card">
+          <div class="slider-avatar">${emojis[i % emojis.length]}</div>
+          <div class="slider-info">
+            <div class="slider-name">${esc(d.ownerName || '벨로 회원')}</div>
+            <div class="slider-bike">${esc(((d.brand||'') + ' ' + (d.model||'')).trim() || '자전거')}</div>
+            <div class="slider-date">${fmt(d.created_at)} 등록</div>
+          </div>
+          <div class="slider-dot"></div>
+        </div>`).join('')
+    } else if (track) {
+      track.closest('.live').style.display = 'none'
     }
   } catch(e) {}
 </script>
