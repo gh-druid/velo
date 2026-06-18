@@ -22,10 +22,11 @@
   html { scroll-behavior: smooth; }
   body {
     background:#faf8f0;
-    color: var(--white);
+    color: #14180f;
     font-family: 'Pretendard', sans-serif;
-    font-weight: 300;
+    font-weight: 400;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* NAV */
@@ -99,10 +100,11 @@
   .section.active { display: block; }
 
   .section-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 40px;
-    letter-spacing: 2px;
+    font-weight: 800;
+    font-size: 30px;
+    letter-spacing: -0.8px;
     margin-bottom: 8px;
+    color: #14180f;
   }
 
   .section-sub {
@@ -120,20 +122,22 @@
   .field.span2 { grid-column: span 2; }
 
   .field label {
-    font-size: 11px;
-    letter-spacing: 2px;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.1px;
     color: var(--muted);
   }
 
   .field input, .field select, .field textarea {
     background: var(--gray);
     border: 1px solid var(--border);
-    color: var(--white);
-    padding: 14px 16px;
+    color: #14180f;
+    padding: 13px 15px;
     font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
+    font-size: 15px;
     outline: none;
-    transition: border-color 0.2s;
+    border-radius: 11px;
+    transition: border-color 0.18s, box-shadow 0.18s;
   }
 
   .field select {
@@ -148,7 +152,7 @@
 
   .field textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
 
-  .field input:focus, .field select:focus, .field textarea:focus { border-color:#5f8c0a; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color:#5f8c0a; box-shadow:0 0 0 3px rgba(200,245,66,0.25); }
   .field input.error, .field select.error { border-color: var(--error); }
   .field input::placeholder, .field textarea::placeholder { color: rgba(20,24,15,0.2); }
 
@@ -159,7 +163,8 @@
 
   /* PHOTO UPLOAD */
   .photo-upload {
-    border: 1px dashed rgba(20,24,15,0.15);
+    border: 1.5px dashed rgba(20,24,15,0.18);
+    border-radius: 14px;
     padding: 40px;
     text-align: center;
     cursor: pointer;
@@ -186,6 +191,8 @@
     background: var(--gray);
     position: relative;
     overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid var(--border);
   }
 
   .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
@@ -208,8 +215,9 @@
     gap: 8px;
     align-items: center;
     background: var(--gray);
-    padding: 12px 16px;
+    padding: 13px 16px;
     border: 1px solid var(--border);
+    border-radius: 11px;
   }
 
   .part-item-name { font-size: 13px; }
@@ -224,15 +232,16 @@
 
   .add-part-btn {
     background: transparent;
-    border: 1px dashed rgba(20,24,15,0.15);
+    border: 1.5px dashed rgba(20,24,15,0.18);
+    border-radius: 11px;
     color: var(--muted);
-    padding: 12px;
+    padding: 13px;
     width: 100%;
     font-family: 'Pretendard', sans-serif;
-    font-size: 13px;
+    font-size: 13.5px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    letter-spacing: 1px;
   }
   .add-part-btn:hover { border-color:#5f8c0a; color:#5f8c0a; }
 
@@ -241,6 +250,7 @@
     background: var(--gray);
     padding: 20px;
     border: 1px solid var(--border);
+    border-radius: 14px;
     margin-top: 8px;
   }
   .part-add-form.show { display: block; }
@@ -250,6 +260,8 @@
   .pricing-summary {
     background: var(--gray);
     border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(20,24,15,.04),0 8px 20px rgba(20,24,15,.05);
     padding: 28px;
     margin-top: 8px;
   }
@@ -273,19 +285,20 @@
 
   .plan-card {
     border: 1px solid var(--border);
+    border-radius: 14px;
     padding: 24px 20px;
     cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     position: relative;
   }
 
-  .plan-card:hover { border-color: rgba(200,245,66,0.4); }
-  .plan-card.selected { border-color:#5f8c0a; background: rgba(200,245,66,0.05); }
+  .plan-card:hover { border-color: rgba(95,140,10,0.4); box-shadow:0 8px 20px rgba(20,24,15,.06); }
+  .plan-card.selected { border-color:#5f8c0a; background: rgba(200,245,66,0.08); box-shadow:0 0 0 3px rgba(200,245,66,0.25); }
 
   .plan-card input[type="radio"] { position: absolute; opacity: 0; }
 
-  .plan-name { font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-bottom: 12px; }
-  .plan-price { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--white); line-height: 1; }
+  .plan-name { font-size: 12px; font-weight: 600; letter-spacing: 0.2px; color: var(--muted); margin-bottom: 12px; }
+  .plan-price { font-weight: 800; font-size: 30px; letter-spacing:-1px; color: #14180f; line-height: 1; }
   .plan-unit { font-size: 11px; color: var(--muted); margin-top: 4px; }
   .plan-desc { font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.6; }
 
@@ -303,30 +316,32 @@
   }
 
   .btn-back {
-    background: transparent;
+    background: #fff;
     border: 1px solid var(--border);
     color: var(--muted);
-    padding: 14px 32px;
+    padding: 13px 30px;
     font-family: 'Pretendard', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 11px;
     cursor: pointer;
     transition: all 0.2s;
   }
-  .btn-back:hover { border-color: var(--white); color: var(--white); }
+  .btn-back:hover { border-color:#14180f; color:#14180f; }
 
   .btn-next {
-    background: var(--accent);
+    background:#14180f;
     border: none;
-    color:#14180f;
-    padding: 14px 40px;
+    color:#fff;
+    padding: 13px 38px;
     font-family: 'Pretendard', sans-serif;
     font-size: 14px;
     font-weight: 700;
-    letter-spacing: 1px;
+    border-radius: 11px;
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: box-shadow 0.2s, transform 0.2s;
   }
-  .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-next:hover { transform: translateY(-2px); box-shadow:0 12px 26px rgba(20,24,15,.25); }
 
   /* COMPLETE */
   .complete-box {
@@ -344,10 +359,11 @@
   }
 
   .complete-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 48px;
-    letter-spacing: 2px;
+    font-weight: 800;
+    font-size: 34px;
+    letter-spacing: -1px;
     margin-bottom: 16px;
+    color: #14180f;
   }
 
   .complete-desc {
@@ -363,24 +379,26 @@
   .complete-actions { display: flex; gap: 12px; justify-content: center; }
 
   .btn-outline {
-    background: transparent;
+    background: #fff;
     border: 1px solid var(--border);
-    color: var(--white);
-    padding: 14px 32px;
+    color: #14180f;
+    padding: 13px 30px;
     font-family: 'Pretendard', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 11px;
     cursor: pointer;
     transition: border-color 0.2s;
   }
-  .btn-outline:hover { border-color: var(--white); }
+  .btn-outline:hover { border-color:#14180f; }
 
   .discount-badge {
-    background: rgba(200,245,66,0.1);
-    border: 1px solid rgba(200,245,66,0.3);
+    background: rgba(200,245,66,0.22);
     color:#5f8c0a;
     font-size: 11px;
-    padding: 4px 10px;
-    letter-spacing: 1px;
+    font-weight: 700;
+    padding: 4px 11px;
+    border-radius: 999px;
     display: inline-block;
     margin-top: 8px;
   }
