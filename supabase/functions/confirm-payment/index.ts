@@ -30,8 +30,11 @@ const json = (o: unknown, s = 200) =>
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   try {
-    const { paymentKey, orderId, amount, plan = 'free', product, discountCode, ship } = await req.json()
+    const { paymentKey, orderId, amount, plan = 'free', product, discountCode, ship, bounty = 0, bikeId } = await req.json()
     if (!paymentKey || !orderId || typeof amount !== 'number') return json({ error: 'bad request' }, 400)
+    // 현상금(에스크로): 0 또는 10,000원 이상만 허용
+    const bountyAmt = Number(bounty) || 0
+    if (bountyAmt !== 0 && bountyAmt < 10000) return json({ error: 'bad bounty' }, 400)
 
     // service_role 클라이언트(권한부여 + 할인코드 검증용)
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
@@ -62,7 +65,8 @@ Deno.serve(async (req) => {
         if (dc.target === 'all' || dc.target === 'subscription') sub -= cut(sub)
       }
     }
-    const expected = tag + sub
+    // 현상금은 할인 없이 전액 예치(에스크로)
+    const expected = tag + sub + bountyAmt
     if (amount !== expected) return json({ error: 'amount mismatch', expected }, 400)
 
     // 3) Toss 서버 승인(secret key) — 여기서 실제로 결제가 캡처됨
@@ -89,6 +93,12 @@ Deno.serve(async (req) => {
         user_id: user.id, plan, expires_at: new Date(Date.now() + days * 864e5).toISOString(),
       })
       await admin.from('users').update({ plan }).eq('id', user.id)
+    }
+    // 현상금 예치 확정 — 결제 승인된 경우에만 해당 자전거를 held 로
+    if (bountyAmt >= 10000 && bikeId) {
+      await admin.from('bikes')
+        .update({ bounty: bountyAmt, bounty_status: 'held', bounty_held_at: new Date().toISOString() })
+        .eq('id', bikeId).eq('user_id', user.id)
     }
     // 할인코드 사용 기록(중복 방지는 unique 제약 권장)
     if (dc) {

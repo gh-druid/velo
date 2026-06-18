@@ -489,7 +489,7 @@ body { -webkit-text-size-adjust: 100%; }
 <script>
 </script>
 <script type="module">
-  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getBountyClaims, payBounty, rejectClaim, escapeHtml as esc } from '/velo-supabase.js'
+  import { supabase, getUser, getMyBikes, signOut, reportStolen, createTransferCode, getBountyClaims, payBounty, rejectClaim, refundBounty, getUnreadCount, escapeHtml as esc } from '/velo-supabase.js'
   import { toast, confirmDialog, skeleton } from '/velo-ui.js'
   window.toast = toast
 
@@ -519,6 +519,21 @@ body { -webkit-text-size-adjust: 100%; }
         document.querySelector('.nav-right').prepend(adminBtn)
       }
     }
+
+    // 안 읽은 알림 배지
+    try {
+      const unread = await getUnreadCount()
+      if (unread > 0) {
+        document.querySelectorAll('a[href="/notifications"]').forEach(a => {
+          if (a.querySelector('.nav-unread')) return
+          const b = document.createElement('span')
+          b.className = 'nav-unread'
+          b.textContent = unread > 9 ? '9+' : String(unread)
+          b.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 5px;margin-left:5px;background:#d8453f;color:#fff;border-radius:999px;font-size:10px;font-weight:700;vertical-align:middle'
+          a.appendChild(b)
+        })
+      }
+    } catch(e) {}
 
     // 자전거 목록
     await loadBikes()
@@ -588,6 +603,7 @@ body { -webkit-text-size-adjust: 100%; }
             </button>
             ${!hasSubscription ? `<button class="bike-btn accent" onclick="location.href='/payment'">구독 시작 →</button>` : ''}
             ${bike.status === 'stolen' ? `<button class="bike-btn accent" onclick="openClaims('${bike.id}')">🎯 제보 확인</button>` : ''}
+            ${bike.bounty_status === 'held' && bike.status !== 'stolen' ? `<button class="bike-btn" onclick="refundBikeBounty('${bike.id}')">현상금 환급</button>` : ''}
             <button class="bike-btn accent" onclick="location.href='/bike/${encodeURIComponent(bike.serial)}'">상세 →</button>
             <button class="bike-btn danger" onclick="openDelete('${bike.id}')">삭제</button>
           </div>
@@ -827,6 +843,24 @@ body { -webkit-text-size-adjust: 100%; }
     } catch(e) {
       toast('지급 실패: ' + e.message, 'error')
       btn.disabled = false; btn.style.opacity = '1'; btn.textContent = '선택한 제보자에게 분할 지급'
+    }
+  }
+
+  // 현상금 환급
+  window.refundBikeBounty = async function(id) {
+    const bike = currentBikes.find(b => b.id === id)
+    const amt = bike?.bounty || 0
+    if (!(await confirmDialog({
+      title: '현상금 환급',
+      message: `예치 중인 현상금 ₩${amt.toLocaleString()}을(를) 환급받으시겠어요? 환급 후에는 도난 제보 시 현상금이 노출되지 않습니다.`,
+      confirmText: '환급받기'
+    }))) return
+    try {
+      await refundBounty(id)
+      toast('현상금 환급 처리가 완료되었습니다.', 'success')
+      await loadBikes()
+    } catch(e) {
+      toast(e.message, 'error')
     }
   }
 

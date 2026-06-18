@@ -168,7 +168,10 @@ export async function registerBike({ serial, brand, model, year, color, memo, pa
       status: 'normal',
       partner_code: partnerCode || null,
       bounty: bounty || null,
-      bounty_paid: false
+      bounty_paid: false,
+      // 현상금이 설정되면 등록 결제와 함께 예치(held) — 벨로가 안전 보관
+      bounty_status: bounty && bounty >= 10000 ? 'held' : 'none',
+      bounty_held_at: bounty && bounty >= 10000 ? new Date().toISOString() : null
     })
     .select()
     .single()
@@ -446,10 +449,34 @@ export async function payBounty(bikeId, claimIds) {
     .in('id', claimIds)
   if (e1) throw e1
 
-  // 자전거 바운티 지급 처리
-  await supabase.from('bikes').update({ bounty_paid: true }).eq('id', bikeId)
+  // 자전거 바운티 지급 처리 (예치 → 지급)
+  await supabase.from('bikes')
+    .update({ bounty_paid: true, bounty_status: 'paid', bounty_settled_at: new Date().toISOString() })
+    .eq('id', bikeId)
 
   return { share, count: claimIds.length, total }
+}
+
+// 현상금 환급 — 사용되지 않은(held) 현상금을 소유자에게 환급 처리
+export async function refundBounty(bikeId) {
+  const user = await getUser()
+  if (!user) throw new Error('로그인이 필요합니다')
+
+  const { data: bike } = await supabase
+    .from('bikes')
+    .select('id, user_id, bounty, bounty_status, status')
+    .eq('id', bikeId)
+    .single()
+  if (!bike) throw new Error('자전거를 찾을 수 없습니다')
+  if (bike.user_id !== user.id) throw new Error('본인 자전거만 환급할 수 있습니다')
+  if (bike.bounty_status !== 'held') throw new Error('예치 중인 현상금만 환급할 수 있습니다')
+  if (bike.status === 'stolen') throw new Error('도난 신고 중에는 환급할 수 없습니다. 신고를 먼저 취소해주세요')
+
+  const { error } = await supabase.from('bikes')
+    .update({ bounty_status: 'refunded', bounty_settled_at: new Date().toISOString() })
+    .eq('id', bikeId)
+  if (error) throw error
+  return { refunded: bike.bounty || 0 }
 }
 
 // 제보 거절 (소유자/관리자)
